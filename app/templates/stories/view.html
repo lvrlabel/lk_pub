@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ news.title }}{% endblock %}
+{% block page_title %}{{ news.title }}{% endblock %}
+{% block content %}
+<article class="news-article-modern">
+    {% if news.cover_image %}
+    <div class="news-article-modern-hero">
+        <img src="{{ news.cover_url }}" alt="{{ news.title }}" class="news-article-modern-cover">
+        <div class="news-article-modern-hero-overlay"></div>
+    </div>
+    {% endif %}
+
+    <div class="news-article-modern-container">
+        <header class="news-article-modern-header">
+            <div class="news-article-modern-meta">
+                <time class="news-article-modern-date" datetime="{{ news.created_at.isoformat() if news.created_at else '' }}">
+                    {{ news.date_formatted }}
+                </time>
+                <span class="news-article-modern-badge">Новость</span>
+            </div>
+            <h1 class="news-article-modern-title">{{ news.title }}</h1>
+            <div class="news-article-modern-author">
+                <span class="material-icons">person</span>
+                <span>Администрация</span>
+            </div>
+        </header>
+
+        <div class="news-article-modern-content">
+            {{ news.content }}
+        </div>
+
+        <footer class="news-article-modern-footer">
+            <div class="news-article-modern-actions">
+                <a href="{{ url_for('stories.index') }}" class="btn btn-ghost btn-back">
+                    <span class="material-icons">arrow_back</span> Назад к новостям
+                </a>
+                <div class="news-article-modern-share">
+                    <span class="share-label">Поделиться:</span>
+                    <button class="share-btn" onclick="navigator.clipboard.writeText(window.location.href); alert('Ссылка скопирована')">
+                        <span class="material-icons">link</span>
+                    </button>
+                    <a href="https://t.me/share/url?url={{ request.url | urlencode }}&text={{ news.title | urlencode }}" target="_blank" class="share-btn">
+                        <span class="material-icons">send</span>
+                    </a>
+                </div>
+            </div>
+            {% if current_user.is_admin %}
+            <div class="news-article-modern-admin">
+                <a href="{{ url_for('stories.edit', id=news.id) }}" class="btn btn-primary">
+                    <span class="material-icons">edit</span> Редактировать
+                </a>
+                <form method="POST" action="{{ url_for('stories.delete', id=news.id) }}" onsubmit="return confirm('Удалить новость?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-ghost">
+                        <span class="material-icons">delete</span> Удалить
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </footer>
+    </div>
+</article>
+{% endblock %}

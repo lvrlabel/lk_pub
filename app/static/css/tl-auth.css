@@ -1,0 +1,70 @@
+/**
+ * Toolls Graphite — auth (вход, код, загрузка). Подключать в auth/partials/head.html.
+ */
+
+body.auth-flow {
+    font-family: var(--af-font, 'Manrope', system-ui, sans-serif);
+}
+
+.auth-login-panel__title,
+.auth-verify-panel__title {
+    font-family: var(--af-display, 'Unbounded', 'Manrope', sans-serif);
+}
+
+.auth-login-panel__card,
+.auth-verify-panel__card {
+    border-radius: var(--tl-radius-lg, 16px);
+    border-color: var(--af-card-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-login-panel__card::before,
+.auth-verify-panel__card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--af-accent), transparent);
+    z-index: 1;
+}
+
+.auth-btn--primary {
+    color: #14140f;
+    font-weight: 700;
+}
+
+.auth-btn--primary:hover {
+    filter: none;
+    background: #d4f533;
+}
+
+.auth-field__input:focus {
+    border-color: var(--af-accent-glow);
+    box-shadow: 0 0 0 3px var(--af-accent-soft);
+}
+
+.auth-login-panel__features .material-icons {
+    color: var(--af-accent);
+}
+
+.auth-steps__item.is-active .auth-steps__dot {
+    background: var(--af-accent);
+    border-color: var(--af-accent);
+}
+
+.auth-steps__item.is-done .auth-steps__dot {
+    border-color: var(--af-accent);
+    color: var(--af-accent);
+}
+
+.auth-link:hover {
+    color: var(--af-accent);
+}
+
+.auth-social__btn:hover {
+    border-color: var(--af-accent-glow);
+    color: var(--af-accent);
+}

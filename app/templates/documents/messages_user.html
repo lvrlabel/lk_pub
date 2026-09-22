@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Документооборот — уведомления{% endblock %}
+{% block page_title %}Документооборот{% endblock %}
+{% block body_class %}documents-page{% endblock %}
+{% block content %}
+<div class="tl-page tl-documents documents-hub uni-skin">
+    {% include "documents/_hub_hero.html" %}
+    <section class="documents-hub__sheet">
+        {% include "documents/_tabs.html" %}
+        <div class="documents-hub__section-head">
+            <h3 class="documents-hub__h3">Уведомления</h3>
+            <p class="documents-hub__hint text-secondary">Сообщения по счетам (отдельно от общих уведомлений в шапке).</p>
+        </div>
+        {% if items %}
+        {% if unread_count %}
+        <form method="POST" action="{{ url_for('documents.messages_mark_all_read') }}" class="documents-hub__toolbar">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm">Отметить все прочитанными</button>
+        </form>
+        {% endif %}
+        <div class="doc-messages-list documents-hub__messages">
+            {% for n in items %}
+            <div class="doc-msg-item documents-hub__msg {% if not n.is_read %}doc-msg-item--unread{% endif %}">
+                <div class="documents-hub__msg-row">
+                    <div class="documents-hub__msg-main">
+                        <span class="badge documents-hub__badge">{{ n.type_label }}</span>
+                        <strong class="documents-hub__msg-title">{{ n.title }}</strong>
+                        {% if n.message %}<p class="documents-hub__msg-text">{{ n.message }}</p>{% endif %}
+                        <span class="documents-hub__msg-time">{{ n.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+                    <div class="documents-hub__msg-actions">
+                        {% if not n.is_read %}
+                        <form method="POST" action="{{ url_for('documents.message_mark_read', id=n.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-ghost btn-sm">Прочитано</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="documents-hub__empty empty-state small"><p>Уведомлений нет.</p></div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

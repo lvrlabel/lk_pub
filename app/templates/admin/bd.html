@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Управление БД{% endblock %}
+{% block page_title %}Управление базой данных{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="card"><div class="card-content">
+<h3>Статистика</h3>
+<p>Пользователей: {{ stats.users }}</p>
+<p>Релизов: {{ stats.releases }}</p>
+<p>Треков: {{ stats.tracks }}</p>
+<p>Платформ: {{ stats.platforms }}</p>
+</div></div>
+<div class="card" style="margin-top:1rem;"><div class="card-header"><h3>Таблицы</h3></div>
+<div class="card-content"><ul>{% for t in tables %}<li>{{ t[0] }}</li>{% endfor %}</ul></div></div>
+<div class="card" style="margin-top:1rem;"><div class="card-header"><h3>Выполнить SQL (только SELECT)</h3></div>
+<div class="card-content">
+<form method="POST" action="{{ url_for('admin.bd_query') }}" id="sqlForm"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Запрос</label><textarea name="query" class="form-control" rows="4" placeholder="SELECT * FROM users LIMIT 10"></textarea></div>
+<button type="submit" class="btn btn-primary">Выполнить</button>
+</form>
+<div id="sqlResult" style="margin-top:1rem; overflow-x:auto;"></div>
+</div></div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('sqlForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('{{ url_for("admin.bd_query") }}', { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(r => r.json()).then(data => {
+            if (data.error) document.getElementById('sqlResult').innerHTML = '<p style="color:var(--danger);">' + data.error + '</p>';
+            else document.getElementById('sqlResult').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }).catch(err => document.getElementById('sqlResult').innerHTML = '<p style="color:var(--danger);">Ошибка: ' + err + '</p>');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% block title %}Пользователи{% endblock %}
+{% block page_title %}Пользователи{% endblock %}
+{% block content %}
+<div class="users-page uni-skin">
+    <div class="filters-bar users-page__filters">
+        <div class="filters-tabs">
+            <a href="{{ url_for('users.index', role=role, status=status, search=search) }}"
+               class="filter-tab {% if not releases %}active{% endif %}">
+                <span class="material-icons" aria-hidden="true">group</span>
+                Все ({{ counts.all }})
+            </a>
+            <a href="{{ url_for('users.index', releases='restricted', role=role, status=status, search=search) }}"
+               class="filter-tab {% if releases == 'restricted' %}active{% endif %}">
+                <span class="material-icons" aria-hidden="true">block</span>
+                С ограничением ({{ counts.releases_restricted }})
+            </a>
+            <a href="{{ url_for('users.index', releases='allowed', role=role, status=status, search=search) }}"
+               class="filter-tab {% if releases == 'allowed' %}active{% endif %}">
+                <span class="material-icons" aria-hidden="true">upload</span>
+                Могут отправлять ({{ counts.releases_allowed }})
+            </a>
+        </div>
+        <form method="GET" class="users-page__search">
+            {% if releases %}<input type="hidden" name="releases" value="{{ releases }}">{% endif %}
+            <input type="text" name="search" value="{{ search }}" placeholder="Поиск по имени, логину, email…" class="form-control">
+            <select name="role" class="form-select" onchange="this.form.submit()">
+                <option value="">Все роли</option>
+                <option value="admin" {% if role=='admin' %}selected{% endif %}>Админ</option>
+                <option value="artist" {% if role=='artist' %}selected{% endif %}>Артист</option>
+                <option value="label" {% if role=='label' %}selected{% endif %}>Лейбл</option>
+            </select>
+            <button type="submit" class="btn btn-ghost">Найти</button>
+        </form>
+    </div>
+
+    {% if counts.releases_restricted > 0 %}
+    <div class="users-page__summary" role="status">
+        <span class="material-icons" aria-hidden="true">info</span>
+        <span>
+            <strong>{{ counts.releases_restricted }}</strong>
+            {% if counts.releases_restricted == 1 %}пользователь{% elif counts.releases_restricted < 5 %}пользователя{% else %}пользователей{% endif %}
+            с ограничением отправки релизов на модерацию.
+            {% if releases != 'restricted' %}
+            <a href="{{ url_for('users.index', releases='restricted', role=role, status=status, search=search) }}">Показать только их</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+
+    <a href="{{ url_for('users.create') }}" class="btn btn-primary users-page__create">
+        <span class="material-icons">add</span> Создать пользователя
+    </a>
+
+    {% if users.items %}
+    <div class="uni-list users-page__list">
+        {% for user in users.items %}
+        <div class="uni-list__row{% if user.releases_restricted and user.role != 'admin' %} uni-list__row--releases-restricted{% endif %}">
+            <div class="uni-list__main">
+                <div class="users-page__row-title">
+                    <strong>{{ user.name }}</strong>
+                    <span class="users-page__login">@{{ user.login }}</span>
+                </div>
+                <div class="users-page__row-meta">
+                    <span class="users-page__role">{{ user.role }}</span>
+                    {% if user.is_active %}
+                    <span class="status-approved users-page__badge">Активен</span>
+                    {% else %}
+                    <span class="status-rejected users-page__badge">Заблокирован</span>
+                    {% endif %}
+                    {% if user.role != 'admin' %}
+                        {% if user.releases_restricted %}
+                        <span class="status-rejected users-page__badge users-page__badge--restriction" title="Отправка релизов на модерацию ограничена">
+                            <span class="material-icons" aria-hidden="true">block</span>
+                            Ограничение
+                        </span>
+                        {% else %}
+                        <span class="status-approved users-page__badge users-page__badge--allowed" title="Может создавать и отправлять релизы">
+                            <span class="material-icons" aria-hidden="true">check_circle</span>
+                            Может отправлять
+                        </span>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if user.releases_restricted and user.role != 'admin' and user.releases_restriction_title %}
+                <p class="users-page__restriction-note text-secondary">
+                    {{ user.releases_restriction_title }}
+                </p>
+                {% elif user.releases_restricted and user.role != 'admin' and user.releases_restriction_message %}
+                <p class="users-page__restriction-note text-secondary">
+                    {{ user.releases_restriction_message[:120] }}{% if user.releases_restriction_message|length > 120 %}…{% endif %}
+                </p>
+                {% endif %}
+                {% if user.phone_display or user.telegram_display %}
+                <p class="users-page__contacts text-secondary">
+                    {% if user.phone_display %}
+                    <span class="users-page__contact-item">
+                        <span class="material-icons" aria-hidden="true">phone</span>
+                        {{ user.phone_display }}
+                    </span>
+                    {% endif %}
+                    {% if user.telegram_display %}
+                    <span class="users-page__contact-item">
+                        <span class="material-icons" aria-hidden="true">send</span>
+                        {{ user.telegram_display }}
+                    </span>
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+            <div class="uni-list__actions">
+                <a href="{{ url_for('users.view', id=user.id) }}" class="btn btn-ghost btn-sm">Подробнее</a>
+                {% if user.role != 'admin' %}
+                <a href="{{ url_for('users.edit', id=user.id) }}#releases-restriction" class="btn btn-ghost btn-sm">Ограничение</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="uni-list">
+        <div class="uni-list__row" style="justify-content:center;border:none;">
+            <div class="empty-state small" style="margin:0;">
+                <p>
+                    {% if releases == 'restricted' %}
+                    Нет пользователей с ограничением отправки релизов
+                    {% elif releases == 'allowed' %}
+                    Нет пользователей, которым разрешена отправка релизов
+                    {% else %}
+                    Пользователей не найдено
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if users.pages > 1 %}
+    <div class="pagination">
+        {% if users.has_prev %}
+        <a href="{{ url_for('users.index', page=users.prev_num, **filter_args) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <span class="pagination-info">Страница {{ users.page }} из {{ users.pages }}</span>
+        {% if users.has_next %}
+        <a href="{{ url_for('users.index', page=users.next_num, **filter_args) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

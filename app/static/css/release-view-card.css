@@ -1,0 +1,145 @@
+/* Дополнение к странице просмотра релиза: краткие факты + стабилизация */
+
+.rv-page .rv-facts {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.5rem;
+}
+
+.rv-page .rv-facts li {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-primary);
+}
+
+.rv-page .rv-facts__k {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+}
+
+.rv-page .rv-facts__v {
+    font-size: 0.875rem;
+    font-weight: 650;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rv-page .rv-facts__v .rv-code {
+    font-size: 0.8rem;
+}
+
+/* Обложка строго квадрат */
+.rv-page .rv-hero__cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.rv-page .rv-hero__cover img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Кнопки и ссылки не ломаются глобальной темой */
+.rv-page .rv-actions .btn,
+.rv-page .rv-hero__cover-btn,
+.rv-page .rv-track__dl,
+.rv-page .rv-doc-link {
+    text-decoration: none;
+}
+
+.rv-page .rv-actions .btn .material-icons,
+.rv-page .rv-hero__cover-btn .material-icons,
+.rv-page .rv-track__dl .material-icons {
+    color: inherit;
+}
+
+.rv-page .rv-actions .btn-primary,
+.rv-page .rv-actions .btn-primary .material-icons {
+    color: #fff !important;
+}
+
+/* Треки: гарантируем раскрытие */
+.rv-page .rv-track__summary {
+    cursor: pointer;
+}
+
+.rv-page .rv-track__summary::-webkit-details-marker {
+    display: none;
+}
+
+@media (max-width: 860px) {
+    .rv-page .rv-facts {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .rv-page .rv-facts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rv-page .rv-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .rv-page .rv-hero__cover-wrap {
+        max-width: 220px;
+    }
+}
+
+.rv-page .rv-status__reason {
+    margin: 0.35rem 0 0.15rem;
+    font-size: 0.95rem;
+    font-weight: 650;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.rv-page .rv-status--with-reason .rv-status__hint {
+    margin-top: 0.2rem;
+    font-size: 0.82rem;
+}
+
+html[data-theme="dark"] .rv-page .rv-status .rv-status__reason {
+    color: #f5f5f5 !important;
+}
+
+/* Сброс старых хаков style.css, которые красили статус «как на светлой» */
+html[data-theme="dark"] .rv-page .rv-status .rv-status__text,
+html[data-theme="dark"] .rv-page .rv-status .rv-status__label {
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] .rv-page .rv-status .rv-status__hint {
+    color: #b0b0b0 !important;
+}
+
+html[data-theme="dark"] .rv-page .rv-status--approved .rv-status__label { color: #4ade80 !important; }
+html[data-theme="dark"] .rv-page .rv-status--moderation .rv-status__label { color: #fbbf24 !important; }
+html[data-theme="dark"] .rv-page .rv-status--rejected .rv-status__label,
+html[data-theme="dark"] .rv-page .rv-status--revoked .rv-status__label { color: #f87171 !important; }
+html[data-theme="dark"] .rv-page .rv-status--deletion .rv-status__label { color: #fb923c !important; }
+html[data-theme="dark"] .rv-page .rv-status--draft .rv-status__label { color: #cbd5e1 !important; }
+
+html[data-theme="dark"] .rv-page .rv-status {
+    background: #1a1a1a !important;
+    border-color: #333 !important;
+}

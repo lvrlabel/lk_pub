@@ -1,0 +1,398 @@
+{% extends "base.html" %}
+{% block title %}Аналитика{% endblock %}
+{% block page_title %}Аналитика{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stats-dash.css', v='20260722-s2') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-stats stats-dash">
+    <header class="stats-dash__head">
+        <div>
+            <h1 class="stats-dash__title">Аналитика</h1>
+            <p class="stats-dash__subtitle">Стримы, скачивания и доход по одобренным релизам</p>
+        </div>
+        <div class="stats-dash__head-actions">
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('stats.add') }}" class="btn btn-primary btn-sm">
+                <span class="material-icons">add</span>
+                Добавить данные
+            </a>
+            {% endif %}
+            {% if selected_release and has_endpoint is defined and has_endpoint('stats.listens_chart') %}
+            <a href="{{ url_for('stats.listens_chart', release_id=selected_release.id) }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons">bar_chart</span>
+                По дням
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <aside class="stats-dash__notice" role="status">
+        <span class="material-icons" aria-hidden="true">info</span>
+        <p>
+            <strong>Возможны расхождения в данных</strong>
+            Отчёты площадок иногда приходят с задержкой или правками. Если цифры выглядят странно —
+            <a href="{{ url_for('tickets.index') }}">напишите в поддержку</a>.
+        </p>
+    </aside>
+
+    {% if releases or current_user.is_admin %}
+    <div class="stats-dash__toolbar{% if current_user.is_admin %} stats-dash__toolbar--admin{% endif %}"
+         id="statsToolbar"
+         data-stats-base="{{ url_for('stats.index') }}"
+         data-is-admin="{{ '1' if current_user.is_admin else '0' }}">
+        {% if current_user.is_admin %}
+        <div class="stats-dash__field stats-dash__field--artist">
+            <label class="stats-dash__label" for="artistSelect">Артист / лейбл</label>
+            <input type="search" id="artistSearch" class="stats-dash__select stats-dash__search-input"
+                   placeholder="Поиск артиста…" autocomplete="off"
+                   aria-label="Поиск артиста">
+            <select id="artistSelect" class="stats-dash__select" name="artist_id">
+                <option value="">Все артисты</option>
+                {% for u in artists_for_filter %}
+                <option value="{{ u.id }}"
+                        data-search="{{ (u.display_name ~ ' ' ~ u.login)|lower }}"
+                        {% if selected_artist_id == u.id %}selected{% endif %}>
+                    {{ u.display_name }} · {{ u.login }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="stats-dash__field stats-dash__field--release">
+            <label class="stats-dash__label" for="releaseSelect">Релиз</label>
+            {% if current_user.is_admin %}
+            <input type="search" id="releaseSearch" class="stats-dash__select stats-dash__search-input"
+                   placeholder="Поиск релиза…" autocomplete="off"
+                   aria-label="Поиск релиза">
+            {% endif %}
+            <select id="releaseSelect" class="stats-dash__select"
+                    data-stats-base="{{ url_for('stats.index') }}">
+                <option value="">Выберите релиз…</option>
+                {% for r in releases %}
+                <option value="{{ r.id }}"
+                        data-search="{{ (r.title ~ ' ' ~ r.artists ~ ' ' ~ (r.owner.display_name if r.owner else '') ~ ' ' ~ (r.upc or ''))|lower }}"
+                        {% if selected_release and selected_release.id == r.id %}selected{% endif %}>
+                    {{ r.title }} · {{ r.artists }}{% if current_user.is_admin and r.owner and not selected_artist_id %} · {{ r.owner.display_name }}{% endif %}{% if r.upc %} · {{ r.upc }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+            {% if current_user.is_admin and selected_artist_id and not releases %}
+            <p class="stats-dash__field-hint">У выбранного артиста нет одобренных релизов.</p>
+            {% endif %}
+        </div>
+
+        <div class="stats-dash__field">
+            <label class="stats-dash__label" for="dateFrom">С даты</label>
+            <input type="date" id="dateFrom" class="stats-dash__select" value="{{ date_from or '' }}"
+                   {% if not analytics_data %}disabled{% endif %}>
+        </div>
+        <div class="stats-dash__field">
+            <label class="stats-dash__label" for="dateTo">По дату</label>
+            <input type="date" id="dateTo" class="stats-dash__select" value="{{ date_to or '' }}"
+                   {% if not analytics_data %}disabled{% endif %}>
+        </div>
+        <div class="stats-dash__field">
+            <label class="stats-dash__label" for="periodFilter">Быстрый период</label>
+            {% set active_period = 'custom' if (date_from or date_to or period == 'custom') else (period or 'all') %}
+            <select id="periodFilter" class="stats-dash__select" {% if not analytics_data %}disabled{% endif %}>
+                <option value="all" {% if active_period == 'all' %}selected{% endif %}>За всё время</option>
+                <option value="12m" {% if active_period == '12m' %}selected{% endif %}>Последние 12 месяцев</option>
+                <option value="6m" {% if active_period == '6m' %}selected{% endif %}>Последние 6 месяцев</option>
+                <option value="3m" {% if active_period == '3m' %}selected{% endif %}>Последние 3 месяца</option>
+                <option value="year" {% if active_period == 'year' %}selected{% endif %}>Текущий год</option>
+                <option value="custom" {% if active_period == 'custom' %}selected{% endif %}>Свои даты</option>
+            </select>
+        </div>
+        <div class="stats-dash__field stats-dash__field--actions">
+            <label class="stats-dash__label" aria-hidden="true">&nbsp;</label>
+            <div class="stats-dash__toolbar-actions">
+                <button type="button" class="btn btn-primary btn-sm" id="statsApplyFilters"
+                        {% if not analytics_data and not current_user.is_admin %}disabled{% endif %}>
+                    Показать
+                </button>
+                <a href="{{ url_for('stats.index') }}" class="btn btn-ghost btn-sm" id="statsResetFilters">Сбросить</a>
+            </div>
+        </div>
+
+        {% if current_user.is_admin %}
+        <div class="stats-dash__admin-inline">
+            <label class="stats-dash__label" for="statsUpcJump">Быстрый переход по UPC</label>
+            <div class="stats-dash__admin-row">
+                <input id="statsUpcJump" type="text" class="form-control" placeholder="UPC релиза" autocomplete="off">
+                <button type="button" class="btn btn-primary btn-sm" id="statsUpcJumpBtn">Открыть</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if selected_release %}
+    <section class="stats-dash__hero">
+        <div class="stats-dash__cover">
+            <img src="{{ selected_release.cover_url }}" alt="" width="88" height="88">
+        </div>
+        <div>
+            <h2 class="stats-dash__hero-title">{{ selected_release.title }}</h2>
+            <p class="stats-dash__hero-meta">
+                {{ selected_release.artists }}
+                {% if selected_release.upc %} · UPC {{ selected_release.upc }}{% endif %}
+            </p>
+            <div class="stats-dash__hero-links">
+                <a href="{{ url_for('releases.view', id=selected_release.id) }}" class="btn btn-ghost btn-sm">
+                    <span class="material-icons">album</span>
+                    К релизу
+                </a>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('stats.add') }}?release_id={{ selected_release.id }}" class="btn btn-primary btn-sm">
+                    <span class="material-icons">post_add</span>
+                    Добавить период
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% if analytics_data %}
+    <div class="stats-dash__metrics" id="statsMetrics">
+        <div class="stats-dash__metric">
+            <span class="stats-dash__metric-label">Стримы</span>
+            <span class="stats-dash__metric-value" data-metric="streams">0</span>
+        </div>
+        <div class="stats-dash__metric">
+            <span class="stats-dash__metric-label">Скачивания</span>
+            <span class="stats-dash__metric-value" data-metric="downloads">0</span>
+        </div>
+        <div class="stats-dash__metric">
+            <span class="stats-dash__metric-label">Доход</span>
+            <span class="stats-dash__metric-value" data-metric="revenue">0 ₽</span>
+        </div>
+        <div class="stats-dash__metric">
+            <span class="stats-dash__metric-label">Периодов</span>
+            <span class="stats-dash__metric-value" data-metric="periods">0</span>
+        </div>
+    </div>
+
+    <div class="stats-dash__grid">
+        <section class="stats-dash__card">
+            <div class="stats-dash__card-head">
+                <h3 class="stats-dash__card-title">Динамика</h3>
+                <div class="stats-dash__card-tools" id="statsMetricChips">
+                    <button type="button" class="stats-dash__chip is-active" data-metric="all">Все</button>
+                    <button type="button" class="stats-dash__chip" data-metric="streams">Стримы</button>
+                    <button type="button" class="stats-dash__chip" data-metric="downloads">Скачивания</button>
+                    <button type="button" class="stats-dash__chip" data-metric="revenue">Доход</button>
+                </div>
+            </div>
+            <div class="stats-dash__card-body">
+                <div class="stats-dash__card-tools stats-dash__card-tools--types" id="statsChartTypeChips">
+                    <button type="button" class="stats-dash__chip is-active" data-type="line">Линия</button>
+                    <button type="button" class="stats-dash__chip" data-type="bar">Столбцы</button>
+                    <button type="button" class="stats-dash__chip" data-type="area">Площадь</button>
+                </div>
+                <div class="stats-dash__chart">
+                    <canvas id="timelineChart" aria-label="График по периодам"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-dash__card">
+            <div class="stats-dash__card-head">
+                <h3 class="stats-dash__card-title">По площадкам</h3>
+            </div>
+            <div class="stats-dash__card-body">
+                {% if platform_summary %}
+                <div class="stats-dash__tabs" id="statsPlatformTabs" role="tablist" aria-label="Фильтр площадок">
+                    <button type="button" class="stats-dash__tab is-active" data-platform="all">Все</button>
+                    {% for platform in platform_summary[:8] %}
+                    <button type="button" class="stats-dash__tab" data-platform="{{ platform.name }}">{{ platform.name }}</button>
+                    {% endfor %}
+                </div>
+                {% set max_streams = (platform_summary[0].streams if platform_summary and platform_summary[0].streams else 1) %}
+                <ul class="stats-dash__bars" id="statsPlatformBars">
+                    {% for platform in platform_summary %}
+                    {% set pct = ((platform.streams / max_streams) * 100)|round(1) %}
+                    <li class="stats-dash__bar-row" data-platform-name="{{ platform.name }}">
+                        <span class="stats-dash__bar-name">{{ platform.name }}</span>
+                        <span class="stats-dash__bar-value">{{ platform.streams|intcomma }}</span>
+                        <div class="stats-dash__bar-track"><div class="stats-dash__bar-fill" style="width: {{ pct }}%"></div></div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="stats-dash__empty">
+                    <span class="material-icons" aria-hidden="true">podcasts</span>
+                    <p>Нет разбивки по площадкам для этого релиза</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <div class="stats-dash__grid">
+        <section class="stats-dash__card">
+            <div class="stats-dash__card-head">
+                <h3 class="stats-dash__card-title">Устройства</h3>
+            </div>
+            <div class="stats-dash__card-body">
+                {% if device_summary %}
+                {% set max_dev = (device_summary[0].streams if device_summary and device_summary[0].streams else 1) %}
+                <ul class="stats-dash__bars">
+                    {% for device in device_summary %}
+                    {% set pct = ((device.streams / max_dev) * 100)|round(1) %}
+                    <li class="stats-dash__bar-row is-device">
+                        <span class="stats-dash__bar-name">{{ device.name }}</span>
+                        <span class="stats-dash__bar-value">{{ device.streams|intcomma }}</span>
+                        <div class="stats-dash__bar-track"><div class="stats-dash__bar-fill" style="width: {{ pct }}%"></div></div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="stats-dash__empty">
+                    <span class="material-icons" aria-hidden="true">devices</span>
+                    <p>Нет данных по устройствам</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="stats-dash__card">
+            <div class="stats-dash__card-head">
+                <h3 class="stats-dash__card-title">Кратко</h3>
+            </div>
+            <div class="stats-dash__card-body">
+                <ul class="stats-dash__bars">
+                    <li class="stats-dash__bar-row">
+                        <span class="stats-dash__bar-name">Всего периодов с данными</span>
+                        <span class="stats-dash__bar-value">{{ analytics_data|length }}</span>
+                    </li>
+                    <li class="stats-dash__bar-row">
+                        <span class="stats-dash__bar-name">Площадок в отчётах</span>
+                        <span class="stats-dash__bar-value">{{ platform_summary|length }}</span>
+                    </li>
+                    <li class="stats-dash__bar-row">
+                        <span class="stats-dash__bar-name">Типов устройств</span>
+                        <span class="stats-dash__bar-value">{{ device_summary|length }}</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <section class="stats-dash__table-card">
+        <div class="stats-dash__table-head">
+            <h3 class="stats-dash__card-title">Данные по периодам</h3>
+            <div class="stats-dash__search">
+                <span class="material-icons" aria-hidden="true">search</span>
+                <input type="search" id="statsTableSearch" placeholder="Поиск по периоду…" autocomplete="off">
+            </div>
+        </div>
+        <div class="stats-dash__table-wrap">
+            <table class="stats-dash__table" id="analyticsTable">
+                <thead>
+                    <tr>
+                        <th data-sort="period">Период <span class="material-icons">unfold_more</span></th>
+                        <th data-sort="streams">Стримы <span class="material-icons">unfold_more</span></th>
+                        <th data-sort="downloads">Скачивания <span class="material-icons">unfold_more</span></th>
+                        <th data-sort="revenue">Доход <span class="material-icons">unfold_more</span></th>
+                        <th>Площадки</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in analytics_data %}
+                    {% set sort_key = (item.year * 100 + (item.month or 0)) if item.year else 0 %}
+                    <tr data-period-key="{{ sort_key }}"
+                        data-year="{{ item.year or 0 }}"
+                        data-month="{{ item.month or 0 }}"
+                        data-streams="{{ item.streams or 0 }}"
+                        data-downloads="{{ item.downloads or 0 }}"
+                        data-revenue="{{ item.revenue or 0 }}">
+                        <td data-col="period"><strong>{{ item.period_display }}</strong></td>
+                        <td data-col="streams">{{ item.streams|intcomma }}</td>
+                        <td data-col="downloads">{{ item.downloads|intcomma }}</td>
+                        <td data-col="revenue">{{ "%.2f"|format(item.revenue) }} ₽</td>
+                        <td>
+                            {% set platforms = item.platform_analytics|map(attribute='platform_name')|list %}
+                            {% if platforms %}
+                            {{ platforms|join(', ') }}
+                            {% else %}
+                            <span class="text-tertiary">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="stats-dash__actions">
+                                <a href="{{ url_for('stats.view', id=item.id) }}" title="Подробнее">
+                                    <span class="material-icons">visibility</span>
+                                </a>
+                                {% if current_user.is_admin %}
+                                <a href="{{ url_for('stats.edit', id=item.id) }}" title="Редактировать">
+                                    <span class="material-icons">edit</span>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    {% else %}
+    <div class="stats-dash__page-empty">
+        <span class="material-icons" aria-hidden="true">insert_chart</span>
+        <h3>Данных пока нет</h3>
+        <p>Для этого релиза ещё не загружена аналитика.</p>
+        {% if current_user.is_admin %}
+        <p style="margin-top:1rem">
+            <a href="{{ url_for('stats.add') }}?release_id={{ selected_release.id }}" class="btn btn-primary btn-sm">Добавить первую запись</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% elif releases %}
+    <div class="stats-dash__page-empty">
+        <span class="material-icons" aria-hidden="true">touch_app</span>
+        <h3>Выберите релиз</h3>
+        <p>{% if current_user.is_admin %}Сначала можно отфильтровать артиста, затем укажите релиз и даты.{% else %}Укажите релиз в списке выше, чтобы открыть графики и таблицу.{% endif %}</p>
+    </div>
+    {% else %}
+    <div class="stats-dash__page-empty">
+        <span class="material-icons" aria-hidden="true">album</span>
+        <h3>{% if current_user.is_admin and selected_artist_id %}Нет релизов у артиста{% else %}Нет релизов для анализа{% endif %}</h3>
+        <p>{% if current_user.is_admin and selected_artist_id %}Выберите другого артиста или сбросьте фильтр.{% else %}После одобрения релиза он появится в аналитике.{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if selected_release and analytics_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endif %}
+<script src="{{ url_for('static', filename='js/stats-dash.js', v='20260722-s2') }}"></script>
+{% if selected_release and analytics_data %}
+<script>
+window.STATS_DASH_DATA = {
+    labels: {{ analytics_data|map(attribute='period_display')|list|tojson }},
+    streams: {{ analytics_data|map(attribute='streams')|list|tojson }},
+    downloads: {{ analytics_data|map(attribute='downloads')|list|tojson }},
+    revenue: {{ analytics_data|map(attribute='revenue')|list|tojson }},
+    keys: [
+        {% for item in analytics_data %}
+        {{ (item.year * 100 + (item.month or 0)) if item.year else 0 }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ],
+    years: {{ analytics_data|map(attribute='year')|list|tojson }},
+    months: [{% for item in analytics_data %}{{ item.month or 0 }}{% if not loop.last %},{% endif %}{% endfor %}],
+    dateFrom: {{ (date_from or '')|tojson }},
+    dateTo: {{ (date_to or '')|tojson }},
+    period: {{ (period or 'all')|tojson }}
+};
+</script>
+{% endif %}
+{% endblock %}

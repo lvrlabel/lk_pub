@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Релизы{% endblock %}
+{% block page_title %}Мои релизы{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-releases.css', v='20260902-graphite') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-releases releases-page releases-user-catalog">
+    <header class="rel-user-head">
+        <div class="rel-user-head__text">
+            <h1 class="rel-user-head__title">Релизы</h1>
+            <p class="rel-user-head__subtitle">Ваши релизы и их статусы</p>
+        </div>
+        <div class="rel-user-head__actions">
+            <a href="{{ url_for('releases.export') }}" class="rel-btn rel-btn--ghost" title="Экспорт в CSV">
+                <span class="material-icons">download</span>
+                Экспорт
+            </a>
+            {% if not releases_restricted|default(false) %}
+            <a href="{{ url_for('releases.create') }}" class="rel-btn rel-btn--primary">
+                <span class="material-icons">add</span>
+                Новый релиз
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if releases_restricted|default(false) %}
+    <div class="rel-restriction-banner" role="alert">
+        <span class="material-icons" aria-hidden="true">info</span>
+        <span>Создание и отправка новых релизов временно ограничены. Подробности — во всплывающем уведомлении.</span>
+    </div>
+    {% endif %}
+
+    <form method="GET" class="rel-user-search" role="search">
+        <span class="material-icons rel-user-search__icon" aria-hidden="true">search</span>
+        <input type="text"
+               name="search"
+               class="rel-user-search__input"
+               value="{{ search }}"
+               placeholder="Поиск по альбомам.."
+               autocomplete="off"
+               aria-label="Поиск по альбомам">
+        <select name="status" class="rel-user-search__filter" aria-label="Фильтр по статусу" onchange="this.form.submit()">
+            {% for value, label in statuses %}
+            <option value="{{ value }}" {% if value == current_status %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if releases.items %}
+    <div class="rel-user-grid">
+        {% for release in releases.items %}
+        {% set detail_url = url_for('releases.view', id=release.id) %}
+        {% include 'releases/_user_card.html' with context %}
+        {% endfor %}
+    </div>
+
+    {% if releases.pages > 1 %}
+    <nav class="rel-user-pagination" aria-label="Страницы">
+        {% if releases.has_prev %}
+        <a href="{{ url_for('releases.index', page=releases.prev_num, status=current_status, search=search) }}" class="rel-user-page" aria-label="Предыдущая страница">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% else %}
+        <span class="rel-user-page is-disabled" aria-disabled="true"><span class="material-icons">chevron_left</span></span>
+        {% endif %}
+        <span class="rel-user-page-info">Страница {{ releases.page }} из {{ releases.pages }}</span>
+        {% if releases.has_next %}
+        <a href="{{ url_for('releases.index', page=releases.next_num, status=current_status, search=search) }}" class="rel-user-page" aria-label="Следующая страница">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% else %}
+        <span class="rel-user-page is-disabled" aria-disabled="true"><span class="material-icons">chevron_right</span></span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="rel-user-empty">
+        <div class="rel-user-empty__icon"><span class="material-icons">album</span></div>
+        <h3 class="rel-user-empty__title">Релизов пока нет</h3>
+        <p class="rel-user-empty__text">{% if releases_restricted|default(false) %}Создание новых релизов временно ограничено администратором.{% else %}Создайте первый релиз — загрузите обложку, треки и отправьте на модерацию.{% endif %}</p>
+        {% if not releases_restricted|default(false) %}
+        <a href="{{ url_for('releases.create') }}" class="rel-btn rel-btn--primary">
+            <span class="material-icons">add</span>
+            Создать релиз
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

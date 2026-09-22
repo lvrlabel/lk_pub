@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Редактирование: {{ platform.name }}{% endblock %}
+{% block page_title %}Редактирование платформы{% endblock %}
+{% block content %}
+<form method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Название *</label><input type="text" name="name" value="{{ platform.name }}" required class="form-control"></div>
+<div class="form-group"><label>Категория *</label><select name="category" required class="form-control">{% for value, label in categories %}<option value="{{ value }}" {% if platform.category==value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+<div class="form-group"><label>Предупреждение</label><input type="text" name="warning_message" value="{{ platform.warning_message or '' }}" class="form-control"></div>
+<div class="form-group"><label>Порядок</label><input type="number" name="sort_order" value="{{ platform.sort_order }}" class="form-control"></div>
+<div class="form-actions"><a href="{{ url_for('admin.platforms') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Сохранить</button></div>
+</form>
+{% endblock %}

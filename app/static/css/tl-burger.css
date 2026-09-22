@@ -1,0 +1,267 @@
+/**
+ * Toolls Graphite — бургер и мобильный drawer-меню
+ */
+
+html[data-theme="dark"]:has(.app-container),
+html.dark-theme:has(.app-container) {
+    --tl-burger-bg: #171512;
+    --tl-burger-surface: #1e1b17;
+    --tl-burger-border: rgba(243, 239, 230, 0.12);
+    --tl-burger-text: #f3efe6;
+    --tl-burger-muted: rgba(243, 239, 230, 0.55);
+    --tl-burger-accent: #c3f000;
+    --tl-burger-accent-muted: rgba(195, 240, 0, 0.14);
+    --tl-burger-accent-ring: rgba(195, 240, 0, 0.32);
+}
+
+html[data-theme="light"]:has(.app-container) {
+    --tl-burger-bg: #ffffff;
+    --tl-burger-surface: #f7f5f0;
+    --tl-burger-border: rgba(16, 15, 13, 0.12);
+    --tl-burger-text: #171512;
+    --tl-burger-muted: rgba(23, 21, 18, 0.55);
+    --tl-burger-accent: #a8d100;
+    --tl-burger-accent-muted: rgba(168, 209, 0, 0.16);
+    --tl-burger-accent-ring: rgba(168, 209, 0, 0.35);
+}
+
+/* --- Кнопка бургера в шапке --- */
+html:has(.app-container) .mobile-menu-toggle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--tl-burger-border, rgba(243, 239, 230, 0.12));
+    background: var(--tl-burger-surface, #1e1b17);
+    color: var(--tl-burger-text, #f3efe6);
+    box-shadow: none;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+html:has(.app-container) .mobile-menu-toggle:hover {
+    background: var(--tl-burger-accent-muted, rgba(195, 240, 0, 0.14));
+    border-color: var(--tl-burger-accent-ring, rgba(195, 240, 0, 0.32));
+    color: var(--tl-burger-accent, #c3f000);
+}
+
+html:has(.app-container) .mobile-menu-toggle:active {
+    transform: scale(0.96);
+}
+
+html:has(.app-container) .mobile-menu-toggle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--tl-burger-accent-ring, rgba(195, 240, 0, 0.32));
+}
+
+/* --- Иконка: три полоски --- */
+html:has(.app-container) .burger {
+    width: 18px;
+    height: 14px;
+}
+
+html:has(.app-container) .burger span {
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transform-origin: center;
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+                top 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 0.2s ease,
+                width 0.2s ease,
+                left 0.2s ease;
+}
+
+html:has(.app-container) .burger span:nth-child(1) { top: 1px; width: 100%; }
+html:has(.app-container) .burger span:nth-child(2) { top: 6px; width: 70%; left: 0; }
+html:has(.app-container) .burger span:nth-child(3) { top: 11px; width: 100%; }
+
+html:has(.app-container) .mobile-menu-toggle:hover .burger span:nth-child(2) {
+    width: 100%;
+}
+
+/* Крестик при открытом drawer */
+html:has(.app-container).nav-drawer-open .mobile-menu-toggle,
+html:has(.app-container) body.nav-drawer-open .mobile-menu-toggle {
+    background: var(--tl-burger-accent, #c3f000);
+    border-color: var(--tl-burger-accent, #c3f000);
+    color: #100f0d;
+}
+
+html:has(.app-container).nav-drawer-open .mobile-menu-toggle .burger span:nth-child(1),
+html:has(.app-container) body.nav-drawer-open .mobile-menu-toggle .burger span:nth-child(1),
+html:has(.app-container) .nav-drawer-open .mobile-menu-toggle .burger span:nth-child(1) {
+    top: 6px;
+    width: 100%;
+    left: 0;
+    transform: rotate(45deg);
+}
+
+html:has(.app-container).nav-drawer-open .mobile-menu-toggle .burger span:nth-child(2),
+html:has(.app-container) body.nav-drawer-open .mobile-menu-toggle .burger span:nth-child(2),
+html:has(.app-container) .nav-drawer-open .mobile-menu-toggle .burger span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+html:has(.app-container).nav-drawer-open .mobile-menu-toggle .burger span:nth-child(3),
+html:has(.app-container) body.nav-drawer-open .mobile-menu-toggle .burger span:nth-child(3),
+html:has(.app-container) .nav-drawer-open .mobile-menu-toggle .burger span:nth-child(3) {
+    top: 6px;
+    width: 100%;
+    left: 0;
+    transform: rotate(-45deg);
+}
+
+/* Кнопка закрытия в шапке сайдбара */
+html:has(.app-container) .sidebar-toggle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--tl-burger-border, rgba(243, 239, 230, 0.12));
+    background: var(--tl-burger-surface, #1e1b17);
+    color: var(--tl-burger-muted, rgba(243, 239, 230, 0.55));
+}
+
+html:has(.app-container) .sidebar-toggle:hover {
+    color: var(--tl-burger-accent, #c3f000);
+    border-color: var(--tl-burger-accent-ring, rgba(195, 240, 0, 0.32));
+    background: var(--tl-burger-accent-muted, rgba(195, 240, 0, 0.14));
+}
+
+html:has(.app-container) .burger--close span {
+    background: currentColor;
+}
+
+/* --- Мобильный drawer --- */
+@media (max-width: 768px) {
+    html:has(.app-container) .sidebar {
+        width: min(312px, 90vw);
+        background: #100f0d;
+        border-right: 1px solid var(--tl-burger-border, rgba(243, 239, 230, 0.12));
+        box-shadow: none;
+    }
+
+    html:has(.app-container) .sidebar.open {
+        box-shadow:
+            16px 0 48px rgba(0, 0, 0, 0.55),
+            0 0 0 1px rgba(195, 240, 0, 0.08);
+    }
+
+    html:has(.app-container) .sidebar.open::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--tl-burger-accent, #c3f000), transparent);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    html:has(.app-container) .sidebar.open + .sidebar-overlay {
+        background: rgba(16, 15, 13, 0.72);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    html:has(.app-container) .sidebar-header {
+        padding: 0.85rem 0.9rem 0.85rem 1rem;
+        border-bottom-color: var(--tl-burger-border, rgba(243, 239, 230, 0.12));
+        background: #171512;
+        position: relative;
+    }
+
+    html:has(.app-container) .sidebar-nav {
+        padding: 0.85rem 0.75rem 1rem;
+        background: #100f0d;
+    }
+
+    html:has(.app-container) .sidebar-btn.btn-primary {
+        background: var(--tl-burger-accent, #c3f000) !important;
+        color: #100f0d !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-weight: 800;
+        box-shadow: none !important;
+        margin-bottom: 1.1rem;
+        min-height: 46px;
+    }
+
+    html:has(.app-container) .sidebar-btn.btn-primary:hover {
+        background: #d4f533 !important;
+        color: #100f0d !important;
+    }
+
+    html:has(.app-container) .sidebar .nav-item,
+    html:has(.app-container) .sidebar .nav-group-toggle {
+        border-radius: 10px;
+        min-height: 44px;
+        color: var(--tl-burger-muted, rgba(243, 239, 230, 0.55));
+        border-left: none;
+        padding-left: 0.75rem;
+    }
+
+    html:has(.app-container) .sidebar .nav-item:hover,
+    html:has(.app-container) .sidebar .nav-group-toggle:hover {
+        background: rgba(243, 239, 230, 0.05);
+        color: var(--tl-burger-text, #f3efe6);
+    }
+
+    html:has(.app-container) .sidebar .nav-item.active {
+        background: var(--tl-burger-accent-muted, rgba(195, 240, 0, 0.14));
+        color: var(--tl-burger-accent, #c3f000);
+        box-shadow: inset 3px 0 0 var(--tl-burger-accent, #c3f000);
+        border-left: none;
+        font-weight: 700;
+    }
+
+    html:has(.app-container) .sidebar .nav-item.active .material-icons {
+        color: var(--tl-burger-accent, #c3f000);
+    }
+
+    html:has(.app-container) .sidebar .nav-group.is-expanded > .nav-group-toggle {
+        color: var(--tl-burger-text, #f3efe6);
+        background: rgba(243, 239, 230, 0.04);
+    }
+
+    html:has(.app-container) .sidebar .nav-item--sub {
+        min-height: 40px;
+        padding-left: 1.15rem;
+        font-size: 0.9rem;
+    }
+
+    html:has(.app-container) .sidebar .nav-item--sub.active {
+        background: var(--tl-burger-accent-muted, rgba(195, 240, 0, 0.14));
+        color: var(--tl-burger-accent, #c3f000);
+    }
+
+    html:has(.app-container) .sidebar-footer {
+        background: #171512;
+        border-top-color: var(--tl-burger-border, rgba(243, 239, 230, 0.12));
+        color: rgba(243, 239, 230, 0.38);
+    }
+
+    html:has(.app-container) .sidebar-footer__legal a {
+        color: rgba(243, 239, 230, 0.55);
+    }
+
+    html:has(.app-container) .sidebar-footer__legal a:hover {
+        color: var(--tl-burger-accent, #c3f000);
+    }
+}
+
+/* Класс nav-drawer-open вешается на body — уточняем селекторы */
+body.nav-drawer-open .mobile-menu-toggle {
+    background: var(--tl-burger-accent, #c3f000) !important;
+    border-color: var(--tl-burger-accent, #c3f000) !important;
+    color: #100f0d !important;
+}
+
+body.nav-drawer-open .mobile-menu-toggle:hover {
+    background: #d4f533 !important;
+    color: #100f0d !important;
+}

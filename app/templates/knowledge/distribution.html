@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Дистрибуция{% endblock %}
+{% block page_title %}Дистрибуция{% endblock %}
+{% block content %}
+<div class="knowledge-portal knowledge-article uni-skin kb-surface kb-surface--distribution">
+    <nav class="kb-breadcrumb breadcrumb kb-surface__breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">Дистрибуция</span>
+    </nav>
+
+    <header class="kb-chapter-hero kb-chapter-hero--distribution" aria-labelledby="kb-dist-heading">
+        <div class="kb-chapter-hero__glow kb-chapter-hero__glow--distribution" aria-hidden="true"></div>
+        <div class="kb-chapter-hero__inner">
+            <div class="kb-chapter-hero__icon-wrap kb-chapter-hero__icon-wrap--distribution" aria-hidden="true">
+                <span class="material-icons">podcasts</span>
+            </div>
+            <p class="kb-chapter-hero__eyebrow">Как попасть на площадки</p>
+            <h1 id="kb-dist-heading" class="kb-chapter-hero__title">Дистрибуция</h1>
+            <p class="kb-chapter-hero__lead">От загрузки релиза до появления на стримингах: сроки, роялти и ответы на частые вопросы.</p>
+        </div>
+    </header>
+
+    <article class="kb-doc kb-doc--distribution">
+    <div class="kb-doc__body article-content knowledge-static-body kb-prose kb-prose--distribution">
+        <h2 id="kb-dist-what">Что такое дистрибуция</h2>
+        <p>Дистрибуция — это распространение вашей музыки на стриминговые площадки (Spotify, Apple Music, Яндекс.Музыка, VK Музыка, Deezer, YouTube Music и др.) без необходимости заключать отдельные договоры с каждой площадкой.</p>
+
+        <h2 id="kb-dist-how">Как это работает</h2>
+        <ol class="kb-timeline-list">
+            <li><span class="kb-timeline-list__num">1</span><span class="kb-timeline-list__text">Вы создаёте релиз в личном кабинете и загружаете обложку и треки.</span></li>
+            <li><span class="kb-timeline-list__num">2</span><span class="kb-timeline-list__text">Отправляете релиз на модерацию.</span></li>
+            <li><span class="kb-timeline-list__num">3</span><span class="kb-timeline-list__text">Модератор проверяет соответствие требованиям площадок (до 72 часов).</span></li>
+            <li><span class="kb-timeline-list__num">4</span><span class="kb-timeline-list__text">После одобрения релиз отправляется на площадки.</span></li>
+            <li><span class="kb-timeline-list__num">5</span><span class="kb-timeline-list__text">Музыка появляется на площадках в течение 24–72 часов (зависит от площадки).</span></li>
+        </ol>
+
+        <h2 id="kb-dist-terms">Сроки</h2>
+        <div class="kb-pill-list">
+            <span class="kb-pill"><strong>Модерация</strong> до 72 ч</span>
+            <span class="kb-pill"><strong>Публикация</strong> до 24 ч после одобрения</span>
+            <span class="kb-pill"><strong>Яндекс / VK</strong> до 3–5 дней</span>
+        </div>
+
+        <h2 id="kb-dist-money">Роялти и выплаты</h2>
+        <p>Роялти (доход от прослушиваний) начисляются площадками. Toolls Music Distribution собирает отчёты и производит выплаты раз в 3 месяца. Для получения выплаты необходимо подать заявку на согласование в разделе «Финансы» и указать реквизиты.</p>
+
+        <h2 id="kb-dist-platforms">Платформы распространения</h2>
+        <p>По умолчанию релизы распространяются на все подключённые платформы. Список платформ формируется администратором.</p>
+
+        <h2 id="kb-dist-presave">Пресейв (предзаказ)</h2>
+        <p>Для синглов можно включить Яндекс Пресейв — подписчики смогут добавить трек в библиотеку до даты релиза.</p>
+
+        <h2 id="kb-dist-types">Типы релизов</h2>
+        <div class="kb-type-cards">
+            <div class="kb-type-card"><span class="kb-type-card__label">Сингл</span><span class="kb-type-card__val">1 трек</span></div>
+            <div class="kb-type-card"><span class="kb-type-card__label">EP</span><span class="kb-type-card__val">2–6 треков</span></div>
+            <div class="kb-type-card"><span class="kb-type-card__label">Альбом</span><span class="kb-type-card__val">7+ треков</span></div>
+        </div>
+
+        <h2 id="kb-dist-faq">Частые вопросы</h2>
+        <div class="kb-faq-blocks">
+            <div class="kb-faq-block">
+                <p class="kb-faq-block__q">Можно ли изменить релиз после одобрения?</p>
+                <p class="kb-faq-block__a">После одобрения изменения недоступны. Создайте новый релиз с правками.</p>
+            </div>
+            <div class="kb-faq-block">
+                <p class="kb-faq-block__q">Сколько стоит дистрибуция?</p>
+                <p class="kb-faq-block__a">Условия указаны в договоре. Детали уточняйте в поддержке.</p>
+            </div>
+            <div class="kb-faq-block">
+                <p class="kb-faq-block__q">Когда появятся первые прослушивания?</p>
+                <p class="kb-faq-block__a">Зависит от площадки и продвижения. Обычно первые стримы появляются в течение 24–48 часов после публикации.</p>
+            </div>
+        </div>
+    </div>
+    </article>
+
+    <footer class="kb-footer-actions kb-surface__footer">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span>
+            К базе знаний
+        </a>
+    </footer>
+</div>
+{% endblock %}

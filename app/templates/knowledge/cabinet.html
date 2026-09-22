@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет — инструкция{% endblock %}
+{% block page_title %}Личный кабинет — полная инструкция{% endblock %}
+{% block content %}
+<div class="knowledge-portal knowledge-guide uni-skin kb-surface kb-surface--guide">
+    <nav class="kb-breadcrumb breadcrumb kb-surface__breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">Личный кабинет</span>
+    </nav>
+
+    <header class="kb-chapter-hero kb-chapter-hero--guide" aria-labelledby="kb-guide-heading">
+        <div class="kb-chapter-hero__glow kb-chapter-hero__glow--guide" aria-hidden="true"></div>
+        <div class="kb-chapter-hero__inner">
+            <div class="kb-chapter-hero__icon-wrap kb-chapter-hero__icon-wrap--guide" aria-hidden="true">
+                <span class="material-icons">menu_book</span>
+            </div>
+            <p class="kb-chapter-hero__eyebrow">Пошаговая инструкция</p>
+            <h1 id="kb-guide-heading" class="kb-chapter-hero__title">Личный кабинет</h1>
+            <p class="kb-chapter-hero__lead">Полный обзор кабинета Toolls Music Distribution: от входа до аналитики, финансов, инструментов и журнала обновлений.</p>
+        </div>
+    </header>
+
+    <div class="kb-guide-intro kb-guide-intro--v2">
+        <span class="material-icons kb-guide-intro__icon" aria-hidden="true">touch_app</span>
+        <p>Инструкция построена по реальным экранам кабинета. Переходите по оглавлению или листайте страницу — к каждому разделу приложен актуальный скриншот.</p>
+    </div>
+
+    <nav class="kb-guide-toc" aria-label="Оглавление инструкции">
+        <span class="kb-guide-toc__label">На странице</span>
+        <ul class="kb-guide-toc__list">
+            <li><a href="#step-1">1. Вход</a></li>
+            <li><a href="#step-2">2. Код подтверждения</a></li>
+            <li><a href="#step-3">3. Обзор</a></li>
+            <li><a href="#step-4">4. Создание релиза</a></li>
+            <li><a href="#step-5">5. Трек-лист</a></li>
+            <li><a href="#step-6">6. Площадки</a></li>
+            <li><a href="#step-7">7. Проверка и отправка</a></li>
+            <li><a href="#step-8">8. Список релизов</a></li>
+            <li><a href="#step-9">9. Аналитика</a></li>
+            <li><a href="#step-10">10. Финансы</a></li>
+            <li><a href="#step-11">11. Смарт-ссылки</a></li>
+            <li><a href="#step-12">12. Рингтоны и видео</a></li>
+            <li><a href="#step-13">13. Питчинг</a></li>
+            <li><a href="#step-14">14. Автоматическая форма</a></li>
+            <li><a href="#step-15">15. Генератор обложек</a></li>
+            <li><a href="#step-16">16. Новости</a></li>
+            <li><a href="#step-17">17. Поддержка</a></li>
+            <li><a href="#step-18">18. База знаний</a></li>
+            <li><a href="#step-19">19. Обновление сервиса</a></li>
+        </ul>
+    </nav>
+
+    <section class="guide-step guide-step--v2" id="step-1">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">1</span>
+            <h2>Вход в личный кабинет</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Откройте страницу входа на сайте Toolls Music Distribution. Введите электронную почту и пароль, затем нажмите «Войти». Если забыли пароль — используйте ссылку «Забыли пароль?».</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-01.png') }}" alt="Страница входа в личный кабинет" loading="lazy">
+                <span class="guide-img-caption">Страница входа: email, пароль и кнопка «Войти».</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-2">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">2</span>
+            <h2>Код подтверждения по электронной почте</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>После входа система может запросить код подтверждения — он приходит на указанную почту. Введите шестизначный код в поле на экране и нажмите «Подтвердить». Если письмо не пришло, проверьте папку «Спам» или запросите код повторно.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-02.png') }}" alt="Ввод кода подтверждения по email" loading="lazy">
+                <span class="guide-img-caption">Подтверждение входа: код из письма на вашу почту.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-3">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">3</span>
+            <h2>Обзор (дашборд)</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>После авторизации открывается страница «Обзор». Здесь — сводка по релизам (всего, одобрено, на модерации, черновики), блок финансов по кварталам и быстрые ссылки на разделы. Боковое меню слева — основная навигация по кабинету.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-03.png') }}" alt="Главная страница — Обзор" loading="lazy">
+                <span class="guide-img-caption">Обзор: статистика релизов, кварталы и быстрые действия.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-4">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">4</span>
+            <h2>Создание релиза — основная информация</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Нажмите «+ Новый релиз» в боковом меню. Откроется мастер из четырёх шагов: <strong>Релиз → Трек-лист → Площадки → Проверка</strong>.</p>
+            <p>На первом шаге «Релиз» загрузите обложку 3000×3000 px (JPG или PNG), укажите название, артистов, тип релиза, жанр и дату выхода. Справа — чек-лист заполненности: галочки показывают, какие блоки уже готовы.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-04.png') }}" alt="Редактирование релиза — шаг Релиз" loading="lazy">
+                <span class="guide-img-caption">Шаг «Релиз»: обложка, название, артисты, жанр, даты. Чек-лист справа.</span>
+            </div>
+            <p>Заполните дополнительные поля — идентификацию (UPC, лейбл), если требуется, и сохраните прогресс. Затем перейдите к следующему шагу кнопкой «Далее — Трек-лист».</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-05.png') }}" alt="Редактирование релиза — заполнение полей" loading="lazy">
+                <span class="guide-img-caption">Продолжение шага «Релиз»: дополнительные поля и навигация между этапами.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-5">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">5</span>
+            <h2>Трек-лист</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>На шаге «Трек-лист» добавьте аудиофайлы и метаданные треков. Нажмите «+ Добавить», загрузите WAV-файлы и укажите название и артистов для каждого трека. Минимум один трек обязателен для отправки на модерацию.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-06.png') }}" alt="Трек-лист релиза" loading="lazy">
+                <span class="guide-img-caption">Шаг «Трек-лист»: добавление треков в формате WAV.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-6">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">6</span>
+            <h2>Площадки и территории</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>На шаге «Площадки» отображаются сервисы, куда будет отправлен релиз: Spotify, Apple Music, Яндекс Музыка, VK Music, YouTube Music, Deezer и другие. Дополнительно можно включить Яндекс Пресейв — настройка доступна в блоке «Даты» на первом шаге.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-07.png') }}" alt="Площадки дистрибуции" loading="lazy">
+                <span class="guide-img-caption">Шаг «Площадки»: список площадок и дополнительные опции.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-7">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">7</span>
+            <h2>Проверка и отправка на модерацию</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>На шаге «Проверка» система показывает, что уже заполнено, а что ещё нужно доделать. Зелёные галочки — готово, оранжевые предупреждения — обязательные пункты не выполнены (например, «Минимум один трек»).</p>
+            <p>Когда все обязательные поля заполнены, нажмите «Перейти к просмотру и отправке». Релиз попадёт на модерацию — проверка занимает до 72 часов.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-08.png') }}" alt="Проверка перед отправкой на модерацию" loading="lazy">
+                <span class="guide-img-caption">Шаг «Проверка»: контрольный список перед отправкой на модерацию.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-8">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">8</span>
+            <h2>Список релизов</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Раздел «Ваша музыка → Релизы» — каталог всех ваших релизов. Можно искать по названию или артисту, фильтровать по статусу и сортировать по дате. На каждой карточке — обложка, метаданные, даты и текущий статус.</p>
+            <ul>
+                <li><strong>Черновик</strong> — редактирование и удаление доступны</li>
+                <li><strong>На модерации</strong> — ожидание проверки (до 72 часов); на странице релиза виден блок «События»</li>
+                <li><strong>Одобрено</strong> — релиз будет размещён на площадках в течение 24 часов</li>
+                <li><strong>Отклонено</strong> — указана причина, можно исправить и отправить снова</li>
+                <li><strong>Отозван</strong> — администратор отозвал релиз; его снова можно отредактировать и отправить</li>
+            </ul>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-09.png') }}" alt="Список релизов со статусами" loading="lazy">
+                <span class="guide-img-caption">Релизы: поиск, фильтры, карточки со статусами и трек-листом.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-9">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">9</span>
+            <h2>Аналитика</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Раздел «Аналитика» показывает стримы, скачивания и доход по одобренным релизам. Выберите релиз в фильтре «Релиз» и при необходимости площадку в блоке «Площадки».</p>
+            <p>На графике «Прослушивания» переключайте метрики — <strong>Стримы</strong>, <strong>Скачивания</strong>, <strong>Доход</strong> или <strong>Все вместе</strong>. Формат графика меняется кнопками «Линия», «Столбцы», «Площадь» или выпадающим списком. Ниже — распределение по площадкам и таблица «Данные по периодам».</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-10.png') }}" alt="Аналитика — прослушивания и график" loading="lazy">
+                <span class="guide-img-caption">Аналитика: сводка, график с переключением метрик и форматов отображения.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-10">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">10</span>
+            <h2>Финансы</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В разделе «Финансы» отображаются баланс, начисления по отчётам и история выплат. Отчётность обновляется раз в квартал — дата ближайшего обновления указана в баннере вверху страницы.</p>
+            <p>Финансовые отчёты сгруппированы по годам и кварталам. Нажмите «Подробнее», чтобы открыть детализацию, или «Скачать», если доступен файл отчёта. Для вывода средств подайте заявку на выплату с указанием реквизитов.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-11.png') }}" alt="Раздел Финансы" loading="lazy">
+                <span class="guide-img-caption">Финансы: баланс, график обновлений и отчёты по кварталам.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-11">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">11</span>
+            <h2>Смарт-ссылки</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В меню «Маркетинг → Смарт-ссылки» создавайте единые landing-страницы для релиза: обложка и кнопки перехода на Spotify, Apple Music, Яндекс.Музыку, VK и другие площадки. Удобно для промо в соцсетях — одна ссылка вместо нескольких.</p>
+            <p>Нажмите «Создать смарт-ссылку», выберите одобренный релиз и добавьте ссылки на площадки. Статистику переходов можно отслеживать в карточке ссылки.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-12.png') }}" alt="Смарт-ссылки" loading="lazy">
+                <span class="guide-img-caption">Смарт-ссылки: создание единой промо-страницы для релиза.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-12">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">12</span>
+            <h2>Рингтоны и видео</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Раздел «Маркетинг → Рингтоны и видео» — дополнительные сервисы для ваших релизов:</p>
+            <ul>
+                <li>рингтон для iTunes;</li>
+                <li>загрузка клипа или ролика во ВКонтакте, Яндекс.Музыку и другие площадки;</li>
+                <li>доставка текста трека на площадки.</li>
+            </ul>
+            <p>Нажмите «+ Добавить видео/рингтон» или «Загрузить» в карточке услуги. Стоимость указана на странице.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-13.png') }}" alt="Рингтоны и видео" loading="lazy">
+                <span class="guide-img-caption">Рингтоны и видео: дополнительные услуги для продвижения релиза.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-13">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">13</span>
+            <h2>Питчинг</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В «Инструменты → Питчинг» отправьте заявку на питчинг релиза — редакторial-поддержку на стриминговых площадках. Можно выбрать релиз из списка или заполнить данные вручную: название, артисты, жанр и комментарий.</p>
+            <p>После отправки заявка появится в блоке «Мои заявки» — отслеживайте статус: на рассмотрении, одобрено или отклонено.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-14.png') }}" alt="Заявка на питчинг" loading="lazy">
+                <span class="guide-img-caption">Питчинг: форма заявки и история обращений.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-14">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">14</span>
+            <h2>Автоматическая форма</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>«Инструменты → Автоматическая форма» — для типовых задач, которые можно направить на площадки без обращения в поддержку. Выберите категорию в поле «Что необходимо сделать?» и заполните форму.</p>
+            <p>Если ваш вопрос не подходит ни под одну категорию — создайте тикет в разделе «Поддержка» или напишите в чат.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-15.png') }}" alt="Форма для типовых задач" loading="lazy">
+                <span class="guide-img-caption">Автоматическая форма: выбор типовой задачи без обращения в поддержку.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-15">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">15</span>
+            <h2>Генератор обложек</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Новый сервис «Инструменты → Генератор обложек» помогает собрать квадратную обложку 3000×3000 px прямо в браузере. Укажите название релиза и артиста, выберите стиль фона — превью обновится автоматически.</p>
+            <p>Готовую обложку можно скачать (JPG, RGB) или сразу применить к черновику релиза.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-16.png') }}" alt="Генератор обложек" loading="lazy">
+                <span class="guide-img-caption">Генератор обложек: параметры, предпросмотр и скачивание 3000×3000 px.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-16">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">16</span>
+            <h2>Новости</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>Раздел «Новости» — анонсы, обновления сервиса и полезные материалы от Toolls Music Distribution. Откройте карточку и нажмите «Читать», чтобы перейти к полному тексту.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-17.png') }}" alt="Раздел Новости" loading="lazy">
+                <span class="guide-img-caption">Новости: анонсы и статьи для артистов.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-17">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">17</span>
+            <h2>Поддержка</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>В разделе «Поддержка» создавайте тикеты и ведите переписку со службой поддержки. Вверху — сводка: всего обращений, активные и закрытые. Список тикетов можно фильтровать по статусу.</p>
+            <p>Нажмите «+ Написать запрос» или «Создать тикет», опишите проблему — ответ поступит в чате справа. Выберите тикет в таблице, чтобы открыть историю сообщений.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-18.png') }}" alt="Раздел Поддержка" loading="lazy">
+                <span class="guide-img-caption">Поддержка: список тикетов, фильтры и чат по обращению.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-18">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">18</span>
+            <h2>База знаний</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>«Ещё → База знаний» — инструкции, гайды и ответы на частые вопросы. Используйте поиск или выберите раздел: личный кабинет, требования площадок, дистрибуция, общие вопросы.</p>
+            <p>Вы читаете материал из раздела «Личный кабинет — полная инструкция» — он содержит пошаговое описание всех экранов с актуальными скриншотами.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-19.png') }}" alt="База знаний" loading="lazy">
+                <span class="guide-img-caption">База знаний: поиск и разделы с инструкциями.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="guide-step guide-step--v2" id="step-19">
+        <div class="guide-step-header guide-step-header--v2">
+            <span class="guide-step-num guide-step-num--v2">19</span>
+            <h2>Обновление сервиса</h2>
+        </div>
+        <div class="guide-step-body">
+            <p>«Ещё → Обновление сервиса» — журнал изменений кабинета. Здесь публикуются новые функции, исправления и важные уведомления. Непрочитанные записи отмечены меткой «Новое», срочные — «Срочно».</p>
+            <p>Откройте запись, чтобы прочитать подробности. После просмотра счётчик непрочитанных в меню обнуляется. Рекомендуем периодически проверять этот раздел — там же сообщают о технических работах и сроках восстановления сервисов.</p>
+            <div class="guide-step-img guide-step-img--v2">
+                <img src="{{ url_for('knowledge.knowledge_img', filename='cabinet-20.png') }}" alt="Обновление сервиса" loading="lazy">
+                <span class="guide-img-caption">Обновление сервиса: журнал правок с метками «Новое» и «Срочно».</span>
+            </div>
+        </div>
+    </section>
+
+    <footer class="kb-footer-actions kb-surface__footer">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span> К базе знаний
+        </a>
+    </footer>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Лейблы{% endblock %}
+{% block page_title %}Лейблы{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<a href="{{ url_for('labels.create') }}" class="btn btn-primary"><span class="material-icons">add</span> Создать лейбл</a>
+{% if labels %}
+<div class="uni-list">
+{% for label in labels %}
+<div class="uni-list__row">
+  <div class="uni-list__main">
+    <strong>{{ label.name }}</strong>
+    <br>{{ label.copyright }}
+    <br><span class="form-hint">Релизов с копирайтом: {{ label.releases_count }}</span>
+  </div>
+  <div class="uni-list__actions">
+    <a href="{{ url_for('labels.edit', id=label.id) }}" class="btn btn-ghost btn-sm">Редактировать</a>
+    <form method="POST" action="{{ url_for('labels.delete', id=label.id) }}" onsubmit="return confirm('Удалить лейбл?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button></form>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><div class="empty-state small" style="margin:0;"><p>Лейблов нет</p></div></div></div>
+{% endif %}
+<a href="{{ url_for('labels.artists') }}" class="btn btn-ghost" style="margin-top:1rem;">Артисты</a>
+</div>
+{% endblock %}

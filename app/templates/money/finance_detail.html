@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ finance.quarter_display }} — детализация{% endblock %}
+{% block page_title %}Отчёт: {{ finance.quarter_display }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/finance-v2.css', v='20260917-f4') }}">
+{% endblock %}
+
+{% block content %}
+<div class="money-desk">
+    <nav class="money-desk-detail__nav" aria-label="Навигация">
+        <a href="{{ url_for('money.index') }}">Финансы</a>
+        <span>/</span>
+        <span>{{ finance.quarter_display }}</span>
+    </nav>
+
+    <div class="money-desk-detail__head">
+        <div>
+            <h1 class="money-desk-detail__title">{{ finance.quarter_display }}</h1>
+            <p class="money-desk-detail__meta">
+                {% if current_user.is_admin %}
+                {{ finance.user.display_name }} · {{ finance.user.login }} ·
+                {% endif %}
+                Роялти и штрафы по площадкам
+            </p>
+        </div>
+        <div class="money-desk-detail__sum">{{ finance.amount_formatted }}</div>
+    </div>
+
+    <div class="money-desk__panel" style="margin-bottom:1rem">
+        <div class="money-desk__table-wrap">
+            {% if finance.platform_lines %}
+            {% set total_royalty = finance.platform_lines | sum(attribute='royalty_amount') %}
+            {% set total_penalty = finance.platform_lines | sum(attribute='penalty_amount') %}
+            <table class="money-desk__table" style="min-width:520px">
+                <thead>
+                    <tr>
+                        <th>Площадка</th>
+                        <th class="num">Роялти</th>
+                        <th class="num">Штрафы</th>
+                        <th class="num">Итого</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for line in finance.platform_lines %}
+                    <tr>
+                        <td>{{ line.platform_name }}</td>
+                        <td class="num">{{ format_money(line.royalty_amount) }}</td>
+                        <td class="num">{% if line.penalty_amount %}{{ format_money(-line.penalty_amount) }}{% else %}—{% endif %}</td>
+                        <td class="num{% if line.net_amount < 0 %} is-neg{% endif %}">{{ format_money(line.net_amount) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>Всего</th>
+                        <th class="num">{{ format_money(total_royalty) }}</th>
+                        <th class="num">{% if total_penalty %}{{ format_money(-total_penalty) }}{% else %}—{% endif %}</th>
+                        <th class="num">{{ format_money(finance.amount) }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+            {% else %}
+            <div class="money-desk__empty">
+                <span class="material-icons" aria-hidden="true">playlist_remove</span>
+                <p>Разбивки по площадкам нет. Итог: {{ finance.amount_formatted }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="money-desk__actions" style="justify-content:flex-start">
+        <a href="{{ url_for('money.index') }}" class="money-desk__btn">
+            <span class="material-icons">arrow_back</span>
+            К списку
+        </a>
+        {% if finance.file_path and (current_user.is_admin or finance.user_id == current_user.id) %}
+        <a href="{{ url_for('money.download', id=finance.id) }}" class="money-desk__btn">
+            <span class="material-icons">download</span>
+            Скачать CSV
+        </a>
+        {% endif %}
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('money.finance_edit', id=finance.id) }}" class="money-desk__btn money-desk__btn--primary">
+            <span class="material-icons">edit</span>
+            Редактировать
+        </a>
+        <form method="POST" action="{{ url_for('money.delete', id=finance.id) }}" style="display:inline" onsubmit="return confirm('Удалить отчёт «{{ finance.quarter_display }}»? Это действие нельзя отменить.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="money-desk__btn money-desk__btn--danger">
+                <span class="material-icons">delete</span>
+                Удалить отчёт
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

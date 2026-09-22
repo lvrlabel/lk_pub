@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Тикет #{{ ticket.id }}{% endblock %}
+{% block page_title %}{{ ticket.subject }}{% endblock %}
+{% block content %}
+<div class="ticket-view">
+    <div class="ticket-header card">
+        <div class="card-content">
+            <div class="ticket-header-top">
+                <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost btn-sm back-link">
+                    <span class="material-icons">arrow_back</span>
+                    К списку
+                </a>
+                <span class="ticket-id-badge">#{{ ticket.id }}</span>
+                <span class="ticket-status-badge {{ ticket.status_class }}">{{ ticket.status_display }}</span>
+            </div>
+            <h1 class="ticket-title">{{ ticket.subject }}</h1>
+            <p class="ticket-date">
+                <span class="material-icons">schedule</span>
+                Создан {{ ticket.created_at_formatted }}
+                {% if ticket.messages_count > 0 %}
+                · {{ ticket.messages_count }} сообщ.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="ticket-messages">
+        {% set ns = namespace(skip_first_dup=false) %}
+        {% if messages and ticket.message %}
+          {% set first = messages[0] %}
+          {% if first.message == ticket.message and (
+               (ticket.initiator == 'admin' and first.is_admin) or
+               (ticket.initiator != 'admin' and not first.is_admin)
+             ) %}
+            {% set ns.skip_first_dup = true %}
+          {% endif %}
+        {% endif %}
+
+        {% if ticket.message %}
+        <div class="message-item message-initial {% if ticket.initiator == 'admin' %}message-admin{% endif %}">
+            <div class="message-avatar">
+                <span class="material-icons">{% if ticket.initiator == 'admin' %}admin_panel_settings{% else %}person{% endif %}</span>
+            </div>
+            <div class="message-body">
+                <div class="message-header">
+                    <span class="message-author">{% if ticket.initiator == 'admin' %}Администратор{% else %}{{ ticket.user.display_name }}{% endif %}</span>
+                    <span class="message-time">{{ ticket.created_at_formatted }}</span>
+                </div>
+                <div class="message-text">{{ ticket.message }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% for msg in messages %}
+        {% if ns.skip_first_dup and loop.first %}
+        {% else %}
+        <div class="message-item {% if msg.is_admin %}message-admin{% endif %}">
+            <div class="message-avatar">
+                <span class="material-icons">{% if msg.is_admin %}admin_panel_settings{% else %}person{% endif %}</span>
+            </div>
+            <div class="message-body">
+                <div class="message-header">
+                    <span class="message-author">{% if msg.is_admin %}Администратор{% else %}{{ msg.author.display_name }}{% endif %}</span>
+                    <span class="message-time">{{ msg.time_formatted }}</span>
+                </div>
+                <div class="message-text">{{ msg.message }}</div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if ticket.is_open %}
+    <div class="ticket-reply card">
+        <div class="card-content">
+            <form method="POST" action="{{ url_for('tickets.reply', id=ticket.id) }}" class="reply-form js-submit-loading" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <p class="ticket-enter-hint" id="ticketViewEnterHint" hidden>На ПК: Enter — отправить, Shift+Enter — новая строка.</p>
+                <div class="form-group">
+                    <label for="reply">Ваш ответ</label>
+                    <textarea id="reply" name="message" required class="form-control" rows="4" placeholder="Введите сообщение..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="attachments">
+                        <span class="material-icons">attach_file</span>
+                        Прикрепить файлы (опционально)
+                    </label>
+                    <input type="file" id="attachments" name="attachments" multiple class="form-control" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar">
+                    <div class="form-help">
+                        Можно загрузить несколько файлов (изображения, видео, документы). Максимальный размер каждого файла — 10 МБ.
+                    </div>
+                </div>
+                <div class="reply-actions">
+                    <button type="submit" class="btn btn-primary" data-loading-text="Отправляем...">
+                        <span class="material-icons">send</span>
+                        Отправить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="ticket-reply card">
+        <div class="card-content">
+            <p class="manager-chat-enter-hint" style="display:block; margin:0;">
+                Тикет закрыт. Если у вас остались вопросы, создайте повторно обращение.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="ticket-actions">
+        {% if ticket.is_open %}
+        <form method="POST" action="{{ url_for('tickets.close', id=ticket.id) }}" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost">
+                <span class="material-icons">check_circle</span>
+                Закрыть тикет
+            </button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost">
+            <span class="material-icons">list</span>
+            Все обращения
+        </a>
+    </div>
+</div>
+
+<div id="ticket-data"
+     data-ticket-id="{{ ticket.id }}"
+     data-status="{{ ticket.status }}"
+     data-updated-at="{{ ticket.updated_at.isoformat() if ticket.updated_at else '' }}"
+     hidden></div>
+
+<script>
+(function() {
+    const dataEl = document.getElementById('ticket-data');
+    if (!dataEl) return;
+    const ticketId = dataEl.dataset.ticketId;
+    const statusElement = document.querySelector('.ticket-status-badge');
+    if (!statusElement) return;
+
+    let lastUpdated = dataEl.dataset.updatedAt;
+    let lastStatus = dataEl.dataset.status;
+    const replyForm = document.querySelector('.ticket-reply form.reply-form');
+    const replyTextarea = document.getElementById('reply');
+    const enterHint = document.getElementById('ticketViewEnterHint');
+
+    function isMobileLayout() {
+        return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function syncEnterHint() {
+        if (!enterHint) return;
+        enterHint.hidden = isMobileLayout();
+    }
+
+    if (replyForm && replyTextarea) {
+        replyTextarea.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            if (isMobileLayout()) return;
+            if (e.shiftKey) return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            e.preventDefault();
+            if (!replyForm.reportValidity()) return;
+            if (typeof replyForm.requestSubmit === 'function') {
+                replyForm.requestSubmit();
+            } else {
+                replyForm.submit();
+            }
+        });
+        syncEnterHint();
+        window.addEventListener('resize', syncEnterHint);
+    }
+
+    function fetchStatus() {
+        fetch(`/tickets/${ticketId}/status`, {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.ok && (data.updated_at !== lastUpdated || data.status !== lastStatus)) {
+                lastUpdated = data.updated_at;
+                lastStatus = data.status;
+                // Обновляем текст и классы статуса
+                statusElement.textContent = data.status_display;
+                statusElement.className = 'ticket-status-badge ' + data.status_class;
+                // Если статус изменился на "closed", можно обновить интерфейс (например, скрыть форму ответа)
+                if (data.status === 'closed') {
+                    const replyForm = document.querySelector('.ticket-reply');
+                    if (replyForm) replyForm.style.display = 'none';
+                    const closeButton = document.querySelector('form[action*="close"]');
+                    if (closeButton) closeButton.style.display = 'none';
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching ticket status:', error));
+    }
+
+    // Опрашиваем каждые 10 секунд
+    setInterval(fetchStatus, 10000);
+})();
+</script>
+
+{% endblock %}

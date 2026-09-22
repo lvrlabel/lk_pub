@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Новости{% endblock %}
+{% block page_title %}Новости{% endblock %}
+{% block content %}
+<div class="news-page news-page--modern uni-skin">
+    <header class="news-hero">
+        <div class="news-hero-content">
+            <h1 class="news-hero-title">Новости</h1>
+            <p class="news-hero-subtitle">Анонсы, обновления сервиса и заметки для артистов</p>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('stories.create') }}" class="btn btn-primary btn-hero">
+                <span class="material-icons">add</span> Создать новость
+            </a>
+            {% endif %}
+        </div>
+        <div class="news-hero-bg"></div>
+    </header>
+
+    <div class="news-grid-modern">
+        {% for item in news.items %}
+        <article class="news-card-modern">
+            <a href="{{ url_for('stories.view', id=item.id) }}" class="news-card-modern-link">
+                <div class="news-card-modern-cover">
+                    {% if item.cover_image %}
+                    <img src="{{ item.cover_url }}" alt="{{ item.title }}" loading="lazy">
+                    {% else %}
+                    <div class="news-card-modern-placeholder">
+                        <span class="material-icons">article</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="news-card-modern-body">
+                    <div class="news-card-modern-meta">
+                        <time class="news-card-modern-date">{{ item.date_formatted }}</time>
+                        <span class="news-card-modern-badge">Новость</span>
+                    </div>
+                    <h3 class="news-card-modern-title">{{ item.title }}</h3>
+                    <p class="news-card-modern-excerpt">{{ item.short_content }}</p>
+                    <div class="news-card-modern-footer">
+                        <span class="news-card-modern-link-text">Читать <span class="material-icons">arrow_forward</span></span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if news.pages > 1 %}
+    <div class="pagination-modern">
+        {% if news.has_prev %}
+        <a href="{{ url_for('stories.index', page=news.prev_num) }}" class="pagination-modern-btn pagination-modern-prev">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <div class="pagination-modern-pages">
+            {% for p in range(1, news.pages + 1) %}
+                {% if p == news.page %}
+                <span class="pagination-modern-page active">{{ p }}</span>
+                {% else %}
+                <a href="{{ url_for('stories.index', page=p) }}" class="pagination-modern-page">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if news.has_next %}
+        <a href="{{ url_for('stories.index', page=news.next_num) }}" class="pagination-modern-btn pagination-modern-next">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if not news.items %}
+    <div class="news-empty-modern">
+        <div class="news-empty-icon">
+            <span class="material-icons">article</span>
+        </div>
+        <h3 class="news-empty-title">Новостей пока нет</h3>
+        <p class="news-empty-text">Здесь будут появляться анонсы и обновления</p>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('stories.create') }}" class="btn btn-primary">Создать первую новость</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

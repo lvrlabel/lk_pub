@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Запросы автоформы{% endblock %}
+{% block page_title %}Запросы из автоматической формы{% endblock %}
+{% block content %}
+<div class="tools-admin-page uni-skin">
+    <div class="tools-admin-tabs">
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab='all') }}" class="tools-admin-tab {% if tab == 'all' %}active{% endif %}">
+            Все ({{ counts.all }})
+        </a>
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab='pending') }}" class="tools-admin-tab {% if tab == 'pending' %}active{% endif %}">
+            На рассмотрении ({{ counts.pending }})
+        </a>
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab='processed') }}" class="tools-admin-tab {% if tab == 'processed' %}active{% endif %}">
+            Обработанные ({{ counts.processed }})
+        </a>
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab='closed') }}" class="tools-admin-tab {% if tab == 'closed' %}active{% endif %}">
+            Закрытые ({{ counts.closed }})
+        </a>
+    </div>
+
+    {% if requests.items %}
+    <div class="tools-admin-list">
+        {% for req in requests.items %}
+        <div class="tools-admin-card">
+            <div class="tools-admin-card-header">
+                <span class="tools-admin-status {{ req.status_class }}">{{ req.status_display }}</span>
+                <span class="tools-admin-user">{{ req.user.display_name if req.user else '—' }}</span>
+                <span class="tools-admin-date">{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            </div>
+            <h3 class="tools-admin-title">
+                <a href="{{ url_for('tools.auto_form_request_detail', id=req.id) }}">{{ req.display_id }}</a> · {{ req.request_type_display }}
+            </h3>
+            {% if req.user %}
+            <p class="tools-admin-artists">Email: {{ req.user.email }}</p>
+            {% endif %}
+            {% if req.request_type == 'transfer_release' %}
+                {% if req.release %}<p><strong>Релиз:</strong> {{ req.release.title }}</p>{% endif %}
+                {% if req.platform %}<p><strong>Площадка:</strong> {{ req.platform }}</p>{% endif %}
+                {% if req.wrong_card_url %}<p><strong>Неправильная карточка:</strong> <a href="{{ req.wrong_card_url }}" target="_blank" rel="noopener">{{ req.wrong_card_url[:60] }}{% if req.wrong_card_url|length > 60 %}…{% endif %}</a></p>{% endif %}
+                {% if req.correct_card_url %}<p><strong>Правильная карточка:</strong> <a href="{{ req.correct_card_url }}" target="_blank" rel="noopener">{{ req.correct_card_url[:60] }}{% if req.correct_card_url|length > 60 %}…{% endif %}</a></p>{% endif %}
+            {% elif req.request_type == 'youtube_note' %}
+                {% if req.artist_name %}<p><strong>Артист:</strong> {{ req.artist_name }}</p>{% endif %}
+                {% if req.channel_url %}<p><strong>Канал:</strong> <a href="{{ req.channel_url }}" target="_blank" rel="noopener">{{ req.channel_url }}</a></p>{% endif %}
+                {% if req.topic_urls %}<p><strong>Темы (Topic):</strong><br><pre style="white-space:pre-wrap;margin:0.5rem 0;font-size:0.875rem;">{{ req.topic_urls }}</pre></p>{% endif %}
+            {% elif req.request_type == 'vk_restore' %}
+                {% if req.previous_distributor %}<p><strong>Прошлый дистрибьютор:</strong> {{ req.previous_distributor }}</p>{% endif %}
+                {% if req.upc_codes %}<p><strong>UPC-коды:</strong><br><pre style="white-space:pre-wrap;margin:0.5rem 0;font-size:0.875rem;">{{ req.upc_codes }}</pre></p>{% endif %}
+            {% elif req.request_type == 'cabinet_wish' %}
+                {% if req.topic_urls %}<p><strong>Пожелание:</strong><br><pre style="white-space:pre-wrap;margin:0.5rem 0;font-size:0.875rem;">{{ req.topic_urls }}</pre></p>{% endif %}
+            {% endif %}
+            {% if req.admin_comment %}
+            <p class="tools-admin-comment"><strong>Комментарий:</strong> {{ req.admin_comment }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if requests.pages > 1 %}
+    <div class="pagination">
+        {% if requests.has_prev %}
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab=tab, page=requests.prev_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <span class="pagination-info">Страница {{ requests.page }} из {{ requests.pages }}</span>
+        {% if requests.has_next %}
+        <a href="{{ url_for('tools.auto_form_requests_admin', tab=tab, page=requests.next_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="tools-admin-empty">
+        <span class="material-icons">inbox</span>
+        <p>Запросов нет</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

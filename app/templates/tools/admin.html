@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Заявки на питчинг{% endblock %}
+{% block page_title %}Заявки на питчинг{% endblock %}
+{% block content %}
+<div class="tools-admin-page">
+    <div class="tools-admin-tabs">
+        <a href="{{ url_for('tools.pitches_admin', tab='all') }}" class="tools-admin-tab {% if tab == 'all' %}active{% endif %}">
+            Все ({{ counts.all }})
+        </a>
+        <a href="{{ url_for('tools.pitches_admin', tab='pending') }}" class="tools-admin-tab {% if tab == 'pending' %}active{% endif %}">
+            На рассмотрении ({{ counts.pending }})
+        </a>
+        <a href="{{ url_for('tools.pitches_admin', tab='approved') }}" class="tools-admin-tab {% if tab == 'approved' %}active{% endif %}">
+            Одобренные ({{ counts.approved }})
+        </a>
+        <a href="{{ url_for('tools.pitches_admin', tab='rejected') }}" class="tools-admin-tab {% if tab == 'rejected' %}active{% endif %}">
+            Отклонённые ({{ counts.rejected }})
+        </a>
+    </div>
+
+    {% if pitches.items %}
+    <div class="tools-admin-list">
+        {% for pitch in pitches.items %}
+        <div class="tools-admin-card">
+            <div class="tools-admin-card-header">
+                <span class="tools-admin-status {{ pitch.status_class }}">{{ pitch.status_display }}</span>
+                <span class="tools-admin-user">{{ pitch.user.display_name }}</span>
+                <span class="tools-admin-date">{{ pitch.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            </div>
+            <h3 class="tools-admin-title">{{ pitch.title }}</h3>
+            <p class="tools-admin-artists">{{ pitch.artists }}{% if pitch.genre %} · {{ pitch.genre }}{% endif %}</p>
+            {% if pitch.comment %}
+            <p class="tools-admin-comment">{{ pitch.comment }}</p>
+            {% endif %}
+            {% if pitch.status in ['pending', 'in_review'] %}
+            <div class="tools-admin-actions">
+                <form method="POST" action="{{ url_for('tools.approve_pitch', id=pitch.id) }}" class="tools-admin-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="tools-admin-btn tools-admin-btn-approve">
+                        <span class="material-icons">check_circle</span>
+                        Одобрить
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('tools.reject_pitch', id=pitch.id) }}" class="tools-admin-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="tools-admin-btn tools-admin-btn-reject">
+                        <span class="material-icons">cancel</span>
+                        Отклонить
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if pitches.pages > 1 %}
+    <div class="pagination">
+        {% if pitches.has_prev %}
+        <a href="{{ url_for('tools.pitches_admin', tab=tab, page=pitches.prev_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <span class="pagination-info">Страница {{ pitches.page }} из {{ pitches.pages }}</span>
+        {% if pitches.has_next %}
+        <a href="{{ url_for('tools.pitches_admin', tab=tab, page=pitches.next_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="tools-admin-empty">
+        <span class="material-icons">inbox</span>
+        <p>Заявок нет</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

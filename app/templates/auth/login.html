@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Вход | Toolls Music Distribution</title>
+    {% include 'auth/partials/head.html' %}
+</head>
+<body class="auth-flow auth-flow--login">
+    <div class="auth-flow__ambient" aria-hidden="true">
+        <div class="auth-flow__gradient"></div>
+        <div class="auth-flow__noise"></div>
+    </div>
+
+    <div class="auth-flow__page auth-flow__page--login">
+        <main class="auth-login-panel">
+            <div class="auth-login-panel__card">
+                <header class="auth-login-panel__head">
+                    {% with extra_class='auth-brand--card' %}{% include 'auth/partials/brand.html' %}{% endwith %}
+                    {% with active=1 %}{% include 'auth/partials/steps.html' %}{% endwith %}
+                </header>
+
+                <div class="auth-login-panel__intro">
+                    <h1 class="auth-login-panel__title">Вход в личный кабинет</h1>
+                    <p class="auth-login-panel__lead">Релизы, финансы и поддержка — для артистов и лейблов Toolls Music Distribution.</p>
+                </div>
+
+                {% include 'auth/partials/flashes.html' %}
+
+                <form method="POST" class="auth-form js-auth-submit" autocomplete="on">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="auth-field">
+                        <label class="auth-field__label" for="login">Логин или email</label>
+                        <div class="auth-field__wrap">
+                            <span class="material-icons auth-field__icon">person_outline</span>
+                            <input type="text" id="login" name="login" required class="auth-field__input" autocomplete="username" placeholder="example@mail.ru">
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label class="auth-field__label" for="password">Пароль</label>
+                        <div class="auth-field__wrap">
+                            <span class="material-icons auth-field__icon">lock_outline</span>
+                            <input type="password" id="password" name="password" required class="auth-field__input auth-field__input--password" autocomplete="current-password" placeholder="Введите пароль">
+                            <button type="button" class="auth-field__toggle" onclick="var p=document.getElementById('password');var i=this.querySelector('.material-icons');p.type=p.type==='password'?'text':'password';i.textContent=p.type==='password'?'visibility':'visibility_off';" aria-label="Показать пароль">
+                                <span class="material-icons">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="auth-form__row">
+                        <a href="{{ url_for('auth.forgot_password') }}" class="auth-link">Забыли пароль?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn--primary js-auth-btn">
+                        <span class="auth-btn__idle">Продолжить <span class="material-icons">arrow_forward</span></span>
+                        <span class="auth-btn__busy" aria-hidden="true"><span class="auth-btn__spinner"></span> Проверяем…</span>
+                    </button>
+                </form>
+
+                {% if social_login_providers %}
+                <div class="auth-divider"><span>или</span></div>
+                <div class="auth-social auth-social--compact">
+                    <div class="auth-social__list">
+                        {% for sp in social_login_providers %}
+                        <a href="{{ url_for('auth.social_login_start', provider=sp.key) }}"
+                           class="auth-social__btn {% if not sp.enabled %}auth-social__btn--disabled{% endif %}">
+                            <span class="material-icons">login</span>
+                            Войти через {{ sp.title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <ul class="auth-login-panel__features" aria-label="Возможности кабинета">
+                    <li><span class="material-icons">album</span> Релизы</li>
+                    <li><span class="material-icons">payments</span> Финансы</li>
+                    <li><span class="material-icons">support_agent</span> Поддержка</li>
+                </ul>
+
+                <footer class="auth-flow__footer auth-flow__footer--compact">
+                    <a href="{{ url_for('auth.faq') }}">FAQ</a>
+                    <a href="{{ url_for('auth.legal_agreement') }}">Соглашение</a>
+                    <a href="{{ url_for('auth.legal_privacy') }}">Конфиденциальность</a>
+                </footer>
+            </div>
+
+            <p class="auth-login-panel__copyright">© Toolls Music Distribution</p>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/auth-flow.js') }}"></script>
+    <script>
+    (function () {
+        document.querySelectorAll('.auth-brand--header .auth-brand__img--light').forEach(function (img) {
+            img.addEventListener('error', function () {
+                var brand = img.closest('.auth-brand');
+                if (brand) brand.classList.add('auth-brand--fallback');
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

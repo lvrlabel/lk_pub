@@ -1,0 +1,24 @@
+{# active: 1 | 2 | 3 #}
+{% set active = active | default(1) %}
+<nav class="auth-steps" aria-label="Этапы входа">
+    <ol class="auth-steps__list">
+        <li class="auth-steps__item {% if active >= 1 %}auth-steps__item--active{% endif %} {% if active > 1 %}auth-steps__item--done{% endif %}">
+            <span class="auth-steps__dot" aria-hidden="true">
+                {% if active > 1 %}<span class="material-icons">check</span>{% else %}1{% endif %}
+            </span>
+            <span class="auth-steps__label">Вход</span>
+        </li>
+        <li class="auth-steps__line {% if active > 1 %}auth-steps__line--done{% endif %}" aria-hidden="true"></li>
+        <li class="auth-steps__item {% if active >= 2 %}auth-steps__item--active{% endif %} {% if active > 2 %}auth-steps__item--done{% endif %}">
+            <span class="auth-steps__dot" aria-hidden="true">
+                {% if active > 2 %}<span class="material-icons">check</span>{% else %}2{% endif %}
+            </span>
+            <span class="auth-steps__label">Код</span>
+        </li>
+        <li class="auth-steps__line {% if active > 2 %}auth-steps__line--done{% endif %}" aria-hidden="true"></li>
+        <li class="auth-steps__item {% if active >= 3 %}auth-steps__item--active{% endif %}">
+            <span class="auth-steps__dot" aria-hidden="true">3</span>
+            <span class="auth-steps__label">Готово</span>
+        </li>
+    </ol>
+</nav>

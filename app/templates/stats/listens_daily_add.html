@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Ввод прослушиваний за день{% endblock %}
+{% block page_title %}Прослушивания за день{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<p class="form-hint">Укажите дату и прослушивания по каждой площадке. За одну дату можно перезаписать данные — старые значения по этому релизу и дате будут заменены.</p>
+<form method="POST" style="margin-top:1rem;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-row" style="flex-wrap:wrap; gap:1rem;">
+  <div class="form-group"><label>Релиз *</label>
+    <select name="release_id" required class="form-control">
+      {% for r in releases %}<option value="{{ r.id }}" {% if request.args.get('release_id')|int == r.id %}selected{% endif %}>{{ r.title }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="form-group"><label>Дата *</label>
+    <input type="date" name="stat_date" required class="form-control" value="{{ today }}">
+  </div>
+</div>
+<div class="card" style="margin-top:1.25rem;"><div class="card-header"><h3 style="margin:0;">По площадкам (за этот день)</h3></div>
+<div class="card-content" style="display:grid; gap:0.5rem;">
+{% for name in platform_list %}
+<div class="form-row" style="align-items:center; flex-wrap:wrap;">
+  <label style="min-width:160px;">{{ name }}</label>
+  <input type="number" name="platform_{{ loop.index0 }}_listens" value="0" min="0" class="form-control" style="max-width:120px;" placeholder="0">
+</div>
+{% endfor %}
+<div style="margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+  <div class="form-row" style="align-items:center; flex-wrap:wrap;">
+    <label style="min-width:160px;">Другая площадка</label>
+    <input type="text" name="platform_extra_name" class="form-control" style="max-width:180px;" placeholder="Название">
+    <input type="number" name="platform_extra_listens" value="0" min="0" class="form-control" style="max-width:120px;" placeholder="0">
+  </div>
+</div>
+</div></div>
+<div class="form-actions" style="margin-top:1.25rem;">
+  <a href="{{ url_for('stats.listens_chart') }}" class="btn btn-ghost">К графику</a>
+  <button type="submit" class="btn btn-primary">Сохранить</button>
+</div>
+</form>
+</div>
+{% endblock %}

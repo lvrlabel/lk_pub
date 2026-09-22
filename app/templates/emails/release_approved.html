@@ -1,0 +1,20 @@
+{% extends "emails/base.html" %}
+{% block email_title %}Релиз одобрен · Toolls Music Distribution{% endblock %}
+{% block preheader %}Ваш релиз «{{ release_title }}» одобрен модерацией{% endblock %}
+{% block content %}
+<p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Релизы
+</p>
+<p style="margin: 0 0 18px; font-size: 20px; font-weight: 800; line-height: 1.25; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Релиз одобрен
+</p>
+<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6; color: rgba(243, 239, 230, 0.62); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Здравствуйте{% if artist_name %}, {{ artist_name }}{% endif %}! Релиз <strong style="color: #f3efe6;">«{{ release_title }}»</strong> прошёл модерацию.
+</p>
+<p style="margin: 0 0 24px; padding: 14px 16px; background: rgba(195, 240, 0, 0.08); border-radius: 10px; border: 1px solid rgba(195, 240, 0, 0.22); font-size: 14px; line-height: 1.55; color: rgba(243, 239, 230, 0.78); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Материалы переданы на площадки. Сроки появления зависят от каждого сервиса.
+</p>
+<p style="margin: 0;">
+    <a href="{{ release_url }}" style="display: inline-block; padding: 13px 26px; background: #c3f000; color: #100f0d !important; text-decoration: none; font-size: 14px; font-weight: 800; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Открыть релиз</a>
+</p>
+{% endblock %}

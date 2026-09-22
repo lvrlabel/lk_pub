@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ section.title }}{% endblock %}
+{% block page_title %}{{ section.title }}{% endblock %}
+{% block content %}
+<div class="knowledge-portal uni-skin">
+    <nav class="kb-breadcrumb breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">{{ section.title }}</span>
+    </nav>
+
+    <header class="kb-page-header">
+        <div class="kb-page-header__icon-wrap" aria-hidden="true">
+            <span class="material-icons">{{ section.icon or 'folder_open' }}</span>
+        </div>
+        <div class="kb-page-header__text">
+            <h1 class="kb-page-header__title">{{ section.title }}</h1>
+            {% if section.summary %}
+            <p class="kb-page-header__summary">{{ section.summary }}</p>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if articles %}
+    <ul class="kb-article-grid" role="list">
+        {% for a in articles %}
+        <li>
+            <a href="{{ url_for('knowledge.article_page', section_slug=section.slug, article_slug=a.slug) }}" class="kb-article-tile">
+                <span class="material-icons kb-article-tile__icon" aria-hidden="true">description</span>
+                <div class="kb-article-tile__body">
+                    <h2 class="kb-article-tile__title">{{ a.title }}</h2>
+                    <p class="kb-article-tile__meta">{{ a.summary or 'Открыть материал' }}</p>
+                </div>
+                <span class="material-icons kb-article-tile__chev" aria-hidden="true">arrow_forward</span>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <div class="kb-empty">
+        <span class="material-icons kb-empty__icon" aria-hidden="true">hourglass_empty</span>
+        <p class="kb-empty__text">В этом разделе пока нет опубликованных статей с текстом.</p>
+    </div>
+    {% endif %}
+
+    <footer class="kb-footer-actions">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span> Ко всем разделам
+        </a>
+    </footer>
+</div>
+{% endblock %}

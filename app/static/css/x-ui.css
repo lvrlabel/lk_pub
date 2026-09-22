@@ -1,0 +1,147 @@
+/**
+ * X-UI — спокойный единый слой для ЛК
+ * Без градиентов и «стеклянного» пафоса: ясная иерархия, мягкие переходы.
+ */
+
+.x-ui {
+    --xui-font: "Manrope", sans-serif;
+    --xui-ink: var(--text-primary, #1a1a1a);
+    --xui-ink2: var(--text-secondary, #64748b);
+    --xui-ink3: var(--text-tertiary, #94a3b8);
+    --xui-line: var(--border, #e2e8f0);
+    --xui-surface: var(--bg-card, var(--bg-primary, #fff));
+    --xui-surface-2: var(--bg-secondary, #f8fafc);
+    --xui-accent: var(--primary, #0d9488);
+    --xui-accent-soft: rgba(13, 148, 136, 0.1);
+    --xui-danger: #dc2626;
+    --xui-radius: 14px;
+    --xui-radius-sm: 10px;
+    --xui-radius-pill: 999px;
+    --xui-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --xui-shadow-hover: 0 4px 14px rgba(15, 23, 42, 0.07);
+    --xui-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    font-family: var(--xui-font);
+    color: var(--xui-ink);
+    -webkit-font-smoothing: antialiased;
+}
+
+html[data-theme="dark"] body.dark-theme .x-ui {
+    --xui-surface: #1a1a1a;
+    --xui-surface-2: #222;
+    --xui-line: #3d3d3d;
+    --xui-shadow: none;
+    --xui-shadow-hover: none;
+}
+
+.xui-glass {
+    background: var(--xui-surface);
+    border: 1px solid var(--xui-line);
+    border-radius: var(--xui-radius);
+    box-shadow: var(--xui-shadow);
+}
+
+.xui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 38px;
+    padding: 0.5rem 0.95rem;
+    border-radius: var(--xui-radius-sm);
+    border: 1px solid var(--xui-line);
+    background: var(--xui-surface);
+    color: var(--xui-ink);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s var(--xui-ease), border-color 0.2s var(--xui-ease),
+        color 0.2s var(--xui-ease), box-shadow 0.2s var(--xui-ease);
+}
+
+.xui-btn:hover {
+    border-color: rgba(13, 148, 136, 0.35);
+    color: var(--xui-accent);
+    text-decoration: none;
+}
+
+.xui-btn:active {
+    transform: scale(0.98);
+}
+
+.xui-btn--primary {
+    background: var(--xui-accent);
+    border-color: transparent;
+    color: #fff;
+}
+
+.xui-btn--primary:hover {
+    color: #fff;
+    filter: brightness(1.04);
+}
+
+.xui-btn--ghost {
+    background: transparent;
+    box-shadow: none;
+}
+
+.xui-btn .material-icons {
+    font-size: 1.1rem;
+    opacity: 0.85;
+}
+
+.xui-field,
+.x-ui .form-control {
+    width: 100%;
+    min-height: 42px;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--xui-radius-sm);
+    border: 1px solid var(--xui-line);
+    background: var(--xui-surface);
+    color: var(--xui-ink);
+    font-family: inherit;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.2s var(--xui-ease), box-shadow 0.2s var(--xui-ease);
+}
+
+.x-ui .form-control:focus,
+.xui-field:focus {
+    border-color: var(--xui-accent);
+    box-shadow: 0 0 0 3px var(--xui-accent-soft);
+}
+
+.x-ui textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.xui-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0.12rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 650;
+    background: var(--xui-accent-soft);
+    color: var(--xui-accent);
+}
+
+.xui-fade {
+    animation: xuiFade 0.35s var(--xui-ease) both;
+}
+
+@keyframes xuiFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .xui-btn,
+    .xui-fade {
+        transition: none !important;
+        animation: none !important;
+    }
+}

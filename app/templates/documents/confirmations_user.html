@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Документооборот — подтверждения{% endblock %}
+{% block page_title %}Документооборот{% endblock %}
+{% block body_class %}documents-page{% endblock %}
+{% block content %}
+<div class="tl-page tl-documents documents-hub uni-skin">
+    {% include "documents/_hub_hero.html" %}
+    <section class="documents-hub__sheet">
+        {% include "documents/_tabs.html" %}
+        <div class="documents-hub__section-head">
+            <h3 class="documents-hub__h3">Подтверждения оплаты</h3>
+        </div>
+        {% if items %}
+        <div class="documents-hub__table-wrap table-wrap">
+            <table class="data-table documents-hub__table">
+                <thead>
+                    <tr>
+                        <th>Счёт</th>
+                        <th>Номер подтверждения</th>
+                        <th>Дата оплаты</th>
+                        <th class="documents-hub__th-num">Сумма</th>
+                        <th>Дата загрузки</th>
+                        <th>Файл</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for it in items %}
+                    <tr>
+                        <td>{% if it.invoice %}{{ it.invoice.invoice_number }}{% else %}#{{ it.invoice_id }}{% endif %}</td>
+                        <td>{{ it.confirmation_number or '—' }}</td>
+                        <td>{% if it.payment_date %}{{ it.payment_date.strftime('%d.%m.%Y') }}{% else %}—{% endif %}</td>
+                        <td class="documents-hub__td-num">{% if it.amount is not none %}{{ it.amount }}{% else %}—{% endif %}</td>
+                        <td>{{ it.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>
+                            {% if it.document_file %}
+                            <a href="{{ url_for('documents.download_confirmation', id=it.id) }}" class="btn btn-ghost btn-sm">Скачать PDF</a>
+                            {% else %}—{% endif %}
+                        </td>
+                    </tr>
+                    {% if it.comment %}
+                    <tr class="documents-hub__row-desc">
+                        <td colspan="6">{{ it.comment }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="documents-hub__empty empty-state small"><p>Подтверждений оплаты пока нет.</p></div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

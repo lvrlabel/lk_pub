@@ -1,0 +1,84 @@
+{# Тело переписки чата с менеджером (для live-обновления) #}
+{% set ns = namespace(last_date='') %}
+{% set initial_is_me = current_user.is_admin and selected_chat.created_by_admin_id is not none and selected_chat.created_by_admin_id == current_user.id %}
+{% if not chat_messages %}
+{% if selected_chat.date_key %}
+{% set ns.last_date = selected_chat.date_key %}
+<div class="tl-chat-date" role="separator" aria-label="{{ selected_chat.date_label }}">
+    <span>{{ selected_chat.date_label }}</span>
+</div>
+{% endif %}
+{% set intro_read = initial_is_me and is_message_read_by_peer(selected_chat, selected_chat.created_at, true) %}
+<div class="manager-chat-bubble-row {% if initial_is_me %}is-me{% else %}is-other{% endif %}">
+    {% if not initial_is_me %}
+    <div class="manager-chat-bubble-avatar" aria-hidden="true">
+        <span class="material-icons">admin_panel_settings</span>
+    </div>
+    {% endif %}
+    <div class="manager-chat-bubble-wrap">
+        <div class="manager-chat-bubble">
+            <div class="manager-chat-bubble-text">{{ selected_chat.message }}</div>
+            <div class="manager-chat-bubble-meta">
+                <span>{{ selected_chat.chat_time_formatted }}</span>
+                {% if initial_is_me %}
+                <span
+                    class="manager-chat-ticks {% if intro_read %}is-read{% else %}is-sent{% endif %}"
+                    data-msg-id="intro"
+                    title="{% if intro_read %}Прочитано{% else %}Доставлено, не прочитано{% endif %}">
+                    <span class="material-icons" aria-hidden="true">{% if intro_read %}done_all{% else %}done{% endif %}</span>
+                    <span class="visually-hidden">{% if intro_read %}Прочитано{% else %}Не прочитано{% endif %}</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% for msg in chat_messages %}
+{% if msg.date_key and msg.date_key != ns.last_date %}
+{% set ns.last_date = msg.date_key %}
+<div class="tl-chat-date" role="separator" aria-label="{{ msg.date_label }}">
+    <span>{{ msg.date_label }}</span>
+</div>
+{% endif %}
+{% set from_me = (msg.is_admin == current_user.is_admin) %}
+{% set msg_read = from_me and is_message_read_by_peer(selected_chat, msg.created_at, msg.is_admin) %}
+<div class="manager-chat-bubble-row {% if from_me %}is-me{% else %}is-other{% endif %}">
+    {% if not from_me %}
+    <div class="manager-chat-bubble-avatar" aria-hidden="true">
+        <span class="material-icons">{% if msg.is_admin %}admin_panel_settings{% else %}person{% endif %}</span>
+    </div>
+    {% endif %}
+    <div class="manager-chat-bubble-wrap">
+        <div class="manager-chat-bubble">
+            {% if msg.message and msg.message != voice_message_text %}
+            <div class="manager-chat-bubble-text">{{ msg.message }}</div>
+            {% endif %}
+            {% if msg.attachments.count() > 0 %}
+            <div class="manager-chat-bubble-attachments chat-message-attachments{% if msg.message == voice_message_text %} chat-message-attachments--voice-only{% endif %}">
+                {% if msg.message != voice_message_text %}
+                <div class="attachments-label">Вложения</div>
+                {% endif %}
+                <ul class="attachments-list">
+                    {% for att in msg.attachments %}
+                    {% include 'tickets/partials/_chat_attachment.html' %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="manager-chat-bubble-meta">
+                <span>{{ msg.chat_time_formatted }}</span>
+                {% if from_me %}
+                <span
+                    class="manager-chat-ticks {% if msg_read %}is-read{% else %}is-sent{% endif %}"
+                    data-msg-id="{{ msg.id }}"
+                    title="{% if msg_read %}Прочитано{% else %}Доставлено, не прочитано{% endif %}">
+                    <span class="material-icons" aria-hidden="true">{% if msg_read %}done_all{% else %}done{% endif %}</span>
+                    <span class="visually-hidden">{% if msg_read %}Прочитано{% else %}Не прочитано{% endif %}</span>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}

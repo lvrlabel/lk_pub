@@ -1,0 +1,41 @@
+<div class="ticket-modal-header">
+    <div class="ticket-modal-title-wrap">
+        <h3>{{ ticket.subject }}</h3>
+        <p>
+            <strong>{{ ticket.display_id }}</strong>
+            <span class="ticket-list-status {{ ticket.status_class }}" data-ticket-status-id="{{ ticket.id }}">{{ ticket.status_display }}</span>
+        </p>
+    </div>
+    <div class="ticket-modal-actions">
+        {% if ticket.is_open %}
+        <form class="ticket-modal-close-form" data-ticket-id="{{ ticket.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm ticket-modal-btn-close-ticket">
+                <span class="material-icons">check_circle</span>
+                Закрыть тикет
+            </button>
+        </form>
+        {% elif current_user.is_admin %}
+        <form class="ticket-modal-reopen-form" data-ticket-id="{{ ticket.id }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm">
+                <span class="material-icons">restart_alt</span>
+                Открыть снова
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="ticket-modal-messages support-chat-modal-body" id="ticket-modal-messages">
+    {% with ticket=ticket, messages=messages %}
+    {% include 'tickets/partials/_support_chat_thread.html' %}
+    {% endwith %}
+</div>
+
+{% set modal_ta_id = 'ticketModalReply' ~ ticket.id %}
+{% set modal_file_id = 'ticketModalAttachments' ~ ticket.id %}
+{% set modal_hint_id = 'ticketModalEnterHint' ~ ticket.id %}
+{% with ticket=ticket, composer_mode='ajax', textarea_id=modal_ta_id, file_input_id=modal_file_id, enter_hint_id=modal_hint_id %}
+{% include 'tickets/partials/_support_chat_composer.html' %}
+{% endwith %}

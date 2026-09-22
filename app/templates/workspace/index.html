@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Моё пространство{% endblock %}
+{% block page_title %}Моё пространство{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    {% if theme.cover_url %}
+    <div class="ws-cover-banner" aria-hidden="true">
+        <img src="{{ theme.cover_url }}" alt="">
+    </div>
+    {% endif %}
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Моё пространство</h1>
+            <p class="ws-sub">Задачи, идеи, планы и календарь</p>
+        </div>
+        <a href="{{ url_for('workspace.settings') }}" class="btn btn-ghost btn-sm">
+            <span class="material-icons">dashboard_customize</span>
+            Оформление
+        </a>
+    </header>
+
+    {{ workspace_nav(section) }}
+
+    <div class="ws-grid">
+        {% for block in visible_blocks %}
+        {% if block.id == 'next_release' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Мой следующий релиз</h2>
+                <a href="{{ url_for('releases.index') }}">Все релизы</a>
+            </header>
+            {% if next_release %}
+            <a class="ws-release" href="{{ url_for('releases.view', id=next_release.id) }}">
+                {% if next_release.cover_url %}
+                <img src="{{ next_release.cover_url }}" alt="" width="64" height="64">
+                {% else %}
+                <span class="ws-release__ph material-icons">album</span>
+                {% endif %}
+                <div>
+                    <strong>{{ next_release.title }}</strong>
+                    <span>{{ next_release.status_display }} · {{ next_release.release_date.strftime('%d.%m.%Y') if next_release.release_date else '—' }}</span>
+                </div>
+            </a>
+            {% else %}
+            <p class="ws-empty">Пока нет релизов. <a href="{{ url_for('releases.create') }}">Создать</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'tasks' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Мои задачи <span class="ws-count">{{ counts.tasks }}</span></h2>
+                <a href="{{ url_for('workspace.tasks') }}">Все</a>
+            </header>
+            {% if open_tasks %}
+            <ul class="ws-list">
+                {% for t in open_tasks[:5] %}
+                <li class="{% if t.is_overdue %}is-overdue{% endif %}">
+                    <form method="POST" action="{{ url_for('workspace.task_toggle', task_id=t.id) }}" class="ws-check">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" title="Готово"><span class="material-icons">check_box_outline_blank</span></button>
+                    </form>
+                    <div>
+                        <span>{{ t.title }}</span>
+                        {% if t.due_display %}<small>до {{ t.due_display }}</small>{% endif %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ws-empty">Нет открытых задач. <a href="{{ url_for('workspace.tasks') }}">Добавить</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'ideas' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Мои идеи <span class="ws-count">{{ counts.ideas }}</span></h2>
+                <a href="{{ url_for('workspace.ideas') }}">Все</a>
+            </header>
+            {% if ideas %}
+            <ul class="ws-list ws-list--plain">
+                {% for i in ideas[:5] %}
+                <li><strong>{{ i.title }}</strong><small>{{ i.status_label }}</small></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ws-empty">Идеи появятся здесь. <a href="{{ url_for('workspace.ideas') }}">Записать</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'plans' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Мои планы <span class="ws-count">{{ counts.plans }}</span></h2>
+                <a href="{{ url_for('workspace.plans') }}">Все</a>
+            </header>
+            {% if plans %}
+            <ul class="ws-list ws-list--plain">
+                {% for p in plans[:5] %}
+                <li>
+                    <strong>{{ p.title }}</strong>
+                    <small>{{ p.status_label }}{% if p.target_display %} · {{ p.target_display }}{% endif %}</small>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ws-empty">Запланируйте релиз. <a href="{{ url_for('workspace.plans') }}">Создать план</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'notes' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Заметки <span class="ws-count">{{ counts.notes }}</span></h2>
+                <a href="{{ url_for('workspace.notes') }}">Все</a>
+            </header>
+            {% if notes %}
+            <ul class="ws-list ws-list--plain">
+                {% for n in notes[:4] %}
+                <li><strong>{{ n.title }}</strong><small>{{ n.updated_display }}</small></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ws-empty">Личные заметки только для вас. <a href="{{ url_for('workspace.notes') }}">Написать</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'calendar' %}
+        <section class="ws-block{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Календарь</h2>
+                <a href="{{ url_for('workspace.calendar') }}">Открыть</a>
+            </header>
+            {% if events %}
+            <ul class="ws-list ws-list--plain">
+                {% for e in events[:5] %}
+                <li><strong>{{ e.title }}</strong><small>{{ e.starts_display }}</small></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="ws-empty">Ближайших событий нет. <a href="{{ url_for('workspace.calendar') }}">Добавить</a></p>
+            {% endif %}
+        </section>
+
+        {% elif block.id == 'stats' %}
+        <section class="ws-block ws-block--accent{% if block.tint_color %} ws-block--tinted{% endif %}"
+                 {% if block.tint_color %}style="--ws-block-tint: {{ block.tint_color }}"{% endif %}>
+            <header class="ws-block__head">
+                <h2>Моя статистика</h2>
+                <a href="{{ url_for('stats.index') }}">Аналитика</a>
+            </header>
+            <p class="ws-empty" style="margin:0">Стримы, скачивания и доход по вашим релизам — в разделе аналитики.</p>
+            <a href="{{ url_for('stats.index') }}" class="btn btn-primary btn-sm" style="margin-top:0.75rem">Открыть аналитику</a>
+        </section>
+        {% endif %}
+        {% else %}
+        <p class="ws-empty">Все блоки скрыты. <a href="{{ url_for('workspace.settings') }}">Включить блоки</a></p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

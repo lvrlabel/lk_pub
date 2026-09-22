@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Идеи — Моё пространство{% endblock %}
+{% block page_title %}Идеи{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Идеи</h1>
+            <p class="ws-sub">Сохраняйте задумки треков, клипов, коллабораций — потом разберёте</p>
+        </div>
+    </header>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-compose">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" class="form-control" placeholder="Название идеи" required maxlength="200">
+        <textarea name="body" class="form-control" rows="3" placeholder="Описание (необязательно)"></textarea>
+        <div class="ws-form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить идею</button>
+        </div>
+    </form>
+
+    {% if ideas %}
+    <ul class="ws-cards">
+        {% for i in ideas %}
+        <li class="ws-card">
+            <div>
+                <strong>{{ i.title }}</strong>
+                <span class="ws-badge">{{ i.status_label }}</span>
+                {% if i.body %}<p>{{ i.body }}</p>{% endif %}
+            </div>
+            <div class="ws-card__actions">
+                <form method="POST" action="{{ url_for('workspace.idea_status', idea_id=i.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="inbox" {% if i.status == 'inbox' %}selected{% endif %}>Идея</option>
+                        <option value="active" {% if i.status == 'active' %}selected{% endif %}>В работе</option>
+                        <option value="done" {% if i.status == 'done' %}selected{% endif %}>Готово</option>
+                    </select>
+                </form>
+                <form method="POST" action="{{ url_for('workspace.idea_delete', idea_id=i.id) }}" onsubmit="return confirm('Удалить?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost btn-sm"><span class="material-icons">delete</span></button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ws-empty">Пока пусто — запишите первую идею.</p>
+    {% endif %}
+</div>
+{% endblock %}

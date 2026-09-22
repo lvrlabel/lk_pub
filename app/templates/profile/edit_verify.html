@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Подтверждение изменений{% endblock %}
+{% block page_title %}Подтверждение изменений профиля{% endblock %}
+{% block content %}
+<div class="profile-edit-page uni-skin">
+    <div class="profile-edit-card card" style="max-width: 520px; margin: 0 auto;">
+        <header class="card-header">
+            <h3 class="card-header__title"><span class="material-icons">verified_user</span> Подтверждение изменений</h3>
+        </header>
+        <div class="card-content">
+            <p class="text-secondary" style="margin: 0 0 1rem;">
+                Мы отправили код подтверждения на вашу почту. Введите 5 цифр, чтобы применить изменения профиля.
+            </p>
+            <form method="POST" class="profile-edit-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="code">Код подтверждения</label>
+                    <input type="text" id="code" name="code" maxlength="5" required class="form-control" inputmode="numeric" pattern="[0-9]{5}" placeholder="12345" autocomplete="one-time-code">
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('profile.edit') }}" class="btn btn-ghost">Назад</a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">check_circle</span>
+                        Подтвердить
+                    </button>
+                </div>
+            </form>
+            <form method="POST" action="{{ url_for('profile.edit_verify_resend') }}" style="margin-top:0.75rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm">Отправить код повторно</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

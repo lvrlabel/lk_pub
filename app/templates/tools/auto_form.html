@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Автоматическая форма{% endblock %}
+{% block page_title %}Форма для типовых задач{% endblock %}
+{% block content %}
+<div class="uni-skin auto-form-page">
+    <div class="card" style="padding: 1.5rem 2rem;">
+        <h1 class="auto-form-title" style="font-size: 1.5rem; margin: 0 0 0.5rem;">Форма для типовых задач</h1>
+        <p class="auto-form-intro" style="color: var(--text-secondary, #666); margin: 0 0 1.5rem; line-height: 1.5;">
+            Некоторые проблемы не требуют вмешательства специалиста и могут быть направлены на площадки автоматически. Если ваша задача попадает под одну из предложенных категорий, вы можете заполнить форму без обращения в поддержку.
+        </p>
+
+        <form method="post" action="{{ url_for('tools.auto_form') }}" id="autoFormForm" class="auto-form-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="request_type" class="auto-form-label">Что необходимо сделать?</label>
+                <select name="request_type" id="request_type" class="form-control auto-form-select" required>
+                    <option value="">Выберите опцию</option>
+                    <option value="transfer_release">Перенести релиз в другую карточку</option>
+                    <option value="youtube_note">Получить «нотку» на YouTube-канал</option>
+                    <option value="vk_restore">Восстановить прослушивания/плейлист в VK</option>
+                </select>
+            </div>
+
+            <!-- Блок 1: Перенести релиз -->
+            <div id="block-transfer" class="auto-form-block" style="display: none;">
+                <div class="auto-form-hint" role="alert">
+                    <span class="material-icons">info</span>
+                    На большинстве площадок распределение по карточкам производится автоматически. Если релиз попал в новый или чужой профиль, мы оперативно перенесём его по запросу.
+                </div>
+                <div class="form-group">
+                    <label for="release_id">Пожалуйста, выберите релиз, используя поиск</label>
+                    <select name="release_id" id="release_id" class="form-control">
+                        <option value="">— Выберите релиз —</option>
+                        {% for r in releases %}
+                        <option value="{{ r.id }}">{{ r.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="platform">Выберите площадку, на которой требуется перенос:</label>
+                    <select name="platform" id="platform" class="form-control">
+                        <option value="">Выберите площадку</option>
+                        <option value="vk">ВКонтакте</option>
+                        <option value="yandex">Яндекс.Музыка</option>
+                        <option value="spotify">Spotify</option>
+                        <option value="other">Другая</option>
+                    </select>
+                </div>
+                <div id="transfer-urls" style="display: none;">
+                    <div class="auto-form-hint" style="margin-bottom: 0.75rem;">Примерный срок: 4–7 дней.</div>
+                    <div class="form-group">
+                        <label for="correct_card_url">Ссылка на карточку, на которую нужно перенести релиз</label>
+                        <input type="url" name="correct_card_url" id="correct_card_url" class="form-control" placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label for="wrong_card_url">Ссылка на карточку, куда релиз был ошибочно отправлен</label>
+                        <input type="url" name="wrong_card_url" id="wrong_card_url" class="form-control" placeholder="https://...">
+                    </div>
+                </div>
+                <div id="transfer-other-msg" style="display: none;" class="auto-form-hint warning">
+                    <span class="material-icons">support</span>
+                    Для переноса на другую площадку создайте тикет в разделе <a href="{{ url_for('tickets.index') }}">Поддержка</a>.
+                </div>
+            </div>
+
+            <!-- Блок 2: Нотка YouTube -->
+            <div id="block-youtube" class="auto-form-block" style="display: none;">
+                <div class="auto-form-hint" role="alert">
+                    <span class="material-icons">info</span>
+                    Верификация музыкального канала доступна артистам, которые опубликовали более 3-х релизов через наш сервис. После завершения процедуры ваш канал будет объединён с карточкой, а около названия будет отображаться «нотка».
+                </div>
+                <div class="auto-form-hint" style="margin-top: 0.5rem;">
+                    Обратите внимание: название канала должно совпадать с именем артиста/группы, на нём может публиковаться только музыкальный контент. Обычно процесс занимает 1–2 недели, но иногда растягивается до нескольких месяцев. Площадка может отказать в верификации без уведомления.
+                </div>
+                <div class="form-group">
+                    <label for="artist_name">Выберите артиста / укажите имя исполнителя</label>
+                    <input type="text" name="artist_name" id="artist_name" class="form-control" placeholder="Имя артиста или группы">
+                </div>
+                <div class="form-group">
+                    <label for="channel_url">Введите ссылку на ваш канал для верификации</label>
+                    <input type="url" name="channel_url" id="channel_url" class="form-control" placeholder="https://youtube.com/channel/...">
+                    <small class="form-hint">Ссылка на канал должна иметь формат youtube.com/channel/... Вы можете просмотреть все URL по адресу youtube.com/handle</small>
+                </div>
+                <div class="form-group">
+                    <label for="topic_urls">Введите ссылку на вашу тему (топик)</label>
+                    <textarea name="topic_urls" id="topic_urls" class="form-control" rows="3" placeholder="https://..."></textarea>
+                    <small class="form-hint">Тема (Topic) — это карточка исполнителя на YouTube. Если тем несколько, укажите ссылку на каждую с новой строки.</small>
+                </div>
+            </div>
+
+            <!-- Блок 3: VK восстановление -->
+            <div id="block-vk" class="auto-form-block" style="display: none;">
+                <div class="auto-form-hint" role="alert">
+                    <span class="material-icons">info</span>
+                    Если вы перенесли к нам релизы от другого дистрибьютора, то для сохранения прослушиваний и восстановления плейлиста потребуется составить отдельный запрос. Обработка может занять до 7 дней.
+                </div>
+                <div class="form-group">
+                    <label for="previous_distributor">Введите название прошлого дистрибьютора / лейбла</label>
+                    <input type="text" name="previous_distributor" id="previous_distributor" class="form-control" placeholder="Название дистрибьютора">
+                    <small class="form-hint">Если дистрибьюторов несколько — для каждого потребуется составить отдельный запрос, указав только те релизы, которые были выпущены через конкретного дистрибьютора.</small>
+                </div>
+                <div class="form-group">
+                    <label for="upc_codes">Построчно введите UPC релизов</label>
+                    <textarea name="upc_codes" id="upc_codes" class="form-control" rows="4" placeholder="Один UPC на строку"></textarea>
+                    <small class="form-hint">Укажите UPC релизов, которые были перенесены с данного дистрибьютора. Вписывайте каждый UPC с новой строки.</small>
+                </div>
+            </div>
+
+            <div class="auto-form-actions" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                    <span>Отправить</span>
+                    <span class="material-icons" style="font-size: 1.25rem;">arrow_forward</span>
+                </button>
+            </div>
+        </form>
+
+        <p class="auto-form-support" style="margin-top: 1.5rem; font-size: 0.9375rem; color: var(--text-secondary);">
+            <span class="material-icons" style="vertical-align: middle;">support</span>
+            Поддержка нашего сервиса готова помочь с любыми вопросами в <a href="{{ url_for('tickets.index') }}">чате</a>.
+        </p>
+    </div>
+
+    {% if my_requests %}
+    <div class="card" style="margin-top: 1.5rem; padding: 1.25rem 2rem;">
+        <h2 class="auto-form-my-requests-title" style="font-size: 1.125rem; margin: 0 0 1rem;">Мои заявки</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9375rem; margin: 0 0 1rem;">Здесь отображаются ваши отправленные заявки. Нажмите на номер заявки, чтобы увидеть статус и переписку с поддержкой.</p>
+        <ul class="auto-form-my-requests-list" style="list-style: none; padding: 0; margin: 0;">
+            {% for r in my_requests %}
+            <li class="auto-form-my-request-item" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border, #eee); flex-wrap: wrap;">
+                <a href="{{ url_for('tools.auto_form_my_request', id=r.id) }}" class="auto-form-my-request-link" style="font-weight: 600; text-decoration: none;">{{ r.display_id }}</a>
+                <span style="color: var(--text-secondary);">{{ r.request_type_display }}</span>
+                <span class="tools-admin-status {{ r.status_class }}" style="font-size: 0.8125rem;">{{ r.status_display }}</span>
+                <span style="font-size: 0.8125rem; color: var(--text-tertiary);">{{ r.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                {% if message_counts.get(r.id, 0) > 0 %}
+                <span style="font-size: 0.8125rem; color: var(--primary);">{{ message_counts.get(r.id, 0) }} сообщ.</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    var form = document.getElementById('autoFormForm');
+    var requestType = document.getElementById('request_type');
+    var platform = document.getElementById('platform');
+    var blocks = {
+        transfer: document.getElementById('block-transfer'),
+        youtube: document.getElementById('block-youtube'),
+        vk: document.getElementById('block-vk')
+    };
+    var transferUrls = document.getElementById('transfer-urls');
+    var transferOtherMsg = document.getElementById('transfer-other-msg');
+    var submitBtn = document.getElementById('submitBtn');
+
+    function showBlock(key) {
+        for (var k in blocks) blocks[k].style.display = 'none';
+        if (blocks[key]) blocks[key].style.display = 'block';
+        submitBtn.style.display = (key && key !== '') ? 'inline-flex' : 'none';
+    }
+
+    function onPlatformChange() {
+        var v = (platform && platform.value) || '';
+        if (transferUrls) transferUrls.style.display = (v === 'vk' || v === 'yandex' || v === 'spotify') ? 'block' : 'none';
+        if (transferOtherMsg) transferOtherMsg.style.display = v === 'other' ? 'block' : 'none';
+        if (submitBtn && blocks.transfer.style.display === 'block') {
+            submitBtn.style.display = (v === 'vk' || v === 'yandex' || v === 'spotify') ? 'inline-flex' : 'none';
+        }
+    }
+
+    requestType.addEventListener('change', function() {
+        var v = requestType.value;
+        showBlock(v === 'transfer_release' ? 'transfer' : v === 'youtube_note' ? 'youtube' : v === 'vk_restore' ? 'vk' : '');
+        if (v === 'transfer_release') onPlatformChange();
+    });
+
+    if (platform) platform.addEventListener('change', onPlatformChange);
+
+    form.addEventListener('submit', function(e) {
+        var v = requestType.value;
+        if (v === 'transfer_release') {
+            var p = platform.value;
+            if (p === 'other') {
+                e.preventDefault();
+                return false;
+            }
+        }
+        return true;
+    });
+
+    var initial = requestType.value;
+    if (initial) requestType.dispatchEvent(new Event('change'));
+})();
+</script>
+{% endblock %}

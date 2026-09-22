@@ -1,0 +1,65 @@
+{# Горизонтальная карточка релиза (этап 2 редизайна)
+   detail_url — ссылка на карточку
+   show_owner — показать владельца (модерация) #}
+<article class="rel-row">
+    <a href="{{ detail_url }}" class="rel-row__link">
+        <div class="rel-row__cover">
+            <img src="{{ release.cover_url }}" alt="" loading="lazy" width="120" height="120">
+        </div>
+        <div class="rel-row__body">
+            <div class="rel-row__head">
+                <div class="rel-row__titles">
+                    <h2 class="rel-row__title">{{ release.title }}</h2>
+                    <p class="rel-row__artists">{{ release.artists }}</p>
+                </div>
+                <span class="rel-row__status {{ release.status_class }}" title="{{ release.status_display }}" aria-label="{{ release.status_display }}">
+                    <span class="material-icons" aria-hidden="true">sync</span>
+                </span>
+            </div>
+
+            <div class="rel-row__codes">
+                <div class="rel-row__field">
+                    <span class="rel-row__label">UPC</span>
+                    <span class="rel-row__value">{{ release.upc or 'N/A' }}</span>
+                </div>
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Название лейбла</span>
+                    <span class="rel-row__value">{{ release.copyright or '—' }}</span>
+                </div>
+                {% if show_owner|default(false) %}
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Пользователь</span>
+                    <span class="rel-row__value">{{ release.owner.display_name }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="rel-row__grid">
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Дата создания</span>
+                    <span class="rel-row__value">{{ release.created_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Дата релиза</span>
+                    <span class="rel-row__value">{{ release.release_date.strftime('%Y-%m-%d') }}</span>
+                </div>
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Тип</span>
+                    <span class="rel-row__value">{{ release.type_display }}</span>
+                </div>
+                <div class="rel-row__field">
+                    <span class="rel-row__label">Жанр</span>
+                    <span class="rel-row__value">{{ release.genre }}</span>
+                </div>
+            </div>
+
+            <span class="rel-row__tracks">
+                Трек-лист
+                <span class="material-icons" aria-hidden="true">chevron_right</span>
+                {% if release.tracks_count %}
+                <span class="rel-row__tracks-count">({{ release.tracks_count }})</span>
+                {% endif %}
+            </span>
+        </div>
+    </a>
+</article>

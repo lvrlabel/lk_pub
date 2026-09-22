@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Управление фирмой{% endblock %}
+{% block page_title %}Управление фирмой{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-icon"><span class="material-icons">people</span></div><div class="stat-content"><div class="stat-value">{{ stats.total_users }}</div><div class="stat-label">Всего пользователей</div></div></div>
+<div class="stat-card"><div class="stat-icon success"><span class="material-icons">person</span></div><div class="stat-content"><div class="stat-value">{{ stats.active_users }}</div><div class="stat-label">Активных</div></div></div>
+<div class="stat-card"><div class="stat-icon"><span class="material-icons">album</span></div><div class="stat-content"><div class="stat-value">{{ stats.total_releases }}</div><div class="stat-label">Релизов</div></div></div>
+<div class="stat-card"><div class="stat-icon success"><span class="material-icons">check_circle</span></div><div class="stat-content"><div class="stat-value">{{ stats.approved_releases }}</div><div class="stat-label">Одобрено</div></div></div>
+<div class="stat-card"><div class="stat-icon warning"><span class="material-icons">pending</span></div><div class="stat-content"><div class="stat-value">{{ stats.pending_releases }}</div><div class="stat-label">На модерации</div></div></div>
+</div>
+<div class="quick-actions" style="margin-top:2rem;">
+<h3>Разделы</h3>
+<div class="actions-grid">
+<a href="{{ url_for('users.index') }}" class="action-card"><span class="material-icons">people</span><span>Пользователи</span></a>
+<a href="{{ url_for('moderation.index') }}" class="action-card"><span class="material-icons">fact_check</span><span>Модерация</span></a>
+<a href="{{ url_for('money.approvals') }}" class="action-card"><span class="material-icons">approval</span><span>Согласование выплат</span></a>
+<a href="{{ url_for('admin.platforms') }}" class="action-card"><span class="material-icons">apps</span><span>Платформы</span></a>
+<a href="{{ url_for('admin.bd') }}" class="action-card"><span class="material-icons">storage</span><span>База данных</span></a>
+<a href="{{ url_for('admin.test_email') }}" class="action-card"><span class="material-icons">email</span><span>Проверка почты</span></a>
+<a href="{{ url_for('admin.user_activity') }}" class="action-card"><span class="material-icons">history</span><span>Журнал действий пользователей</span></a>
+</div>
+</div>
+</div>
+{% endblock %}

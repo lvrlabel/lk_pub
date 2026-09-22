@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Подтверждения оплаты{% endblock %}
+{% block page_title %}Подтверждения оплаты{% endblock %}
+{% block body_class %}documents-admin-page{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:1rem;"><div class="card-content">
+    <a href="{{ url_for('documents.admin_invoices') }}" class="btn btn-ghost">← Управление счетами</a>
+</div></div>
+<div class="card" style="margin-bottom:1rem;"><div class="card-content">
+    <h3 class="h3" style="margin-top:0;">Загрузить подтверждение</h3>
+    <p class="text-secondary" style="font-size:0.9rem;">Счёт должен быть в статусе «ожидает оплаты» или «просрочен». После загрузки счёт станет «оплачен».</p>
+    <form method="POST" enctype="multipart/form-data" class="js-submit-loading">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="invoice_id">Счёт *</label>
+            <select id="invoice_id" name="invoice_id" class="form-control" required>
+                <option value="">— Выберите счёт —</option>
+                {% for inv in pending_invoices %}
+                <option value="{{ inv.id }}">{{ inv.invoice_number }} — {{ inv.user.display_name if inv.user else inv.user_id }} — {{ inv.amount }} {{ inv.currency }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="document">PDF *</label>
+            <input type="file" id="document" name="document" class="form-control" accept=".pdf,application/pdf" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmation_number">Номер подтверждения</label>
+            <input type="text" id="confirmation_number" name="confirmation_number" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="payment_date">Дата оплаты</label>
+            <input type="date" id="payment_date" name="payment_date" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="amount">Сумма (если отличается от счёта)</label>
+            <input type="text" id="amount" name="amount" class="form-control" placeholder="необязательно">
+        </div>
+        <div class="form-group">
+            <label for="comment">Комментарий</label>
+            <textarea id="comment" name="comment" class="form-control" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" data-loading-text="Сохраняем...">Сохранить</button>
+    </form>
+    {% if not pending_invoices %}
+    <p class="text-secondary" style="margin-top:1rem;">Нет счетов, ожидающих оплаты.</p>
+    {% endif %}
+</div></div>
+<div class="card"><div class="card-content">
+    <h3 class="h3" style="margin-top:0;">Все подтверждения</h3>
+    {% if confirmations %}
+    <div class="table-wrap" style="overflow-x:auto;">
+    <table class="data-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left;padding:0.5rem;">ID</th>
+                <th style="text-align:left;padding:0.5rem;">Счёт</th>
+                <th style="text-align:left;padding:0.5rem;">Пользователь</th>
+                <th style="text-align:left;padding:0.5rem;">Дата загрузки</th>
+                <th style="text-align:left;padding:0.5rem;">Файл</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in confirmations %}
+            <tr>
+                <td style="padding:0.5rem;">{{ c.id }}</td>
+                <td style="padding:0.5rem;">{% if c.invoice %}{{ c.invoice.invoice_number }}{% else %}#{{ c.invoice_id }}{% endif %}</td>
+                <td style="padding:0.5rem;">{% if c.user %}{{ c.user.display_name }}{% else %}—{% endif %}</td>
+                <td style="padding:0.5rem;">{{ c.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td style="padding:0.5rem;">
+                    {% if c.document_file %}
+                    <a href="{{ url_for('documents.download_confirmation', id=c.id) }}" class="btn btn-ghost btn-sm">Скачать</a>
+                    {% else %}—{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p class="text-secondary">Подтверждений пока нет.</p>
+    {% endif %}
+</div></div>
+{% endblock %}

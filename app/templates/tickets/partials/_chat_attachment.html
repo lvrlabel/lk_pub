@@ -1,0 +1,38 @@
+<li class="attachment-item{% if att.is_audio %} attachment-item--audio{% elif att.is_image %} attachment-item--image{% endif %}">
+    {% if att.is_image %}
+    <a href="{{ att.url }}" target="_blank" rel="noopener" class="attachment-image-link" title="{{ att.filename }} ({{ att.formatted_size }})">
+        <img src="{{ att.url }}" alt="{{ att.filename }}" class="attachment-image-thumb" loading="lazy" decoding="async">
+        <span class="attachment-image-meta">
+            <span class="attachment-filename">{{ att.filename }}</span>
+            <span class="attachment-size">{{ att.formatted_size }}</span>
+        </span>
+    </a>
+    {% elif att.is_audio %}
+    <div class="chat-voice-attachment">
+        <span class="chat-voice-attachment__label">
+            <span class="material-icons" aria-hidden="true">mic</span>
+            Голосовое сообщение
+        </span>
+        <audio controls preload="metadata" class="chat-voice-player" src="{{ att.url }}">
+            Ваш браузер не поддерживает воспроизведение аудио.
+        </audio>
+        <a href="{{ att.url }}" target="_blank" rel="noopener" class="chat-voice-download" title="Скачать {{ att.filename }}">
+            <span class="material-icons" aria-hidden="true">download</span>
+            <span>{{ att.formatted_size }}</span>
+        </a>
+    </div>
+    {% else %}
+    <a href="{{ att.url }}" target="_blank" rel="noopener" class="attachment-link" title="{{ att.filename }} ({{ att.formatted_size }})">
+        <span class="material-icons attachment-icon">
+            {% if att.mime_type and att.mime_type.startswith('video/') %}videocam
+            {% elif att.mime_type == 'application/pdf' %}picture_as_pdf
+            {% elif att.mime_type in ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'] %}description
+            {% elif att.mime_type in ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] %}table_chart
+            {% elif att.mime_type in ['application/zip', 'application/x-rar-compressed'] %}folder_zip
+            {% else %}attach_file{% endif %}
+        </span>
+        <span class="attachment-filename">{{ att.filename }}</span>
+        <span class="attachment-size">({{ att.formatted_size }})</span>
+    </a>
+    {% endif %}
+</li>

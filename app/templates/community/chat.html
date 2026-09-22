@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Сообщество{% endblock %}
+{% block page_title %}Сообщество артистов{% endblock %}
+
+{% block content %}
+<div class="cm-page cm-chat-page uni-skin">
+    <header class="cm-hero">
+        <div class="cm-hero-content">
+            <h1 class="cm-hero-title">Сообщество</h1>
+            <p class="cm-hero-subtitle">Общий чат артистов и лейблов Toolls. Знакомьтесь, общайтесь, делитесь опытом и новыми релизами.</p>
+        </div>
+        <a href="{{ url_for('community.stories') }}" class="btn btn-ghost cm-hero-stories-btn">
+            <span class="material-icons">auto_stories</span> Сторис
+        </a>
+    </header>
+
+    <div class="cm-chat-card">
+        <div class="cm-chat-messages" id="cmChatMessages" data-api-url="{{ url_for('community.api_messages') }}">
+            {% for m in messages %}
+            <div class="cm-msg {% if m.user_id == current_user.id %}cm-msg--own{% endif %}" data-id="{{ m.id }}">
+                <div class="cm-msg__avatar-wrap">
+                    <a href="{{ url_for('community.user_profile', user_id=m.user_id) }}">
+                        <img src="{{ m.user.avatar_url if m.user else '/static/img/default-avatar.png' }}" alt="" class="cm-msg__avatar">
+                    </a>
+                </div>
+                <div class="cm-msg__body">
+                    <div class="cm-msg__meta">
+                        <a href="{{ url_for('community.user_profile', user_id=m.user_id) }}" class="cm-msg__author">
+                            {{ m.user.display_name if m.user else '—' }}
+                        </a>
+                        {% if m.user and m.user.is_admin %}
+                        <span class="cm-badge cm-badge--admin">Менеджер Toolls</span>
+                        {% elif m.user and m.user.is_label %}
+                        <span class="cm-badge">Лейбл</span>
+                        {% endif %}
+                        <span class="cm-msg__time">{{ m.time_formatted }}</span>
+                    </div>
+                    {% if m.reply_to %}
+                    <div class="cm-msg__reply"><strong>{{ m.reply_to.user.display_name if m.reply_to.user else '—' }}</strong><span>{{ m.reply_to.text or ('Голосовое сообщение' if m.reply_to.media_type == 'audio' else 'Видео-сообщение') }}</span></div>
+                    {% endif %}
+                    {% if m.media_url %}
+                    {% if m.media_type == 'video' %}
+                    <video class="cm-msg__media cm-video-message" src="{{ m.media_url }}" controls playsinline preload="metadata"></video>
+                    {% else %}
+                    <audio class="cm-msg__media" src="{{ m.media_url }}" controls preload="metadata"></audio>
+                    {% endif %}
+                    {% endif %}
+                    {% if m.text %}<div class="cm-msg__text">{{ m.text }}</div>{% endif %}
+                    <button type="button" class="cm-msg__reply-btn" data-reply-id="{{ m.id }}" data-reply-author="{{ m.user.display_name if m.user else '—' }}" data-reply-text="{{ m.text or ('Голосовое сообщение' if m.media_type == 'audio' else 'Видео-сообщение') }}"><span class="material-icons">reply</span> Ответить</button>
+                </div>
+            </div>
+            {% else %}
+            <div class="cm-chat-empty" id="cmChatEmpty">
+                <div class="cm-chat-empty__icon"><span class="material-icons">forum</span></div>
+                <h3>Пока нет сообщений</h3>
+                <p>Станьте первым — напишите приветствие!</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cm-chat-typing" id="cmChatTyping" aria-live="polite"></div>
+        <div class="cm-chat-replying" id="cmChatReplying" hidden>
+            <div><span class="material-icons">reply</span><span>Ответ пользователю <strong id="cmChatReplyAuthor"></strong><small id="cmChatReplyText"></small></span></div>
+            <button type="button" class="cm-chat-replying__close" id="cmChatReplyCancel" aria-label="Отменить ответ"><span class="material-icons">close</span></button>
+        </div>
+        <form method="post" action="{{ url_for('community.send_message') }}" class="cm-chat-composer" id="cmChatForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="reply_to_id" id="cmChatReplyId">
+            <textarea name="text" id="cmChatInput" rows="1" maxlength="1000" placeholder="Сообщение в сообщество..." required></textarea>
+            <button type="button" class="cm-chat-tool" id="cmVoiceBtn" title="Записать голосовое" aria-label="Записать голосовое"><span class="material-icons">mic</span></button>
+            <button type="button" class="cm-chat-tool" id="cmVideoBtn" title="Записать видео-кружок" aria-label="Записать видео-кружок"><span class="material-icons">videocam</span></button>
+            <button type="submit" class="btn btn-primary" id="cmChatSendBtn">
+                <span class="material-icons">send</span>
+            </button>
+        </form>
+        <form method="post" action="{{ url_for('community.send_media_message') }}" enctype="multipart/form-data" id="cmMediaForm" hidden>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="reply_to_id" id="cmMediaReplyId">
+            <input type="hidden" name="media_type" id="cmMediaType">
+            <input type="file" name="media" id="cmMediaInput">
+        </form>
+    </div>
+
+    <div class="cm-chat-note">
+        <span class="material-icons">info</span>
+        Будьте уважительны к другим участникам. Оскорбления и спам приводят к блокировке сообщений. Технические вопросы — в разделе «Поддержка».
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community.css', v='20260914-community1') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/community-chat.js', v='20260914-community1') }}"></script>
+{% endblock %}

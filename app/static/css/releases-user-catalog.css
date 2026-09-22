@@ -1,0 +1,533 @@
+/* Каталог релизов — один дизайн для light/dark (только токены цвета) */
+
+.releases-user-catalog {
+    --rel-surface: var(--bg-secondary);
+    --rel-page: var(--bg-primary);
+    --rel-ink: var(--text-primary);
+    --rel-muted: var(--text-secondary);
+    --rel-faint: var(--text-tertiary);
+    --rel-line: var(--border);
+    --rel-accent: var(--primary);
+    --rel-cover-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+    --rel-badge-ok-ink: #15803d;
+    --rel-badge-ok-bg: rgba(34, 197, 94, 0.14);
+    --rel-badge-ok-line: rgba(34, 197, 94, 0.35);
+    --rel-badge-mod-ink: #1d4ed8;
+    --rel-badge-mod-bg: rgba(59, 130, 246, 0.14);
+    --rel-badge-mod-line: rgba(59, 130, 246, 0.35);
+    --rel-badge-bad-ink: #b91c1c;
+    --rel-badge-bad-bg: rgba(239, 68, 68, 0.12);
+    --rel-badge-bad-line: rgba(239, 68, 68, 0.35);
+    --rel-badge-off-ink: #6d28d9;
+    --rel-badge-off-bg: rgba(168, 85, 247, 0.12);
+    --rel-badge-off-line: rgba(168, 85, 247, 0.35);
+    --rel-badge-draft-ink: var(--text-secondary);
+    --rel-badge-draft-bg: rgba(148, 163, 184, 0.14);
+    --rel-badge-draft-line: var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+html[data-theme="dark"] .releases-user-catalog {
+    --rel-cover-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+    --rel-badge-ok-ink: #4ade80;
+    --rel-badge-ok-bg: rgba(34, 197, 94, 0.14);
+    --rel-badge-ok-line: rgba(34, 197, 94, 0.35);
+    --rel-badge-mod-ink: #60a5fa;
+    --rel-badge-mod-bg: rgba(59, 130, 246, 0.14);
+    --rel-badge-mod-line: rgba(59, 130, 246, 0.35);
+    --rel-badge-bad-ink: #f87171;
+    --rel-badge-bad-bg: rgba(239, 68, 68, 0.12);
+    --rel-badge-bad-line: rgba(239, 68, 68, 0.35);
+    --rel-badge-off-ink: #c084fc;
+    --rel-badge-off-bg: rgba(168, 85, 247, 0.12);
+    --rel-badge-off-line: rgba(168, 85, 247, 0.35);
+    --rel-badge-draft-ink: var(--text-secondary);
+    --rel-badge-draft-bg: rgba(148, 163, 184, 0.12);
+    --rel-badge-draft-line: var(--border);
+}
+
+.releases-user-catalog .rel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 40px;
+    padding: 0.45rem 0.95rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.releases-user-catalog .rel-btn .material-icons {
+    font-size: 1.1rem;
+    color: inherit;
+}
+
+.releases-user-catalog .rel-btn--primary {
+    background: var(--rel-accent);
+    color: #fff;
+    border-color: var(--rel-accent);
+}
+
+.releases-user-catalog .rel-btn--primary:hover {
+    filter: brightness(1.05);
+    color: #fff;
+}
+
+.releases-user-catalog .rel-btn--primary .material-icons {
+    color: #fff;
+}
+
+.releases-user-catalog .rel-btn--ghost {
+    background: var(--rel-surface);
+    border-color: var(--rel-line);
+    color: var(--rel-ink);
+}
+
+.releases-user-catalog .rel-btn--ghost:hover {
+    border-color: var(--rel-accent);
+    color: var(--rel-accent);
+}
+
+.rel-user-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.15rem;
+}
+
+.rel-user-head__title {
+    margin: 0;
+    font-size: 1.65rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--rel-ink);
+}
+
+.rel-user-head__subtitle {
+    margin: 0.3rem 0 0;
+    font-size: 0.95rem;
+    color: var(--rel-muted);
+}
+
+.rel-user-head__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.rel-user-search {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.35rem;
+    padding: 0.55rem 0.85rem;
+    border: 1px solid var(--rel-line);
+    border-radius: 14px;
+    background: var(--rel-surface);
+}
+
+.rel-user-search__icon {
+    color: var(--rel-faint);
+    font-size: 1.35rem;
+    flex: 0 0 auto;
+}
+
+.rel-user-search__input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--rel-ink);
+    font-size: 0.95rem;
+    outline: none;
+    box-shadow: none;
+}
+
+.rel-user-search__input::placeholder {
+    color: var(--rel-faint);
+}
+
+.rel-user-search__filter {
+    flex: 0 0 auto;
+    max-width: 180px;
+    min-height: 36px;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--rel-line);
+    border-radius: 10px;
+    background: var(--rel-page);
+    color: var(--rel-muted);
+    font-size: 0.8125rem;
+}
+
+.rel-user-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+/* Горизонтальная карточка-панель */
+.rel-tile {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4px auto minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 0;
+    min-height: 112px;
+    min-width: 0;
+    text-decoration: none;
+    color: inherit;
+    background: var(--rel-surface);
+    border: 1px solid var(--rel-line);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.rel-tile:hover {
+    border-color: color-mix(in srgb, var(--rel-accent) 45%, var(--rel-line));
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    transform: translateY(-2px);
+}
+
+html[data-theme="dark"] .rel-tile:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+}
+
+.rel-tile__rail {
+    display: block;
+    width: 4px;
+    background: var(--rel-badge-draft-line);
+}
+
+.rel-tile.is-approved .rel-tile__rail { background: #22c55e; }
+.rel-tile.is-moderation .rel-tile__rail { background: #f59e0b; }
+.rel-tile.is-rejected .rel-tile__rail { background: #ef4444; }
+.rel-tile.is-revoked .rel-tile__rail { background: #a855f7; }
+.rel-tile.is-draft .rel-tile__rail { background: #94a3b8; }
+
+.rel-tile__cover {
+    position: relative;
+    width: 96px;
+    aspect-ratio: 1 / 1;
+    align-self: center;
+    margin: 8px 0 8px 10px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg-tertiary, var(--rel-page));
+    flex: 0 0 auto;
+}
+
+.rel-tile__cover img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.rel-tile__main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.28rem;
+    min-width: 0;
+    padding: 0.75rem 0.35rem 0.75rem 0.85rem;
+}
+
+.rel-tile__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.rel-tile__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    min-height: 22px;
+    padding: 0.1rem 0.5rem 0.1rem 0.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--rel-badge-draft-line);
+    background: var(--rel-badge-draft-bg);
+    color: var(--rel-badge-draft-ink);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    max-width: 70%;
+}
+
+.rel-tile__status .material-icons {
+    font-size: 0.85rem;
+    color: inherit;
+}
+
+.rel-tile.is-approved .rel-tile__status {
+    color: var(--rel-badge-ok-ink);
+    background: var(--rel-badge-ok-bg);
+    border-color: var(--rel-badge-ok-line);
+}
+
+.rel-tile.is-moderation .rel-tile__status {
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.rel-tile.is-rejected .rel-tile__status {
+    color: var(--rel-badge-bad-ink);
+    background: var(--rel-badge-bad-bg);
+    border-color: var(--rel-badge-bad-line);
+}
+
+.rel-tile.is-revoked .rel-tile__status {
+    color: var(--rel-badge-off-ink);
+    background: var(--rel-badge-off-bg);
+    border-color: var(--rel-badge-off-line);
+}
+
+html[data-theme="dark"] .rel-tile.is-moderation .rel-tile__status {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.rel-tile__type {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--rel-faint);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.rel-tile__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--rel-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rel-tile__version {
+    font-weight: 500;
+    color: var(--rel-muted);
+}
+
+.rel-tile__artists {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--rel-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rel-tile__foot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.35rem;
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    color: var(--rel-faint);
+}
+
+.rel-tile__foot-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.12rem;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+.rel-tile__foot-item .material-icons {
+    font-size: 0.9rem;
+    color: inherit;
+}
+
+.rel-tile__foot-dot {
+    opacity: 0.55;
+}
+
+.rel-tile__chevron {
+    align-self: center;
+    margin-right: 0.55rem;
+    font-size: 1.35rem !important;
+    color: var(--rel-faint);
+    opacity: 0.55;
+    transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
+}
+
+.rel-tile:hover .rel-tile__chevron {
+    opacity: 1;
+    color: var(--rel-accent);
+    transform: translateX(2px);
+}
+
+.rel-user-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rel-line);
+}
+
+.rel-user-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--rel-line);
+    background: var(--rel-surface);
+    color: var(--rel-ink);
+    text-decoration: none;
+}
+
+.rel-user-page .material-icons {
+    color: inherit;
+}
+
+.rel-user-page.is-disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.rel-user-page-info {
+    font-size: 0.875rem;
+    color: var(--rel-muted);
+}
+
+.rel-user-empty {
+    text-align: center;
+    padding: 3rem 1.25rem;
+    border: 1px dashed var(--rel-line);
+    border-radius: 16px;
+    background: var(--rel-surface);
+    max-width: 480px;
+    margin: 1.5rem auto 0;
+}
+
+.rel-user-empty__icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--rel-accent) 14%, transparent);
+    color: var(--rel-accent);
+}
+
+.rel-user-empty__icon .material-icons {
+    color: inherit;
+}
+
+.rel-user-empty__title {
+    margin: 0 0 0.45rem;
+    font-size: 1.15rem;
+    color: var(--rel-ink);
+}
+
+.rel-user-empty__text {
+    margin: 0 0 1.25rem;
+    color: var(--rel-muted);
+    font-size: 0.92rem;
+}
+
+@media (max-width: 900px) {
+    .rel-user-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .rel-tile {
+        grid-template-columns: 4px auto minmax(0, 1fr);
+    }
+
+    .rel-tile__cover {
+        width: 76px;
+        margin: 8px 0 8px 8px;
+    }
+
+    .rel-tile__chevron {
+        display: none;
+    }
+
+    .rel-tile__main {
+        padding-right: 0.75rem;
+    }
+
+    .rel-user-search {
+        flex-wrap: wrap;
+    }
+
+    .rel-user-search__filter {
+        width: 100%;
+        max-width: none;
+    }
+
+    .rel-user-head__title {
+        font-size: 1.35rem;
+    }
+}
+
+/* Изоляция от глобальных theme-хаков кабинета */
+.releases-user-catalog a.rel-tile,
+.releases-user-catalog a.rel-tile:hover,
+.releases-user-catalog a.rel-tile:focus,
+.releases-user-catalog a.rel-tile:visited,
+.releases-user-catalog a.rel-user-page,
+.releases-user-catalog a.rel-user-page:hover {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.releases-user-catalog a.rel-tile {
+    background: var(--rel-surface) !important;
+}
+
+.releases-user-catalog .rel-user-search__input,
+.releases-user-catalog .rel-user-search__input:focus {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--rel-ink) !important;
+}
+
+.releases-user-catalog .rel-user-search__filter {
+    background: var(--rel-page) !important;
+    color: var(--rel-muted) !important;
+    border-color: var(--rel-line) !important;
+}
+
+.releases-user-catalog .material-icons {
+    color: inherit !important;
+}
+
+.releases-user-catalog .rel-btn--primary,
+.releases-user-catalog .rel-btn--primary .material-icons {
+    color: #fff !important;
+}

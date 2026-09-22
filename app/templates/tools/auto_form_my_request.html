@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Заявка {{ req.display_id }}{% endblock %}
+{% block page_title %}Заявка {{ req.display_id }}{% endblock %}
+{% block content %}
+<div class="auto-form-page" style="max-width: 640px; margin: 0 auto 2rem;">
+    <div class="card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <span class="tools-admin-status {{ req.status_class }}">{{ req.status_display }}</span>
+            <span style="color: var(--text-secondary);">{{ req.request_type_display }}</span>
+            <span style="font-size: 0.875rem; color: var(--text-tertiary);">{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            <a href="{{ url_for('tools.auto_form') }}" class="btn btn-ghost btn-sm">← К форме и списку заявок</a>
+        </div>
+
+        <h3 style="margin: 0 0 0.75rem; font-size: 1rem;">Данные заявки</h3>
+        {% if req.request_type == 'transfer_release' %}
+            {% if req.release %}<p style="margin: 0.25rem 0;"><strong>Релиз:</strong> {{ req.release.title }}</p>{% endif %}
+            {% if req.platform %}<p style="margin: 0.25rem 0;"><strong>Площадка:</strong> {{ req.platform }}</p>{% endif %}
+            {% if req.wrong_card_url %}<p style="margin: 0.25rem 0;"><strong>Ошибочная карточка:</strong> <a href="{{ req.wrong_card_url }}" target="_blank" rel="noopener">{{ req.wrong_card_url[:60] }}{% if req.wrong_card_url|length > 60 %}…{% endif %}</a></p>{% endif %}
+            {% if req.correct_card_url %}<p style="margin: 0.25rem 0;"><strong>Целевая карточка:</strong> <a href="{{ req.correct_card_url }}" target="_blank" rel="noopener">{{ req.correct_card_url[:60] }}{% if req.correct_card_url|length > 60 %}…{% endif %}</a></p>{% endif %}
+        {% elif req.request_type == 'youtube_note' %}
+            {% if req.artist_name %}<p style="margin: 0.25rem 0;"><strong>Артист:</strong> {{ req.artist_name }}</p>{% endif %}
+            {% if req.channel_url %}<p style="margin: 0.25rem 0;"><strong>Канал:</strong> <a href="{{ req.channel_url }}" target="_blank" rel="noopener">{{ req.channel_url }}</a></p>{% endif %}
+            {% if req.topic_urls %}<p style="margin: 0.25rem 0;"><strong>Темы (Topic):</strong><br><pre style="white-space: pre-wrap; margin: 0.5rem 0; font-size: 0.875rem;">{{ req.topic_urls }}</pre></p>{% endif %}
+        {% elif req.request_type == 'vk_restore' %}
+            {% if req.previous_distributor %}<p style="margin: 0.25rem 0;"><strong>Прошлый дистрибьютор:</strong> {{ req.previous_distributor }}</p>{% endif %}
+            {% if req.upc_codes %}<p style="margin: 0.25rem 0;"><strong>UPC-коды:</strong><br><pre style="white-space: pre-wrap; margin: 0.5rem 0; font-size: 0.875rem;">{{ req.upc_codes }}</pre></p>{% endif %}
+        {% endif %}
+    </div>
+
+    <div class="card" style="padding: 1.5rem 2rem;">
+        <h3 style="margin: 0 0 1rem; font-size: 1rem;">Переписка с поддержкой</h3>
+        {% if messages %}
+        <div class="auto-form-chat">
+            {% for m in messages %}
+            <div class="auto-form-chat-item {% if m.is_admin %}auto-form-chat-item-admin{% endif %}" style="padding: 0.75rem 1rem; margin-bottom: 0.75rem; border-radius: 8px; background: var(--bg-secondary, #f5f5f5); {% if m.is_admin %}border-left: 3px solid var(--primary); background: rgba(25, 118, 210, 0.06);{% endif %}">
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+                    {% if m.is_admin %}<strong>Поддержка</strong>{% else %}{{ m.author.display_name if m.author else '—' }}{% endif %}
+                    · {{ m.created_at.strftime('%d.%m.%Y %H:%M') }}
+                </div>
+                <div style="white-space: pre-wrap; line-height: 1.5;">{{ m.message }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--text-secondary); margin: 0 0 1rem;">Пока нет сообщений. Вы можете написать ниже — поддержка ответит здесь и на вашу почту.</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('tools.auto_form_my_request_reply', id=req.id) }}" class="auto-form-reply-user" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border, #eee);">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="message">Написать сообщение в заявку</label>
+                <textarea name="message" id="message" class="form-control" rows="3" required placeholder="Введите текст сообщения..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span>Отправить</span>
+                <span class="material-icons" style="font-size: 1.125rem;">send</span>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

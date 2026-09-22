@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Новая новость{% endblock %}
+{% block page_title %}Создание новости{% endblock %}
+{% block content %}
+<div class="card news-form-card">
+    <div class="card-content">
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>Заголовок *</label>
+                <input type="text" name="title" required class="form-control" placeholder="Заголовок новости">
+            </div>
+            <div class="form-group">
+                <label>Содержание *</label>
+                <textarea name="content" required class="form-control" rows="12" placeholder="Текст новости"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Обложка</label>
+                <input type="file" name="cover" accept=".jpg,.jpeg,.png,.gif,.webp" class="form-control">
+            </div>
+            <div class="form-actions">
+                <a href="{{ url_for('stories.index') }}" class="btn btn-ghost">Отмена</a>
+                <button type="submit" class="btn btn-primary"><span class="material-icons">add</span> Создать</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

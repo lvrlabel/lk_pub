@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}{{ contract.title }}{% endblock %}
+{% block page_title %}{{ contract.title }}{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="dashboard-card contract-view-card">
+    <div class="card-content">
+        <p><strong>Статус:</strong> <span class="{{ contract.status_class }}">{{ contract.status_display }}</span></p>
+        <p><strong>Срок подписания:</strong> {{ contract.deadline_formatted }}</p>
+        {% if contract.user %}<p><strong>Назначен:</strong> {{ contract.user.display_name }} ({{ contract.user.email }})</p>{% endif %}
+        {% if contract.status == 'rejected' and contract.rejection_reason %}<p><strong>Причина отклонения:</strong> {{ contract.rejection_reason }}</p>{% endif %}
+
+        {% if contract.is_electronic %}
+        <div class="contract-files-block contract-electronic-body">
+            <h3 class="contract-files-block__title"><span class="material-icons">article</span> Текст договора</h3>
+            <pre style="white-space:pre-wrap;font:inherit;line-height:1.6;margin:0;">{{ contract.contract_body }}</pre>
+        </div>
+        {% else %}
+        <div class="contract-files-block">
+            <h3 class="contract-files-block__title"><span class="material-icons">description</span> Оригинал договора</h3>
+            <a href="{{ url_for('contracts.download', id=contract.id) }}" class="btn btn-primary"><span class="material-icons">download</span> Скачать PDF</a>
+        </div>
+        {% endif %}
+
+        {% if contract.is_electronic and contract.status == 'pending' and contract.user_id == current_user.id %}
+        <hr style="margin:1.5rem 0;">
+        <h3>Подписание кодом из email</h3>
+        <p class="text-secondary">Код будет отправлен на {{ current_user.email }} и действует 10 минут.</p>
+        <form method="POST" action="{{ url_for('contracts.request_signing_code', id=contract.id) }}" style="margin:1rem 0;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-primary"><span class="material-icons">mail</span> Отправить код</button></form>
+        <form method="POST" action="{{ url_for('contracts.sign_electronic', id=contract.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="form-group"><label for="contract-sign-code">Код из письма</label><input id="contract-sign-code" name="code" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" required class="form-control"></div><button type="submit" class="btn btn-success"><span class="material-icons">draw</span> Подписать договор</button></form>
+        {% elif contract.is_electronic and contract.status == 'signed' %}
+        <p class="text-secondary" style="margin-top:1rem;">Подписан {{ contract.signed_at.strftime('%d.%m.%Y %H:%M') }} UTC{% if current_user.is_admin and contract.signed_ip %}, IP: {{ contract.signed_ip }}{% endif %}.</p>
+        {% endif %}
+
+        {% if contract.signed_file_path %}
+        <div class="contract-files-block contract-files-block--signed">
+            <h3 class="contract-files-block__title"><span class="material-icons">draw</span> Подписанный экземпляр</h3>
+            {% if contract.signed_filename %}
+            <p class="text-secondary contract-signed-meta">Файл: <strong>{{ contract.signed_filename }}</strong>{% if contract.signed_at %} · загружен {{ contract.signed_at.strftime('%d.%m.%Y %H:%M') }} UTC{% endif %}</p>
+            {% endif %}
+            <div class="contract-signed-actions">
+                <a href="{{ url_for('contracts.download_signed', id=contract.id) }}" class="btn btn-primary"><span class="material-icons">download</span> Скачать подписанный PDF</a>
+                <a href="{{ url_for('contracts.signed_preview', id=contract.id) }}" target="_blank" rel="noopener" class="btn btn-ghost"><span class="material-icons">open_in_new</span> Открыть в новой вкладке</a>
+            </div>
+            {% if current_user.is_admin %}
+            <div class="contract-pdf-preview-wrap" aria-label="Просмотр подписанного договора">
+                <embed src="{{ url_for('contracts.signed_preview', id=contract.id) }}#toolbar=1" type="application/pdf" class="contract-pdf-embed" title="Подписанный договор" />
+            </div>
+            {% endif %}
+        </div>
+        {% elif current_user.is_admin and contract.status == 'pending_review' %}
+        <p class="text-secondary" style="margin-top:1rem;">Подписанный файл ещё не получен (неожиданное состояние).</p>
+        {% endif %}
+
+        {% if contract.status == 'pending_review' and contract.user_id == current_user.id and not current_user.is_admin %}
+        <hr style="margin:1.5rem 0;">
+        <p class="text-secondary">Договор отправлен на проверку. Мы свяжемся с вами в течение 3 рабочих дней.</p>
+        {% endif %}
+
+        {% if contract.can_user_upload_signed and contract.user_id == current_user.id %}
+        <hr style="margin:1.5rem 0;">
+        <h3 style="margin-bottom:0.5rem;">Подписать договор</h3>
+        <p class="text-secondary" style="font-size:0.9rem;">Скачайте договор, подпишите и загрузите подписанный PDF.</p>
+        <form method="POST" action="{{ url_for('contracts.sign', id=contract.id) }}" enctype="multipart/form-data" style="margin-top:1rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group"><label>Подписанный PDF *</label><input type="file" name="signed_file" accept=".pdf" required class="form-control"></div>
+            <button type="submit" class="btn btn-success"><span class="material-icons">upload</span> Загрузить подписанный договор</button>
+        </form>
+        {% endif %}
+
+        {% if contract.can_admin_approve_or_reject and current_user.is_admin %}
+        <div class="dashboard-card contract-admin-actions" style="margin-top:1.5rem;border-style:dashed;">
+            <div class="card-header"><h3><span class="material-icons">gavel</span> Решение по договору</h3></div>
+            <div class="card-content">
+                <p class="text-secondary" style="font-size:0.9rem;margin-bottom:1rem;">Одобрите после проверки подписанного файла или отклоните с указанием причины (письмо уйдёт пользователю).</p>
+                <form method="POST" action="{{ url_for('contracts.mark_signed', id=contract.id) }}" enctype="multipart/form-data" style="margin-bottom:1.25rem;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group"><label>Заменить подписанный PDF (необязательно)</label><input type="file" name="signed_file" accept=".pdf" class="form-control"></div>
+                    <button type="submit" class="btn btn-success"><span class="material-icons">check_circle</span> Одобрить договор</button>
+                </form>
+                <form method="POST" action="{{ url_for('contracts.reject', id=contract.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-group"><label>Причина отклонения {% if contract.status == 'pending_review' %}*{% endif %}</label><textarea name="rejection_reason" class="form-control" rows="3" placeholder="Например: некорректная подпись, требуется переподписать" {% if contract.status == 'pending_review' %}required{% endif %}>{% if contract.rejection_reason %}{{ contract.rejection_reason }}{% endif %}</textarea></div>
+                    <button type="submit" class="btn btn-ghost" style="color:var(--danger, #dc2626);"><span class="material-icons">cancel</span> Отклонить договор</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if contract.status in ('pending', 'pending_review') and contract.user_id == current_user.id and not current_user.is_admin %}
+        <hr style="margin:1.5rem 0;">
+        <form method="POST" action="{{ url_for('contracts.reject', id=contract.id) }}" style="margin-top:1rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm">Отказаться от договора</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+<a href="{{ url_for('contracts.index') }}" class="btn btn-ghost" style="margin-top:1rem;"><span class="material-icons">arrow_back</span> К списку договоров</a>
+</div>
+{% endblock %}

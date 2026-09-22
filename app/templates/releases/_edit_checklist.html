@@ -1,0 +1,40 @@
+{# Боковой прогресс редактора релиза #}
+{% set has_basic = release.title and release.artists and release.cover %}
+{% set has_genre = release.genre %}
+{% set has_dates = release.release_date %}
+{% set has_tracks = tracks|length > 0 %}
+{% set has_platforms = release.platform_names_ordered()|length > 0 %}
+
+<aside class="re2-progress" aria-label="Прогресс заполнения">
+    <p class="re2-progress__title">Прогресс</p>
+    <nav class="re2-progress__nav">
+        <button type="button" class="re2-progress__item {% if has_basic %}is-done{% endif %} is-active" data-re-tab="release">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if has_basic %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Основное</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if has_genre %}is-done{% endif %}" data-re-tab="release" data-re-scroll="re-section-genre">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if has_genre %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Жанр</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if release.upc %}is-done{% endif %}" data-re-tab="release" data-re-scroll="re-section-id">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if release.upc %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>UPC</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if has_dates %}is-done{% endif %}" data-re-tab="release" data-re-scroll="re-section-dates">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if has_dates %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Даты</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if has_tracks %}is-done{% endif %}" data-re-tab="tracks">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if has_tracks %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Треки</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if has_platforms %}is-done{% endif %}" data-re-tab="platforms">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if has_platforms %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Площадки</span>
+        </button>
+        <button type="button" class="re2-progress__item {% if release.can_submit() %}is-done{% endif %}" data-re-tab="review">
+            <span class="re2-progress__mark material-icons" aria-hidden="true">{% if release.can_submit() %}check_circle{% else %}radio_button_unchecked{% endif %}</span>
+            <span>Проверка</span>
+        </button>
+    </nav>
+</aside>

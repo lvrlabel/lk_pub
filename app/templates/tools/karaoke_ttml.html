@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Генератор караоке (TTML){% endblock %}
+{% block page_title %}Генератор караоке (TTML){% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/karaoke-ttml.css', v='20260720-k1') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tools-page--pro uni-skin karaoke-ttml-page">
+    <header class="tools-hero tools-hero--karaoke">
+        <div class="tools-hero-content">
+            <div class="karaoke-hero-kicker"><span class="material-icons">graphic_eq</span> TIMED LYRICS WORKSPACE</div>
+            <h1 class="tools-hero-title">Генератор караоке (TTML)</h1>
+            <p class="tools-hero-subtitle">Точная построчная разметка текста по аудио для timed lyrics.</p>
+            <div class="tools-hero-actions">
+                <a href="{{ url_for('tools.index') }}" class="btn">
+                    <span class="material-icons">campaign</span>
+                    Питчинг
+                </a>
+                <a href="{{ url_for('tools.cover_generator') }}" class="btn">
+                    <span class="material-icons">album</span>
+                    Обложки
+                </a>
+                <a href="{{ url_for('tools.auto_form') }}" class="btn">
+                    <span class="material-icons">description</span>
+                    Автоформа
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="karaoke-layout">
+        <section class="karaoke-panel karaoke-panel--setup">
+            <div class="karaoke-panel__eyebrow">01 / SOURCE</div>
+            <h2 class="karaoke-panel__title">
+                <span class="material-icons">tune</span>
+                Подготовка
+            </h2>
+
+            <div class="karaoke-field">
+                <label for="karaokeTitle">Название трека</label>
+                <input type="text" id="karaokeTitle" class="form-control" maxlength="160" placeholder="Например: Midnight Rain" value="{{ default_title }}">
+            </div>
+
+            <div class="karaoke-field">
+                <label for="karaokeAudioFile">Аудиофайл</label>
+                <input type="file" id="karaokeAudioFile" class="form-control" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac">
+                <p class="karaoke-hint">Поддерживаются MP3, WAV, M4A и другие аудиоформаты браузера.</p>
+            </div>
+
+            {% if track_options %}
+            <div class="karaoke-field">
+                <label for="karaokeTrackSelect">Или трек из ваших релизов</label>
+                <select id="karaokeTrackSelect" class="form-control">
+                    <option value="">— Загрузить файл выше —</option>
+                    {% for opt in track_options %}
+                    <option value="{{ opt.url }}" data-track-id="{{ opt.id }}">{{ opt.label }}</option>
+                    {% endfor %}
+                </select>
+                <script type="application/json" id="karaokeTrackLyricsMap">{{ track_lyrics|tojson }}</script>
+            </div>
+            {% endif %}
+
+            <div class="karaoke-field">
+                <label for="karaokeLyrics">Текст песни</label>
+                <textarea id="karaokeLyrics" class="form-control karaoke-lyrics-input" rows="12" placeholder="Вставьте текст — каждая строка отдельно&#10;&#10;Первая строка&#10;Вторая строка&#10;..."></textarea>
+                <p class="karaoke-hint">Пустые строки пропускаются. После изменения текста таймкоды сбрасываются.</p>
+            </div>
+
+            <button type="button" class="btn btn-primary karaoke-apply-btn" id="karaokeApplyLyrics">
+                <span class="material-icons">playlist_add</span>
+                Подготовить строки
+            </button>
+        </section>
+
+        <section class="karaoke-panel karaoke-panel--sync">
+            <div class="karaoke-panel__eyebrow">02 / TIMELINE</div>
+            <h2 class="karaoke-panel__title">
+                <span class="material-icons">mic</span>
+                Синхронизация
+            </h2>
+
+            <div class="karaoke-session" id="karaokeSession" aria-live="polite">
+                <span class="karaoke-session__dot" aria-hidden="true"></span>
+                <span id="karaokeSessionLabel">Нет аудио</span>
+            </div>
+
+            <p class="karaoke-tip" id="karaokeTip">
+                Загрузите аудио и подготовьте строки. Затем нажмите Play и отмечайте начало каждой строки пробелом или кнопкой.
+            </p>
+
+            <audio id="karaokeAudio" preload="metadata" class="karaoke-audio" controls></audio>
+
+            <div class="karaoke-waveform" id="karaokeWaveform" aria-label="Таймлайн аудио">
+                <div class="karaoke-waveform__grid" aria-hidden="true"></div>
+                <div class="karaoke-waveform__playhead" id="karaokePlayhead" aria-hidden="true"></div>
+                <div class="karaoke-waveform__empty">Здесь появится таймлайн после загрузки аудио</div>
+            </div>
+
+            <div class="karaoke-controls">
+                <button type="button" class="btn btn-primary karaoke-ctrl karaoke-ctrl--play" id="karaokePlayBtn" disabled>
+                    <span class="material-icons" aria-hidden="true">play_arrow</span>
+                    <span data-play-label>Play</span>
+                </button>
+                <button type="button" class="btn btn-primary karaoke-ctrl karaoke-ctrl--mark" id="karaokeMarkBtn" disabled>
+                    <span class="material-icons" aria-hidden="true">flag</span>
+                    Отметить строку
+                </button>
+                <button type="button" class="btn btn-ghost karaoke-ctrl" id="karaokeUndoBtn" disabled>
+                    <span class="material-icons" aria-hidden="true">undo</span>
+                    Undo
+                </button>
+                <button type="button" class="btn btn-ghost karaoke-ctrl" id="karaokeResetBtn" disabled>
+                    <span class="material-icons" aria-hidden="true">restart_alt</span>
+                    Сброс
+                </button>
+            </div>
+
+            <div class="karaoke-progress-meta">
+                <span><strong id="karaokeTimeLabel">0:00.000</strong> <span id="karaokeDurationLabel">/ 0:00</span></span>
+                <span id="karaokeSyncStatus">0 из 0 строк</span>
+            </div>
+
+            <div class="karaoke-lines" id="karaokeLines" aria-live="polite">
+                <div class="karaoke-lines-empty">Строки появятся после подготовки текста</div>
+            </div>
+
+            <div class="karaoke-export">
+                <button type="button" class="btn btn-primary karaoke-download-btn" id="karaokeDownloadBtn" disabled>
+                    <span class="material-icons">download</span>
+                    Экспортировать TTML
+                </button>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/karaoke-ttml.js', v='20260720-k1') }}"></script>
+{% endblock %}

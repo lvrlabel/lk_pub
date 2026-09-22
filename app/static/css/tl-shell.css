@@ -1,0 +1,319 @@
+/**
+ * Toolls Graphite — оболочка кабинета (сайдбар, шапка, глобальные контролы).
+ * Подключать после cabinet-theme*.css / tl-design-system.css / tl-burger.css.
+ */
+
+html[data-theme="dark"]:has(.app-container),
+html.dark-theme:has(.app-container) {
+    --tl-bg: #100f0d;
+    --tl-surface: #171512;
+    --tl-surface-2: #1e1b17;
+    --tl-surface-hover: #242019;
+    --tl-border: rgba(243, 239, 230, 0.08);
+    --tl-border-strong: rgba(243, 239, 230, 0.14);
+    --tl-text: #f3efe6;
+    --tl-text-muted: rgba(243, 239, 230, 0.62);
+    --tl-text-faint: rgba(243, 239, 230, 0.42);
+    --tl-accent: #c3f000;
+    --tl-accent-hover: #d4f533;
+    --tl-accent-muted: rgba(195, 240, 0, 0.12);
+    --tl-accent-ring: rgba(195, 240, 0, 0.28);
+    --tl-radius: 12px;
+    --tl-radius-sm: 8px;
+    --tl-radius-lg: 16px;
+    --tl-font: 'Manrope', system-ui, sans-serif;
+    --tl-display: 'Unbounded', 'Manrope', sans-serif;
+
+    /* Перебиваем остатки teal / градиентов */
+    --primary: #c3f000;
+    --primary-hover: #d4f533;
+    --primary-light: rgba(195, 240, 0, 0.14);
+    --btn-primary: #c3f000;
+    --btn-primary-hover: #d4f533;
+    --btn-primary-text: #100f0d;
+    --logo-accent: #c3f000;
+    --logo-accent-end: #c3f000;
+}
+
+/* ===== Sidebar ===== */
+html[data-theme="dark"]:has(.app-container) .sidebar {
+    background: rgba(23, 21, 18, 0.96) !important;
+    border-right: 1px solid var(--tl-border) !important;
+    box-shadow: 8px 0 36px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-header {
+    border-bottom-color: var(--tl-border) !important;
+    background: transparent;
+    padding: 1rem 1.1rem;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-nav {
+    padding: 0.85rem 0.75rem 1rem;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-btn.btn-primary,
+html[data-theme="dark"]:has(.app-container) .app-container .sidebar-btn.btn-primary {
+    background: var(--tl-accent) !important;
+    border: none !important;
+    color: #100f0d !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+    min-height: 46px;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-btn.btn-primary:hover {
+    background: var(--tl-accent-hover) !important;
+    color: #100f0d !important;
+    filter: none !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item {
+    color: var(--tl-text-muted) !important;
+    border-left: none !important;
+    border-radius: 10px !important;
+    padding: 0.65rem 0.8rem !important;
+    margin-bottom: 0.1rem;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item:hover {
+    background: rgba(243, 239, 230, 0.05) !important;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item.active {
+    background: var(--tl-accent-muted) !important;
+    color: var(--tl-accent) !important;
+    box-shadow: inset 3px 0 0 var(--tl-accent) !important;
+    font-weight: 700;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item.active .material-icons {
+    color: var(--tl-accent) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item--sub {
+    padding-left: 1.1rem !important;
+    font-size: 0.9rem;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-group-toggle {
+    color: var(--tl-text-muted) !important;
+    border-radius: 10px !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-group-toggle:hover {
+    background: rgba(243, 239, 230, 0.05) !important;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-group.is-expanded > .nav-group-toggle,
+html[data-theme="dark"]:has(.app-container) .nav-group:has(.nav-item--sub.active) > .nav-group-toggle {
+    color: var(--tl-text) !important;
+    background: rgba(243, 239, 230, 0.04) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-group:has(.nav-item--sub.active) > .nav-group-toggle .material-icons:first-child {
+    color: var(--tl-accent) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item-new-badge {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-footer {
+    border-top-color: var(--tl-border) !important;
+    color: var(--tl-text-faint);
+    background: transparent;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar-footer__legal a:hover {
+    color: var(--tl-accent) !important;
+}
+
+/* ===== Header ===== */
+html[data-theme="dark"]:has(.app-container) .header {
+    background: rgba(23, 21, 18, 0.92) !important;
+    border-bottom: 1px solid var(--tl-border) !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .page-title {
+    font-family: var(--tl-display) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-theme-toggle,
+html[data-theme="dark"]:has(.app-container) .header-notifications,
+html[data-theme="dark"]:has(.app-container) .header-user,
+html[data-theme="dark"]:has(.app-container) .btn-ghost {
+    border-radius: 10px;
+    color: var(--tl-text-muted);
+}
+
+html[data-theme="dark"]:has(.app-container) .header-theme-toggle:hover,
+html[data-theme="dark"]:has(.app-container) .header-notifications:hover,
+html[data-theme="dark"]:has(.app-container) .btn-ghost:hover {
+    background: var(--tl-accent-muted) !important;
+    color: var(--tl-accent) !important;
+    border-color: transparent !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .notification-badge {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    font-weight: 800;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown {
+    background: var(--tl-surface) !important;
+    border: 1px solid var(--tl-border-strong) !important;
+    border-radius: var(--tl-radius) !important;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown__title {
+    color: var(--tl-text);
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notif-item {
+    border-bottom-color: var(--tl-border) !important;
+    color: var(--tl-text-muted);
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notif-item:hover {
+    background: var(--tl-surface-2) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notif-item.is-unread {
+    background: var(--tl-accent-muted);
+}
+
+/* ===== Buttons / forms / cards ===== */
+html[data-theme="dark"]:has(.app-container) .btn-primary,
+html[data-theme="dark"]:has(.app-container) .db-hero__cta {
+    background: var(--tl-accent) !important;
+    border: none !important;
+    color: #100f0d !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-primary:hover,
+html[data-theme="dark"]:has(.app-container) .db-hero__cta:hover {
+    background: var(--tl-accent-hover) !important;
+    color: #100f0d !important;
+    filter: none !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-ghost {
+    border: 1px solid var(--tl-border-strong) !important;
+    background: transparent !important;
+    color: var(--tl-text-muted) !important;
+    border-radius: 10px !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .card,
+html[data-theme="dark"]:has(.app-container) .dashboard-card,
+html[data-theme="dark"]:has(.app-container) .db-panel,
+html[data-theme="dark"]:has(.app-container) .support-table-card,
+html[data-theme="dark"]:has(.app-container) .ticket-list-item {
+    background: var(--tl-surface) !important;
+    border-color: var(--tl-border) !important;
+    border-radius: var(--tl-radius) !important;
+    box-shadow: none !important;
+    color: var(--tl-text);
+}
+
+html[data-theme="dark"]:has(.app-container) .card-header,
+html[data-theme="dark"]:has(.app-container) .db-panel__head {
+    border-bottom-color: var(--tl-border) !important;
+    background: transparent !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .form-control,
+html[data-theme="dark"]:has(.app-container) select.form-control,
+html[data-theme="dark"]:has(.app-container) textarea.form-control,
+html[data-theme="dark"]:has(.app-container) .content :is(input, select, textarea, .form-control) {
+    background: var(--tl-surface-2) !important;
+    border: 1px solid var(--tl-border) !important;
+    color: var(--tl-text) !important;
+    border-radius: var(--tl-radius-sm) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .form-control:focus,
+html[data-theme="dark"]:has(.app-container) .content :is(input, select, textarea, .form-control):focus {
+    border-color: var(--tl-accent-ring) !important;
+    box-shadow: 0 0 0 3px var(--tl-accent-muted) !important;
+    outline: none !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .flash-success {
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+    color: var(--tl-text);
+}
+
+html[data-theme="dark"]:has(.app-container) a:not(.btn):not(.nav-item):not(.tl-btn):hover {
+    color: var(--tl-accent);
+}
+
+/* Support hub tabs on tickets list (not only manager chat) */
+html[data-theme="dark"]:has(.app-container) .support-hub-nav {
+    background: var(--tl-surface) !important;
+    border: 1px solid var(--tl-border) !important;
+    border-radius: var(--tl-radius) !important;
+    gap: 0.5rem !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-hub-nav__item.is-active {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    box-shadow: none !important;
+    font-weight: 700;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-hub-nav__item:not(.is-active) {
+    color: var(--tl-text-muted) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-hub-nav__badge {
+    background: #100f0d;
+    color: var(--tl-accent);
+}
+
+/* Tables */
+html[data-theme="dark"]:has(.app-container) table.data-table,
+html[data-theme="dark"]:has(.app-container) .support-appeals-table-wrap {
+    background: var(--tl-surface) !important;
+    border-color: var(--tl-border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) table.data-table th {
+    background: var(--tl-surface-2) !important;
+    color: var(--tl-text-muted) !important;
+    border-bottom-color: var(--tl-border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) table.data-table td {
+    border-bottom-color: var(--tl-border) !important;
+    color: var(--tl-text) !important;
+}
+
+/* Empty / misc teal leftovers */
+html[data-theme="dark"]:has(.app-container) .db-quarter.is-current {
+    border-color: var(--tl-accent-ring) !important;
+    background: var(--tl-accent-muted) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .filter-tab.active,
+html[data-theme="dark"]:has(.app-container) .tickets-page .filter-tab.active {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    border-color: var(--tl-accent) !important;
+}

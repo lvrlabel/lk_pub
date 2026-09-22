@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}Обращения в поддержку{% endblock %}
+{% block page_title %}Обращения в поддержку{% endblock %}
+{% block body_class %}support-appeals-ui{% if selected_ticket %} support-appeals-chat{% endif %}{% endblock %}
+{% block content_class %}support-appeals-content{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/support-appeals.css', v='20260721-a3') }}">
+{% if selected_ticket %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-ticket-view.css', v='20260902-graphite') }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% with active='tickets' %}{% include 'tickets/partials/support_nav.html' %}{% endwith %}
+
+<div class="support-appeals tl-page{% if current_user.is_admin %} support-appeals--admin{% endif %}{% if selected_ticket %} support-appeals--chat-open tl-ticket-view{% endif %}">
+    {% if not selected_ticket %}
+    <header class="support-appeals__header">
+        <div class="support-appeals__titles">
+            <h1 class="support-appeals__title">Обращения в поддержку</h1>
+            <p class="support-appeals__subtitle">Управление вашими обращениями</p>
+        </div>
+        <div class="support-appeals__actions">
+            <a href="{{ url_for('tickets.create') }}" class="btn btn-primary btn-sm">
+                <span class="material-icons">add</span>
+                Новое обращение
+            </a>
+            <a href="{{ url_for('tickets.tech_outage') }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons">warning_amber</span>
+                Тех. накладка
+            </a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('tickets.admin_write') }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons">forward_to_inbox</span>
+                Написать
+            </a>
+            {% endif %}
+            <div class="support-appeals__filter">
+                <select class="form-control" aria-label="Фильтр статуса" onchange="if(this.value){window.location.href=this.value;}">
+                    <option value="{{ url_for('tickets.index') }}" {% if not status %}selected{% endif %}>Все</option>
+                    <option value="{{ url_for('tickets.index', status='open') }}" {% if status == 'open' %}selected{% endif %}>Открытые</option>
+                    <option value="{{ url_for('tickets.index', status='closed') }}" {% if status == 'closed' %}selected{% endif %}>Закрытые</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <section class="support-appeals__list" aria-label="Список обращений">
+        {% if tickets_list %}
+        <div class="support-appeals-table-wrap">
+            <table class="support-appeals-table">
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>Тема</th>
+                        <th>Тип</th>
+                        {% if current_user.is_admin %}<th>Автор</th>{% endif %}
+                        <th>Статус</th>
+                        <th>Создано</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in tickets_list %}
+                    {% if t.status == 'closed' %}
+                        {% set st_label = 'Закрыт' %}
+                        {% set st_mod = 'is-closed' %}
+                    {% elif t.status == 'waiting_for_user' %}
+                        {% set st_label = 'Есть ответ' %}
+                        {% set st_mod = 'is-answered' %}
+                    {% else %}
+                        {% set st_label = 'На рассмотрении' %}
+                        {% set st_mod = 'is-pending' %}
+                    {% endif %}
+                    {% if t.initiator == 'admin' %}
+                        {% set type_label = 'Сообщение от поддержки' %}
+                    {% else %}
+                        {% set type_label = 'Отправить запрос в свободной форме' %}
+                    {% endif %}
+                    <tr class="support-appeals-row">
+                        <td data-label="№"><span class="support-appeals-id">#{{ t.id }}</span></td>
+                        <td data-label="Тема"><span class="support-appeals-subject">{{ t.subject }}</span></td>
+                        <td data-label="Тип"><span class="support-appeals-type">{{ type_label }}</span></td>
+                        {% if current_user.is_admin %}
+                        <td data-label="Автор"><span class="support-appeals-type">{{ t.creator_display_name }}</span></td>
+                        {% endif %}
+                        <td data-label="Статус">
+                            <span class="support-appeals-status {{ st_mod }}" data-ticket-status-id="{{ t.id }}">{{ st_label }}</span>
+                        </td>
+                        <td data-label="Создано">
+                            <span class="support-appeals-date">
+                                {% if t.created_at_local %}{{ t.created_at_local.strftime('%d.%m.%Y') }}{% else %}{{ t.created_date_formatted }}{% endif %}
+                            </span>
+                        </td>
+                        <td data-label="Действия">
+                            <a href="{{ url_for('tickets.view', id=t.id, status=status) }}" class="support-appeals-view">
+                                <span class="material-icons" aria-hidden="true">filter_center_focus</span>
+                                Просмотр
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="support-appeals-empty">
+            <span class="material-icons" aria-hidden="true">inbox</span>
+            <p>Обращений пока нет</p>
+            <a href="{{ url_for('tickets.create') }}" class="btn btn-primary btn-sm">Создать обращение</a>
+        </div>
+        {% endif %}
+    </section>
+
+    {% else %}
+    <section class="support-appeals__chat" aria-label="Чат обращения">
+        <div id="support-selected-ticket-data"
+             data-ticket-id="{{ selected_ticket.id }}"
+             data-updated-at="{{ selected_ticket.updated_at.isoformat() if selected_ticket.updated_at else '' }}"
+             hidden></div>
+        <div class="support-chat-panel" data-support-chat-shell>
+            <div class="support-chat-panel__head">
+                <div class="support-appeals-chat-back">
+                    <a href="{{ url_for('tickets.index', status=status) }}" class="btn btn-ghost btn-sm">
+                        <span class="material-icons">arrow_back</span>
+                        К списку
+                    </a>
+                </div>
+                <div class="manager-chat-topline">
+                    {% if selected_ticket.status == 'closed' %}
+                        {% set chat_st_label = 'Закрыт' %}
+                        {% set chat_st_mod = 'is-closed' %}
+                    {% elif selected_ticket.status == 'waiting_for_user' %}
+                        {% set chat_st_label = 'Есть ответ' %}
+                        {% set chat_st_mod = 'is-answered' %}
+                    {% else %}
+                        {% set chat_st_label = 'На рассмотрении' %}
+                        {% set chat_st_mod = 'is-pending' %}
+                    {% endif %}
+                    <span class="support-appeals-status {{ chat_st_mod }}" data-ticket-status-id="{{ selected_ticket.id }}">{{ chat_st_label }}</span>
+                    <span class="ticket-id-badge">#{{ selected_ticket.id }}</span>
+                    {% if current_user.is_admin and selected_ticket.is_open %}
+                    <form method="POST" action="{{ url_for('tickets.close', id=selected_ticket.id, status=status) }}" class="support-inline-close-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-ghost btn-sm">
+                            <span class="material-icons">check_circle</span>
+                            Закрыть
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <h3 class="manager-chat-title">{{ selected_ticket.subject }}</h3>
+                <p class="manager-chat-subtitle">
+                    <span class="material-icons">schedule</span>
+                    <span>
+                        Создан {{ selected_ticket.created_at_formatted }}
+                        · Создал: {{ selected_ticket.creator_display_name }}
+                        {% if current_user.is_admin and selected_ticket.initiator == 'admin' and selected_ticket.user %}
+                        · Клиент: {{ selected_ticket.user.display_name }}
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+
+            {% with ticket=selected_ticket, messages=messages %}
+            {% include 'tickets/partials/_support_chat_thread.html' %}
+            {% endwith %}
+
+            {% with ticket=selected_ticket, composer_mode='page', form_action=url_for('tickets.reply', id=selected_ticket.id), textarea_id='inlineReply', file_input_id='inlineAttachments', enter_hint_id='ticketInlineEnterHint' %}
+            {% include 'tickets/partials/_support_chat_composer.html' %}
+            {% endwith %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/support-chat.js', v='20260721-appeals4') }}"></script>
+{% endblock %}

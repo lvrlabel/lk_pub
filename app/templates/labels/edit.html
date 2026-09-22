@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Редактирование: {{ label.name }}{% endblock %}
+{% block page_title %}Редактирование лейбла{% endblock %}
+{% block content %}
+<form method="POST"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Название *</label><input type="text" name="name" value="{{ label.name }}" required class="form-control"></div>
+<div class="form-group"><label>Копирайт *</label><input type="text" name="copyright" value="{{ label.copyright }}" required class="form-control"></div>
+<div class="form-actions"><a href="{{ url_for('labels.index') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Сохранить</button></div>
+</form>
+{% endblock %}

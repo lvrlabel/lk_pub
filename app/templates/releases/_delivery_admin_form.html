@@ -1,0 +1,219 @@
+{# Админ: статусы доставки с массовым выделением площадок #}
+<form method="POST" action="{{ url_for('releases.update_delivery', id=release.id) }}"
+      class="js-submit-loading delivery-bulk" id="{{ form_id|default('deliveryBulkForm') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ next_url }}">
+
+    <div class="delivery-bulk__bar">
+        <div class="delivery-bulk__select-actions">
+            <button type="button" class="btn btn-ghost btn-sm" data-delivery-select-all>
+                <span class="material-icons" aria-hidden="true">done_all</span>
+                Выделить все
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" data-delivery-select-none>
+                Снять
+            </button>
+            <span class="delivery-bulk__count" data-delivery-count>Выбрано: 0</span>
+        </div>
+        <div class="delivery-bulk__apply">
+            <label class="delivery-bulk__label">
+                Статус для выделенных
+                <select data-delivery-bulk-status class="form-control">
+                    {% for opt in delivery_status_options %}
+                    <option value="{{ opt }}">{{ opt }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="delivery-bulk__label">
+                Запланировано
+                <input type="text" data-delivery-bulk-planned placeholder="дата / —" maxlength="64">
+            </label>
+            <label class="delivery-bulk__label">
+                Доставлено
+                <input type="text" data-delivery-bulk-delivered placeholder="дата / —" maxlength="64">
+            </label>
+            <button type="button" class="btn btn-primary btn-sm" data-delivery-bulk-apply>
+                <span class="material-icons" aria-hidden="true">playlist_add_check</span>
+                Поставить статус
+            </button>
+        </div>
+    </div>
+
+    <div style="overflow-x:auto">
+        <table class="support-table delivery-bulk__table" style="width:100%;min-width:720px">
+            <thead>
+                <tr>
+                    <th style="width:2.5rem">
+                        <input type="checkbox" data-delivery-master title="Выделить все" aria-label="Выделить все">
+                    </th>
+                    <th>Ритейлер</th>
+                    <th>Статус</th>
+                    <th>Срочно</th>
+                    <th>Запланировано</th>
+                    <th>Доставлено</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in delivery_rows %}
+                <tr data-delivery-row>
+                    <td>
+                        <input type="checkbox" class="js-delivery-pick" aria-label="Выделить {{ row.retailer }}">
+                    </td>
+                    <td>{{ row.retailer }}</td>
+                    <td>
+                        <select name="delivery-{{ row.platform_id }}-status" class="form-control js-delivery-status" style="min-width:12rem">
+                            {% for opt in delivery_status_options %}
+                            <option value="{{ opt }}" {% if row.status == opt %}selected{% endif %}>{{ opt }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" name="delivery-{{ row.platform_id }}-urgent" class="js-delivery-urgent"
+                               value="{{ row.urgent }}" maxlength="64" style="width:6rem">
+                    </td>
+                    <td>
+                        <input type="text" name="delivery-{{ row.platform_id }}-planned" class="js-delivery-planned"
+                               value="{{ row.planned }}" maxlength="64" style="width:8rem">
+                    </td>
+                    <td>
+                        <input type="text" name="delivery-{{ row.platform_id }}-delivered" class="js-delivery-delivered"
+                               value="{{ row.delivered }}" maxlength="64" style="width:8rem">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top:0.85rem;display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center">
+        <button type="submit" class="btn btn-primary" data-loading-text="Сохраняем…">
+            <span class="material-icons">save</span>
+            Сохранить статусы доставки
+        </button>
+        <span class="text-secondary" style="font-size:0.85rem">Сначала выделите площадки → «Поставить статус» → затем «Сохранить»</span>
+    </div>
+</form>
+
+<style>
+.delivery-bulk__bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm, 8px);
+    background: var(--bg-tertiary, var(--bg-secondary));
+}
+.delivery-bulk__select-actions,
+.delivery-bulk__apply {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    align-items: flex-end;
+}
+.delivery-bulk__count {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    align-self: center;
+}
+.delivery-bulk__label {
+    display: grid;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.delivery-bulk__label select,
+.delivery-bulk__label input {
+    min-height: 36px;
+    min-width: 10rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font: inherit;
+}
+.delivery-bulk__table tbody tr.is-picked {
+    background: color-mix(in srgb, var(--primary, #0a84ff) 10%, transparent);
+}
+@media (max-width: 700px) {
+    .delivery-bulk__label select,
+    .delivery-bulk__label input { min-width: 100%; }
+}
+</style>
+<script>
+(function () {
+    var form = document.getElementById({{ (form_id|default('deliveryBulkForm'))|tojson }});
+    if (!form || form.dataset.bulkReady === '1') return;
+    form.dataset.bulkReady = '1';
+
+    function picks() {
+        return Array.prototype.slice.call(form.querySelectorAll('.js-delivery-pick'));
+    }
+    function syncCount() {
+        var n = picks().filter(function (c) { return c.checked; }).length;
+        var el = form.querySelector('[data-delivery-count]');
+        if (el) el.textContent = 'Выбрано: ' + n;
+        picks().forEach(function (c) {
+            var row = c.closest('[data-delivery-row]');
+            if (row) row.classList.toggle('is-picked', c.checked);
+        });
+        var master = form.querySelector('[data-delivery-master]');
+        if (master) {
+            var all = picks();
+            master.checked = all.length > 0 && all.every(function (c) { return c.checked; });
+            master.indeterminate = n > 0 && n < all.length;
+        }
+    }
+    function setAll(on) {
+        picks().forEach(function (c) { c.checked = !!on; });
+        syncCount();
+    }
+
+    var master = form.querySelector('[data-delivery-master]');
+    if (master) master.addEventListener('change', function () { setAll(master.checked); });
+    form.querySelectorAll('[data-delivery-select-all]').forEach(function (btn) {
+        btn.addEventListener('click', function () { setAll(true); });
+    });
+    form.querySelectorAll('[data-delivery-select-none]').forEach(function (btn) {
+        btn.addEventListener('click', function () { setAll(false); });
+    });
+    picks().forEach(function (c) { c.addEventListener('change', syncCount); });
+
+    var applyBtn = form.querySelector('[data-delivery-bulk-apply]');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function () {
+            var selected = picks().filter(function (c) { return c.checked; });
+            if (!selected.length) {
+                alert('Сначала выделите площадки');
+                return;
+            }
+            var statusEl = form.querySelector('[data-delivery-bulk-status]');
+            var plannedEl = form.querySelector('[data-delivery-bulk-planned]');
+            var deliveredEl = form.querySelector('[data-delivery-bulk-delivered]');
+            var status = statusEl ? statusEl.value : '';
+            var planned = plannedEl && plannedEl.value.trim() ? plannedEl.value.trim() : null;
+            var delivered = deliveredEl && deliveredEl.value.trim() ? deliveredEl.value.trim() : null;
+            selected.forEach(function (c) {
+                var row = c.closest('[data-delivery-row]');
+                if (!row) return;
+                var sel = row.querySelector('.js-delivery-status');
+                if (sel && status) sel.value = status;
+                if (planned !== null) {
+                    var p = row.querySelector('.js-delivery-planned');
+                    if (p) p.value = planned;
+                }
+                if (delivered !== null) {
+                    var d = row.querySelector('.js-delivery-delivered');
+                    if (d) d.value = delivered;
+                }
+            });
+            syncCount();
+        });
+    }
+    syncCount();
+})();
+</script>

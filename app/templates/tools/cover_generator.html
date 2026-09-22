@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block title %}Генератор обложек{% endblock %}
+{% block page_title %}Генератор обложек{% endblock %}
+{% block content %}
+<div class="tools-page--pro uni-skin cover-gen-page">
+    <header class="tools-hero tools-hero--cover">
+        <div class="tools-hero-content">
+            <h1 class="tools-hero-title">Генератор обложек</h1>
+            <p class="tools-hero-subtitle">Соберите квадратную обложку 3000×3000 px для релиза: выберите стиль, укажите название и артиста, скачайте или примените к черновику.</p>
+            <div class="tools-hero-actions">
+                <a href="{{ url_for('tools.index') }}" class="btn">
+                    <span class="material-icons">campaign</span>
+                    Питчинг
+                </a>
+                <a href="{{ url_for('tools.auto_form') }}" class="btn">
+                    <span class="material-icons">description</span>
+                    Автоформа
+                </a>
+                <a href="{{ url_for('tools.karaoke_ttml') }}" class="btn">
+                    <span class="material-icons">mic</span>
+                    Караоке TTML
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="cover-gen-layout">
+        <section class="cover-gen-panel cover-gen-panel--form">
+            <h2 class="cover-gen-panel__title">
+                <span class="material-icons">tune</span>
+                Параметры
+            </h2>
+            <form id="coverGenForm" class="cover-gen-form">
+                <div class="cover-gen-field">
+                    <label for="coverTitle">Название релиза <span class="req">*</span></label>
+                    <input type="text" id="coverTitle" name="title" class="form-control" required maxlength="120" placeholder="Название трека или альбома">
+                </div>
+
+                <div class="cover-gen-field">
+                    <label for="coverArtists">Артист <span class="req">*</span></label>
+                    <input type="text" id="coverArtists" name="artists" class="form-control" required maxlength="120" placeholder="Имя артиста" value="{{ default_artists }}">
+                </div>
+
+                <div class="cover-gen-field">
+                    <span class="cover-gen-field__label" id="coverStyleLabel">Стиль фона</span>
+                    <select id="coverStyle" name="style" class="cover-gen-style-select" aria-labelledby="coverStyleLabel">
+                        {% for s in styles %}
+                        <option value="{{ s.id }}" {% if loop.first %}selected{% endif %}>{{ s.label }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="cover-gen-style-grid" role="radiogroup" aria-labelledby="coverStyleLabel">
+                        {% for style_id, preset in cover_styles.items() %}
+                        <button type="button"
+                                class="cover-gen-style-chip{% if loop.first %} is-active{% endif %}"
+                                data-style="{{ style_id }}"
+                                role="radio"
+                                aria-checked="{% if loop.first %}true{% else %}false{% endif %}"
+                                aria-label="{{ preset.label }}">
+                            <span class="cover-gen-style-chip__swatch{% if preset.get('vinyl') %} cover-gen-style-chip__swatch--vinyl{% endif %}"
+                                  style="--sw-top: rgb({{ preset.top[0] }}, {{ preset.top[1] }}, {{ preset.top[2] }}); --sw-bottom: rgb({{ preset.bottom[0] }}, {{ preset.bottom[1] }}, {{ preset.bottom[2] }});"></span>
+                            <span class="cover-gen-style-chip__label">{{ preset.label }}</span>
+                        </button>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="cover-gen-field">
+                    <label for="coverBgImage">Своё фото (необязательно)</label>
+                    <input type="file" id="coverBgImage" name="bg_image" class="form-control" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
+                    <p class="cover-gen-hint">JPG или PNG. Изображение будет обрезано по центру в квадрат; поверх — затемнение и текст.</p>
+                </div>
+
+                {% if releases %}
+                <div class="cover-gen-field">
+                    <label for="coverRelease">Применить к релизу</label>
+                    <select id="coverRelease" name="release_id" class="form-control">
+                        <option value="">— Только скачать —</option>
+                        {% for r in releases %}
+                        <option value="{{ r.id }}" data-title="{{ r.title|e }}" data-artists="{{ r.artists|e }}">{{ r.title }} — {{ r.artists }}</option>
+                        {% endfor %}
+                    </select>
+                    <p class="cover-gen-hint">Доступно для черновиков и отклонённых релизов.</p>
+                </div>
+                {% endif %}
+
+                <div class="cover-gen-actions">
+                    <button type="button" class="btn btn-primary" id="coverDownloadBtn">
+                        <span class="material-icons">download</span>
+                        Скачать 3000×3000
+                    </button>
+                    {% if releases %}
+                    <button type="button" class="btn btn-ghost" id="coverApplyBtn">
+                        <span class="material-icons">album</span>
+                        Применить к релизу
+                    </button>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        <section class="cover-gen-panel cover-gen-panel--preview" aria-live="polite">
+            <div class="cover-gen-preview-head">
+                <h2 class="cover-gen-panel__title">
+                    <span class="material-icons">visibility</span>
+                    Предпросмотр
+                </h2>
+                <span class="cover-gen-preview-badge" id="coverPreviewBadge" hidden>Live</span>
+            </div>
+            <div class="cover-gen-preview-stage">
+                <div class="cover-gen-preview-wrap" id="coverPreviewWrap">
+                    <div class="cover-gen-preview-placeholder" id="coverPreviewPlaceholder">
+                        <span class="material-icons">album</span>
+                        <span>Заполните поля — превью обновится автоматически</span>
+                    </div>
+                    <img id="coverPreviewImg" class="cover-gen-preview-img" alt="Предпросмотр обложки" hidden>
+                </div>
+            </div>
+            <div class="cover-gen-preview-meta" id="coverPreviewMeta" hidden>
+                <span class="cover-gen-preview-meta__style" id="coverPreviewStyle"></span>
+                <span class="cover-gen-preview-meta__size">Превью · финал 3000×3000 px</span>
+            </div>
+            <p class="cover-gen-hint cover-gen-hint--center">Генерация в браузере · JPG, RGB</p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/json" id="coverGenStylesData">{{ cover_styles | tojson }}</script>
+<script src="{{ url_for('static', filename='js/cover-generator.js') }}?v=20260628"></script>
+<script>
+(function () {
+    var CG = window.CoverGenerator;
+    var stylesEl = document.getElementById('coverGenStylesData');
+    CG.init(JSON.parse(stylesEl.textContent));
+
+    var form = document.getElementById('coverGenForm');
+    var previewImg = document.getElementById('coverPreviewImg');
+    var placeholder = document.getElementById('coverPreviewPlaceholder');
+    var previewMeta = document.getElementById('coverPreviewMeta');
+    var previewStyle = document.getElementById('coverPreviewStyle');
+    var previewBadge = document.getElementById('coverPreviewBadge');
+    var styleSelect = document.getElementById('coverStyle');
+    var styleChips = Array.prototype.slice.call(document.querySelectorAll('.cover-gen-style-chip'));
+    var applyUrl = '{{ url_for("tools.cover_generator_apply") }}';
+    var csrfToken = '{{ csrf_token() }}';
+    var timer = null;
+    var genToken = 0;
+
+    function styleLabel(styleId) {
+        var opt = styleSelect.querySelector('option[value="' + styleId + '"]');
+        return opt ? opt.textContent : styleId;
+    }
+
+    function syncStyleChips(styleId) {
+        styleChips.forEach(function (chip) {
+            var active = chip.dataset.style === styleId;
+            chip.classList.toggle('is-active', active);
+            chip.setAttribute('aria-checked', active ? 'true' : 'false');
+        });
+    }
+
+    function setCoverStyle(styleId) {
+        styleSelect.value = styleId;
+        syncStyleChips(styleId);
+        schedulePreview();
+    }
+
+    styleChips.forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            setCoverStyle(chip.dataset.style);
+        });
+    });
+
+    styleSelect.addEventListener('change', function () {
+        syncStyleChips(styleSelect.value);
+        schedulePreview();
+    });
+
+    function getOpts() {
+        return {
+            title: document.getElementById('coverTitle').value,
+            artists: document.getElementById('coverArtists').value,
+            style: document.getElementById('coverStyle').value,
+            bgFile: document.getElementById('coverBgImage').files[0] || null
+        };
+    }
+
+    function updatePreview() {
+        var opts = getOpts();
+        if (!(opts.title || '').trim() || !(opts.artists || '').trim()) {
+            previewImg.hidden = true;
+            placeholder.hidden = false;
+            previewMeta.hidden = true;
+            previewBadge.hidden = true;
+            placeholder.querySelector('span:last-child').textContent = 'Заполните поля — превью обновится автоматически';
+            return;
+        }
+        var token = ++genToken;
+        previewImg.hidden = true;
+        placeholder.hidden = false;
+        previewMeta.hidden = true;
+        previewBadge.hidden = true;
+        placeholder.querySelector('span:last-child').textContent = 'Генерация…';
+        var canvas = CG.buildCanvas(CG.PREVIEW_SIZE);
+        CG.renderCover(canvas, opts).then(function () {
+            if (token !== genToken) return;
+            return CG.canvasToBlob(canvas, 0.92);
+        }).then(function (blob) {
+            if (!blob || token !== genToken) return;
+            if (previewImg._blobUrl) URL.revokeObjectURL(previewImg._blobUrl);
+            previewImg._blobUrl = URL.createObjectURL(blob);
+            previewImg.onload = function () {
+                if (token !== genToken) return;
+                previewImg.hidden = false;
+                placeholder.hidden = true;
+                previewMeta.hidden = false;
+                previewBadge.hidden = false;
+                previewStyle.textContent = styleLabel(opts.style);
+            };
+            previewImg.onerror = function () {
+                if (token !== genToken) return;
+                previewImg.hidden = true;
+                placeholder.hidden = false;
+                previewMeta.hidden = true;
+                previewBadge.hidden = true;
+                placeholder.querySelector('span:last-child').textContent = 'Не удалось построить превью';
+            };
+            previewImg.hidden = true;
+            previewImg.src = previewImg._blobUrl;
+        }).catch(function () {
+            if (token !== genToken) return;
+            previewImg.hidden = true;
+            placeholder.hidden = false;
+            previewMeta.hidden = true;
+            previewBadge.hidden = true;
+            placeholder.querySelector('span:last-child').textContent = 'Не удалось построить превью';
+        });
+    }
+
+    function schedulePreview() {
+        clearTimeout(timer);
+        timer = setTimeout(updatePreview, 350);
+    }
+
+    function buildFullCoverBlob() {
+        var canvas = CG.buildCanvas(CG.COVER_SIZE);
+        return CG.renderCover(canvas, getOpts()).then(function () {
+            return CG.canvasToBlob(canvas, 0.92);
+        });
+    }
+
+    function submitCoverBlob(blob, releaseId) {
+        var opts = getOpts();
+        var fileName = CG.safeFilename(opts.title) + '_cover.jpg';
+        var fd = new FormData();
+        fd.append('csrf_token', csrfToken);
+        fd.append('generated_cover', blob, fileName);
+        if (releaseId) {
+            fd.append('release_id', releaseId);
+        }
+        var postForm = document.createElement('form');
+        postForm.method = 'POST';
+        postForm.action = applyUrl;
+        postForm.enctype = 'multipart/form-data';
+        postForm.style.display = 'none';
+        document.body.appendChild(postForm);
+
+        fd.forEach(function (value, key) {
+            if (value instanceof File) {
+                var dt = new DataTransfer();
+                dt.items.add(value);
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.name = key;
+                input.files = dt.files;
+                postForm.appendChild(input);
+            } else {
+                var hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = key;
+                hidden.value = value;
+                postForm.appendChild(hidden);
+            }
+        });
+        postForm.submit();
+    }
+
+    form.addEventListener('input', schedulePreview);
+    form.addEventListener('change', schedulePreview);
+
+    document.getElementById('coverRelease')?.addEventListener('change', function () {
+        var opt = this.options[this.selectedIndex];
+        if (opt.value && opt.dataset.title) {
+            document.getElementById('coverTitle').value = opt.dataset.title || '';
+            document.getElementById('coverArtists').value = opt.dataset.artists || '';
+            schedulePreview();
+        }
+    });
+
+    document.getElementById('coverDownloadBtn').addEventListener('click', function () {
+        if (!form.reportValidity()) return;
+        var btn = this;
+        btn.disabled = true;
+        buildFullCoverBlob().then(function (blob) {
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = CG.safeFilename(getOpts().title) + '_cover.jpg';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }).catch(function () {
+            alert('Не удалось сгенерировать обложку.');
+        }).finally(function () {
+            btn.disabled = false;
+        });
+    });
+
+    var applyBtn = document.getElementById('coverApplyBtn');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function () {
+            if (!form.reportValidity()) return;
+            var releaseId = document.getElementById('coverRelease').value;
+            if (!releaseId) {
+                alert('Выберите релиз в списке «Применить к релизу»');
+                return;
+            }
+            applyBtn.disabled = true;
+            buildFullCoverBlob().then(function (blob) {
+                submitCoverBlob(blob, releaseId);
+            }).catch(function () {
+                alert('Не удалось сгенерировать обложку.');
+                applyBtn.disabled = false;
+            });
+        });
+    }
+
+    schedulePreview();
+})();
+</script>
+{% endblock %}

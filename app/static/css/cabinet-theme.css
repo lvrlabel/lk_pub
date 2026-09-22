@@ -1,0 +1,1469 @@
+/**
+ * Toolls Cabinet — глобальный визуальный слой (v2)
+ * Подключается после style.css и uni-skin.css.
+ * Только CSS: разметка и Python не меняются.
+ */
+
+html[data-theme="light"]:has(.app-container) {
+    --cabinet-radius: 12px;
+    --cabinet-radius-sm: 10px;
+    --cabinet-radius-lg: 16px;
+    --cabinet-card-shadow: 0 1px 3px rgba(30, 64, 120, 0.06), 0 4px 18px rgba(30, 64, 120, 0.05);
+    --cabinet-ring: 0 0 0 3px var(--primary-light);
+}
+
+html[data-theme="light"]:has(.app-container) body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+html[data-theme="light"]:has(.app-container) .main-content {
+    background: var(--bg-primary);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .main-content {
+    background: linear-gradient(180deg, #a8d0fa 0%, #bddcf9 35%, #d2e8fc 70%, #e0f0fe 100%);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar {
+    background: linear-gradient(165deg, #f7f9fd 0%, #f0f4fb 50%, #e9f0f8 100%);
+    border-right: 1px solid var(--border);
+    box-shadow: 4px 0 32px rgba(30, 64, 120, 0.05);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-header {
+    border-bottom-color: var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) .header {
+    background: rgba(245, 247, 251, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset;
+}
+
+html[data-theme="light"]:has(.app-container) .page-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+}
+
+html[data-theme="light"]:has(.app-container) .content {
+    padding: clamp(1.15rem, 2.2vw, 1.85rem) clamp(1.15rem, 2.5vw, 2rem);
+}
+
+html[data-theme="light"]:has(.app-container) .nav-section-title {
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item {
+    border-radius: var(--cabinet-radius-sm);
+    font-weight: 500;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item.active {
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-btn.btn-primary {
+    border-radius: var(--cabinet-radius-sm);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-btn.btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.14);
+    filter: brightness(1.02);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-footer {
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-footer__legal a {
+    font-weight: 500;
+}
+
+html[data-theme="light"]:has(.app-container) .btn {
+    border-radius: var(--cabinet-radius-sm);
+    font-weight: 600;
+}
+
+html[data-theme="light"]:has(.app-container) .btn-primary {
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="light"]:has(.app-container) .btn-primary:hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container) .btn-ghost {
+    border-radius: var(--cabinet-radius-sm);
+}
+
+html[data-theme="light"]:has(.app-container) .card,
+html[data-theme="light"]:has(.app-container) .dashboard-card {
+    border-radius: var(--cabinet-radius-lg);
+    box-shadow: var(--cabinet-card-shadow);
+    border-color: var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) .card-header {
+    background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    font-weight: 600;
+}
+
+html[data-theme="light"]:has(.app-container) .form-control {
+    background: var(--bg-secondary);
+    border-radius: var(--cabinet-radius-sm);
+    border-color: var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) .form-control:focus {
+    box-shadow: var(--cabinet-ring);
+}
+
+html[data-theme="light"]:has(.app-container) .flash-messages {
+    padding-left: clamp(1rem, 2.5vw, 2rem);
+    padding-right: clamp(1rem, 2.5vw, 2rem);
+}
+
+html[data-theme="light"]:has(.app-container) .flash-message {
+    border-radius: var(--cabinet-radius-sm);
+    border: 1px solid transparent;
+    font-weight: 500;
+}
+
+html[data-theme="light"]:has(.app-container) .flash-success {
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+html[data-theme="light"]:has(.app-container) .flash-error {
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+html[data-theme="light"]:has(.app-container) .flash-warning {
+    border-color: rgba(245, 158, 11, 0.7);
+    background: rgba(245, 158, 11, 0.25);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+html[data-theme="light"]:has(.app-container) .flash-info {
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+html[data-theme="light"]:has(.app-container) .badge {
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+html[data-theme="light"]:has(.app-container) .user-menu .user-info {
+    border-radius: var(--cabinet-radius-sm);
+    padding: 0.2rem 0.5rem 0.2rem 0.2rem;
+    transition: background 0.15s ease;
+}
+
+html[data-theme="light"]:has(.app-container) .user-menu .user-info:hover {
+    background: var(--bg-hover);
+}
+
+html[data-theme="light"]:has(.app-container) .user-avatar {
+    box-shadow: 0 0 0 2px var(--bg-secondary), 0 0 0 3px var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) .mobile-menu-toggle:hover,
+html[data-theme="light"]:has(.app-container) .sidebar-toggle:hover {
+    border-color: var(--border);
+    border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+html[data-theme="light"]:has(.app-container) .nav-drawer-open .mobile-menu-toggle {
+    background: var(--primary-light);
+    border-color: var(--primary);
+    border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+    color: var(--primary);
+}
+
+html[data-theme="light"]:has(.app-container) .header-notif-item.is-unread {
+    background: var(--primary-light);
+}
+
+html[data-theme="light"]:has(.app-container) .header-notifications-dropdown {
+    border-radius: var(--cabinet-radius);
+    box-shadow: 0 16px 48px rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container) .empty-state {
+    border-radius: var(--cabinet-radius-lg);
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: var(--cabinet-radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table th {
+    background: var(--bg-tertiary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-tertiary);
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table th,
+html[data-theme="light"]:has(.app-container) table.data-table td {
+    border-bottom: 1px solid var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* uni-skin: тень primary-кнопки от текущего акцента */
+html[data-theme="light"]:has(.app-container) .uni-skin > .btn.btn-primary:first-child,
+html[data-theme="light"]:has(.app-container) .uni-skin > a.btn-primary:first-of-type {
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.1);
+}
+
+/* Тикеты и прочие полноширинные блоки — без ограничения ширины; на мобильных боковые отступы не обнуляем */
+html[data-theme="light"]:has(.app-container) .content.tickets-content {
+    max-width: none;
+}
+
+@media (min-width: 769px) {
+    html[data-theme="light"]:has(.app-container) .content.tickets-content {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* Главная (bento) */
+html[data-theme="light"]:has(.app-container) .dashboard.db-redesign .db-panel {
+    box-shadow: var(--cabinet-card-shadow);
+    border-color: var(--border);
+}
+
+html[data-theme="light"]:has(.app-container) .dashboard.db-redesign .db-metric {
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+html[data-theme="light"]:has(.app-container) .dashboard.db-redesign .db-shortcut {
+    border-radius: var(--cabinet-radius);
+}
+
+@media (max-width: 768px) {
+    html[data-theme="light"]:has(.app-container) .page-title {
+        font-size: 1.15rem;
+    }
+}
+
+/* =============================================================================
+   Тема «Toolls Cyan» — полный синий редизайн кабинета (data-accent="blue" на <html>)
+   ============================================================================= */
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] {
+    /* Заметнее синий фон рабочей области */
+    --bg-primary: #b8d9fb;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #e8f2fe;
+    --bg-hover: #a8cff8;
+    --border: #7eb6f0;
+    --border-light: #9ec9f8;
+    --logo-text: #f8fafc;
+    --logo-subtitle: #94a3b8;
+    --shadow-sm: 0 1px 2px rgba(30, 64, 175, 0.06);
+    --shadow: 0 4px 16px rgba(30, 64, 175, 0.08);
+    --shadow-lg: 0 18px 44px rgba(30, 58, 138, 0.1);
+    --cabinet-card-shadow:
+        0 1px 3px rgba(37, 99, 235, 0.07),
+        0 6px 20px rgba(30, 64, 175, 0.07);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 42%, #172554 100%);
+    border-right: 1px solid rgba(59, 130, 246, 0.22);
+    box-shadow: 6px 0 40px rgba(15, 23, 42, 0.2);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-header {
+    border-bottom-color: rgba(148, 163, 184, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-section-title {
+    color: rgba(148, 163, 184, 0.85);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item {
+    color: rgba(226, 232, 240, 0.88);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item:hover {
+    background: rgba(59, 130, 246, 0.18);
+    color: #f8fafc;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item.active {
+    background: rgba(59, 130, 246, 0.32);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.35);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item .material-icons {
+    opacity: 0.92;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item-docflow-icon {
+    color: rgba(226, 232, 240, 0.55);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item--docflow.active .nav-item-docflow-icon,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-item--docflow:hover .nav-item-docflow-icon {
+    color: inherit;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-toggle {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(148, 163, 184, 0.2);
+    color: #e2e8f0;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-toggle:hover {
+    background: rgba(59, 130, 246, 0.2);
+    border-color: rgba(96, 165, 250, 0.45);
+    color: #fff;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-footer {
+    color: rgba(148, 163, 184, 0.75);
+    border-top-color: rgba(148, 163, 184, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-footer__legal a {
+    color: rgba(203, 213, 225, 0.85);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-footer__legal a:hover {
+    color: #5eead4;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .sidebar-btn.btn-primary {
+    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.45);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .header {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom-color: var(--border);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .page-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .card,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard-card {
+    border-color: rgba(147, 197, 253, 0.65);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .card-header {
+    background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+    border-bottom-color: rgba(147, 197, 253, 0.5);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .btn-primary {
+    box-shadow: 0 2px 12px rgba(37, 99, 235, 0.3);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .btn-primary:hover {
+    box-shadow: 0 4px 18px rgba(29, 78, 216, 0.35);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-hero {
+    border: 1px solid rgba(96, 165, 250, 0.45);
+    box-shadow: 0 6px 24px rgba(37, 99, 235, 0.12);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-hero__bg {
+    background:
+        radial-gradient(120% 80% at 92% 18%, rgba(59, 130, 246, 0.55) 0%, transparent 55%),
+        radial-gradient(80% 100% at 0% 100%, rgba(37, 99, 235, 0.32) 0%, transparent 50%),
+        linear-gradient(165deg, #1e40af 0%, #0f172a 48%, #172554 100%);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-hero__cta {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 22px rgba(37, 99, 235, 0.45);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-hero__cta:hover {
+    background: #1d4ed8 !important;
+    box-shadow: 0 8px 30px rgba(29, 78, 216, 0.5);
+    color: #fff !important;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-metric__icon {
+    background: rgba(37, 99, 235, 0.18);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-metric:hover {
+    border-color: rgba(37, 99, 235, 0.35);
+    box-shadow: 0 4px 18px rgba(37, 99, 235, 0.08);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .dashboard.db-redesign .db-panel {
+    border-color: rgba(147, 197, 253, 0.5);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .documents-hub__head {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-color: rgba(147, 197, 253, 0.6);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .documents-hub__sheet {
+    border-color: rgba(147, 197, 253, 0.55);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .mobile-menu-toggle:hover {
+    border-color: rgba(59, 130, 246, 0.35);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .nav-drawer-open .mobile-menu-toggle {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(37, 99, 235, 0.35);
+    color: var(--primary);
+}
+
+/* ——— Поддержка (тикеты): синий кабинет ——— */
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .main-content {
+    background: linear-gradient(180deg, #dbeafe 0%, #e8f2fe 55%, #eff6ff 100%);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.support-table-page .main-content {
+    background: linear-gradient(180deg, #dbeafe 0%, #e8f2fe 55%, #eff6ff 100%);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-card {
+    border-color: rgba(147, 197, 253, 0.75);
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.07);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head .support-table-title {
+    color: #0f172a;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head .support-table-subtitle {
+    color: #475569;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-card-head {
+    border-bottom-color: rgba(147, 197, 253, 0.55);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+    border-right-color: rgba(147, 197, 253, 0.85) !important;
+    box-shadow: 4px 0 28px rgba(37, 99, 235, 0.08);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar-header,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters {
+    border-bottom-color: rgba(147, 197, 253, 0.65);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab {
+    color: #64748b;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab:hover {
+    color: #1e40af;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab.active {
+    background: rgba(59, 130, 246, 0.14);
+    color: #1d4ed8;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-left: 3px solid transparent;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item:hover {
+    background: #f1f5f9 !important;
+    border-color: rgba(147, 197, 253, 0.7);
+    border-left-color: rgba(147, 197, 253, 0.5);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item.active {
+    background: rgba(59, 130, 246, 0.14) !important;
+    border-color: rgba(59, 130, 246, 0.3);
+    border-left: 3px solid #2563eb !important;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-id,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-meta,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar-empty {
+    color: #64748b;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-subject {
+    color: #0f172a;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat {
+    background: transparent !important;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-header,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-reply,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-actions {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: rgba(147, 197, 253, 0.55) !important;
+    backdrop-filter: blur(8px);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-id,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-subject,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat-empty h3 {
+    color: #0f172a;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-date,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat-empty p {
+    color: #64748b;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-reply-input {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-reply-input:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-text {
+    color: #334155;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-body {
+    background: transparent;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-me .chat-message-text {
+    background: #dc2626;
+    color: #fff;
+    border-color: transparent;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-other .chat-message-text {
+    background: #0284c7;
+    color: #fff;
+    border-color: transparent;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-header .chat-message-author,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-header .chat-message-time {
+    color: #64748b;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .btn-ghost {
+    color: #64748b;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .btn-ghost:hover {
+    color: #1e40af;
+    background: rgba(59, 130, 246, 0.08);
+}
+
+/* Создание / просмотр тикета в том же стиле */
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .ticket-form-intro {
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(219, 234, 254, 0.6) 100%);
+    border: 1px solid rgba(147, 197, 253, 0.55);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .ticket-form-intro .material-icons {
+    color: #2563eb;
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .ticket-create-card.card,
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .ticket-view .card {
+    border-color: rgba(147, 197, 253, 0.55);
+    box-shadow: 0 4px 24px rgba(37, 99, 235, 0.06);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .message-item.message-admin {
+    background: rgba(239, 246, 255, 0.95);
+    border-color: rgba(59, 130, 246, 0.28);
+}
+
+html[data-theme="light"]:has(.app-container)[data-accent="blue"] .message-item:not(.message-admin) {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+/* =============================================================================
+   Professional Dark Cabinet
+   Глобальный тёмный слой без изменения разметки/логики
+   ============================================================================= */
+html[data-theme="dark"]:has(.app-container) {
+    --bg-primary: #100f0d;
+    --bg-secondary: #171512;
+    --bg-tertiary: #1e1c18;
+    --bg-hover: #262320;
+    --border: #2a2723;
+    --border-light: #3a352f;
+    --text-primary: #f3efe6;
+    --text-secondary: #a39a8c;
+    --text-tertiary: #736b60;
+    --logo-text: #f3efe6;
+    --logo-subtitle: #a39a8c;
+    /* Та же геометрия тени, что у светлой */
+    --cabinet-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 4px 18px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme="dark"]:has(.app-container) .main-content {
+    background: transparent !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .sidebar {
+    background: rgba(23, 21, 18, 0.92) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-right-color: rgba(243, 239, 230, 0.1) !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"]:has(.app-container) .header {
+    background: rgba(23, 21, 18, 0.88) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom-color: rgba(243, 239, 230, 0.1) !important;
+    box-shadow: none;
+}
+
+html[data-theme="dark"]:has(.app-container) .page-title,
+html[data-theme="dark"]:has(.app-container) .user-name {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-section-title {
+    color: var(--text-tertiary);
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item {
+    color: #c8c8c8;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f5f5f5;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item.active {
+    background: rgba(13, 148, 136, 0.22);
+    color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.35);
+}
+
+html[data-theme="dark"]:has(.app-container) .card,
+html[data-theme="dark"]:has(.app-container) .dashboard-card,
+html[data-theme="dark"]:has(.app-container) .db-panel,
+html[data-theme="dark"]:has(.app-container) .db-metric,
+html[data-theme="dark"]:has(.app-container) .db-shortcut,
+html[data-theme="dark"]:has(.app-container) .support-table-card,
+html[data-theme="dark"]:has(.app-container) .ticket-list-item,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-header,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-reply,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-actions {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary);
+    box-shadow: var(--cabinet-card-shadow);
+}
+
+html[data-theme="dark"]:has(.app-container) .card-header,
+html[data-theme="dark"]:has(.app-container) .db-panel__head {
+    background: #1f1f1f !important;
+    border-bottom-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .db-news__title a,
+html[data-theme="dark"]:has(.app-container) .db-shortcut__text,
+html[data-theme="dark"]:has(.app-container) .db-metric__value,
+html[data-theme="dark"]:has(.app-container) .db-quarter__sum {
+    color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .db-news__excerpt,
+html[data-theme="dark"]:has(.app-container) .db-news__date,
+html[data-theme="dark"]:has(.app-container) .db-metric__label,
+html[data-theme="dark"]:has(.app-container) .db-quarter__hint,
+html[data-theme="dark"]:has(.app-container) .db-empty,
+html[data-theme="dark"]:has(.app-container) .header-notif-item__msg,
+html[data-theme="dark"]:has(.app-container) .header-notif-item__time {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .db-quarter {
+    background: linear-gradient(180deg, #15233a 0%, #121d31 100%) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .db-quarter.is-current {
+    border-color: var(--primary) !important;
+    background: rgba(13, 148, 136, 0.12) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-primary,
+html[data-theme="dark"]:has(.app-container) .db-hero__cta {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
+    border-color: var(--primary) !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-primary:hover,
+html[data-theme="dark"]:has(.app-container) .db-hero__cta:hover {
+    background: linear-gradient(135deg, var(--primary-hover) 0%, var(--btn-primary-hover, var(--primary-hover)) 100%) !important;
+    color: #fff !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-ghost,
+html[data-theme="dark"]:has(.app-container) .header-notifications,
+html[data-theme="dark"]:has(.app-container) .mobile-menu-toggle,
+html[data-theme="dark"]:has(.app-container) .sidebar-toggle {
+    background: transparent;
+    border-color: transparent;
+    color: var(--text-secondary);
+}
+
+html[data-theme="dark"]:has(.app-container) .btn-ghost:hover,
+html[data-theme="dark"]:has(.app-container) .header-notifications:hover,
+html[data-theme="dark"]:has(.app-container) .mobile-menu-toggle:hover,
+html[data-theme="dark"]:has(.app-container) .sidebar-toggle:hover {
+    background: var(--bg-hover);
+    border-color: transparent;
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"]:has(.app-container) .form-control,
+html[data-theme="dark"]:has(.app-container) .chat-reply-input,
+html[data-theme="dark"]:has(.app-container) select,
+html[data-theme="dark"]:has(.app-container) textarea,
+html[data-theme="dark"]:has(.app-container) input[type="text"],
+html[data-theme="dark"]:has(.app-container) input[type="number"],
+html[data-theme="dark"]:has(.app-container) input[type="email"],
+html[data-theme="dark"]:has(.app-container) input[type="password"],
+html[data-theme="dark"]:has(.app-container) input[type="date"] {
+    background: #141414 !important;
+    color: #f0f0f0 !important;
+    border-color: #3d3d3d !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .form-control:focus,
+html[data-theme="dark"]:has(.app-container) .chat-reply-input:focus,
+html[data-theme="dark"]:has(.app-container) select:focus,
+html[data-theme="dark"]:has(.app-container) textarea:focus,
+html[data-theme="dark"]:has(.app-container) input:focus {
+    border-color: #4f94ff !important;
+    box-shadow: 0 0 0 3px rgba(79, 148, 255, 0.2) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) table.data-table {
+    border-color: #3d3d3d;
+    background: #121c2f;
+}
+
+html[data-theme="dark"]:has(.app-container) table.data-table th {
+    background: #17253b;
+    color: #a9bbd6;
+}
+
+html[data-theme="dark"]:has(.app-container) table.data-table th,
+html[data-theme="dark"]:has(.app-container) table.data-table td {
+    border-bottom-color: #283a58;
+    color: #d8e4f7;
+}
+
+/* База для .flash-message — без общего фона: перекрывала .flash-success / warning (ниже в файле) */
+html[data-theme="dark"]:has(.app-container) .flash-message {
+    border-style: solid;
+    border-width: 1px;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown {
+    background: #121d31;
+    border: 1px solid #2a3d5c;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notif-item {
+    border-bottom-color: #263858;
+}
+
+/* -----------------------------------------------------------------------------
+   Читаемый текст в тёмном кабинете
+   Не используем .content * { color } — тикеты/поддержка частично с белыми карточками,
+   тогда светлый текст на светлом фоне тоже «невидим». База + точечные перебивы.
+   ----------------------------------------------------------------------------- */
+html[data-theme="dark"]:has(.app-container) .content,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"]:has(.app-container) .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]),
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]) {
+    color: var(--primary);
+}
+
+html[data-theme="dark"]:has(.app-container) .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]):hover,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]):hover {
+    color: var(--primary-hover);
+}
+
+html[data-theme="dark"]:has(.app-container) .content .text-secondary,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-secondary,
+html[data-theme="dark"]:has(.app-container) .content .text-tertiary,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-tertiary {
+    color: #b0b0b0 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .text-muted,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-muted,
+html[data-theme="dark"]:has(.app-container) .content .muted,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .muted {
+    color: #808080 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .btn-primary,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .btn-primary,
+html[data-theme="dark"]:has(.app-container) .content .db-hero__cta,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .db-hero__cta {
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .btn-ghost,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .btn-ghost {
+    color: #c8d8ef !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .btn-danger,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .btn-danger,
+html[data-theme="dark"]:has(.app-container) .content .text-danger,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-danger {
+    color: #f87171 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .text-success,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-success {
+    color: #34d399 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .text-warning,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .text-warning,
+html[data-theme="dark"]:has(.app-container) .content .badge-warning,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .badge-warning {
+    color: #fbbf24 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .material-icons,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .material-icons {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .content .db-panel__title .material-icons,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .db-panel__title .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .db-metric__icon .material-icons,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .content .db-metric__icon .material-icons {
+    color: var(--primary) !important;
+}
+
+/* Уведомления в шапке: те же тёмные hex из style.css */
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .header-notifications-dropdown,
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown *,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .header-notifications-dropdown * {
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .header-notifications-dropdown a,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .header-notifications-dropdown a {
+    color: #5eead4 !important;
+}
+
+/* -----------------------------------------------------------------------------
+   Финал тёмного кабинета: раньше блок [data-accent="blue"] в ЭТОМ файле задал
+   color: #0f172a (шапка, поддежрка) — на тёмном main это исчезает. Плюс убираем
+   белые панели тикетов, чтобы везде был светлый текст на тёмных картах.
+   Правила в конце файла, чтобы перекрывать куски выше по селектору + порядку.
+   ----------------------------------------------------------------------------- */
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .header .page-title,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .header .user-menu .user-name {
+    color: #f5f5f5 !important;
+}
+
+/* Поддержка: карточка и таблица — тёмные (перебить #fff из style.css) */
+html[data-theme="dark"]:has(.app-container) body.support-table-page .support-table-card,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-card {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-table-card-head,
+html[data-theme="dark"]:has(.app-container) .support-table-wrap,
+html[data-theme="dark"]:has(.app-container) .support-table {
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-table th,
+html[data-theme="dark"]:has(.app-container) .support-table td,
+html[data-theme="dark"]:has(.app-container) .support-table-card-head h3,
+html[data-theme="dark"]:has(.app-container) .support-table-title,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head .support-table-title {
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .support-table-subtitle,
+html[data-theme="dark"]:has(.app-container) .support-status-form label,
+html[data-theme="dark"]:has(.app-container) .support-table th,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head .support-table-subtitle {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.support-table-page .support-table-head-actions .btn-ghost,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head-actions .btn-ghost {
+    background: var(--bg-tertiary) !important;
+    color: #f5f5f5 !important;
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.support-table-page .support-table-head-actions .btn-ghost:hover,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.support-table-page .support-table-head-actions .btn-ghost:hover {
+    background: var(--bg-hover) !important;
+    color: #ffffff !important;
+}
+
+/* Тикеты: сайдбар и список — тёмные, светлая типографика */
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-sidebar,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar {
+    background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%) !important;
+    border-right-color: var(--border) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-sidebar-header,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-filters,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar-header,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters {
+    border-bottom-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-filters .filter-tab,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-filters .filter-tab:hover,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab:hover {
+    color: #f5f5f5 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-filters .filter-tab.active,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-filters .filter-tab.active {
+    color: #5eead4 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-item,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border) !important;
+    border-left: 3px solid transparent !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-item:hover,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item:hover {
+    background: var(--bg-hover) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-item.active,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-item.active {
+    background: rgba(13, 148, 136, 0.16) !important;
+    border-color: rgba(13, 148, 136, 0.4) !important;
+    border-left-color: var(--primary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-subject,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-subject,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-id,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-subject,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-chat-empty h3,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-id,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-subject,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat-empty h3 {
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-id,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-list-meta,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-sidebar-empty,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-date,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-chat-empty p,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-id,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-list-meta,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-sidebar-empty,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-date,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat-empty p {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .tickets-chat,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .tickets-chat {
+    background: var(--bg-primary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-header,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-reply,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .ticket-chat-actions,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-header,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-reply,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .ticket-chat-actions {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-reply-input,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-reply-input {
+    background: #141414 !important;
+    color: #f0f0f0 !important;
+    border-color: #3d3d3d !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-reply-input::placeholder,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-reply-input::placeholder {
+    color: #808080 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-message-text,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-text {
+    color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-message-header .chat-message-author,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-message-header .chat-message-time,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-header .chat-message-author,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-header .chat-message-time {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .btn-ghost,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .btn-ghost {
+    color: var(--text-secondary) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .btn-ghost:hover,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .btn-ghost:hover {
+    color: #f5f5f5 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Переписка в тикетах: светлые пузыри -> тёмные */
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-message-me .chat-message-text,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-me .chat-message-text {
+    background: #dc2626 !important;
+    color: #fff !important;
+    border-color: transparent !important;
+}
+
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .chat-message-other .chat-message-text,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] body.tickets-inbox-page .chat-message-other .chat-message-text {
+    background: #0284c7 !important;
+    color: #fff !important;
+    border-color: transparent !important;
+}
+
+/* Карточки тикетов (create / view) — тёмные вместо светло-голубых */
+html[data-theme="dark"]:has(.app-container) .ticket-form-intro,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .ticket-form-intro {
+    background: linear-gradient(135deg, #252525 0%, #1a1a1a 100%) !important;
+    border: 1px solid var(--border) !important;
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .message-item.message-admin,
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .message-item.message-admin {
+    background: rgba(13, 148, 136, 0.1) !important;
+    border-color: rgba(13, 148, 136, 0.28) !important;
+    color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .message-item:not(.message-admin),
+html[data-theme="dark"]:has(.app-container)[data-accent="blue"] .message-item:not(.message-admin) {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border) !important;
+    color: #f5f5f5 !important;
+}
+
+/* =============================================================================
+   Глобальные поверхности и типографика (все разделы)
+   Не используем .content h1/p/strong { color !important } — ломает жёлтые/светлые
+   баннеры и жёстко заданные стили. Вместо: тёмные карты + токены.
+   ============================================================================= */
+
+/* Подвал сайдбара — читаемо на тёмном */
+html[data-theme="dark"]:has(.app-container) .sidebar-footer,
+html[data-theme="dark"]:has(.app-container) .sidebar-footer__copy {
+    color: #94a3b8 !important;
+}
+html[data-theme="dark"]:has(.app-container) .sidebar-footer__legal a {
+    color: #c7d2fe !important;
+}
+html[data-theme="dark"]:has(.app-container) .sidebar-footer__legal a:hover {
+    color: #e5e7ff !important;
+}
+
+/* Доп. карточки/панели, не попавшие в список выше */
+html[data-theme="dark"]:has(.app-container) .releases-redesign .rel-empty,
+html[data-theme="dark"]:has(.app-container) .releases-redesign .rel-toolbar,
+html[data-theme="dark"]:has(.app-container) .tools-form-section,
+html[data-theme="dark"]:has(.app-container) .tools-list-section-pro,
+html[data-theme="dark"]:has(.app-container) .uni-skin .card,
+html[data-theme="dark"]:has(.app-container) .auto-form-page .card,
+html[data-theme="dark"]:has(.app-container) .tools-form-card,
+html[data-theme="dark"]:has(.app-container) .tools-pitch-card-pro {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Смарт-ссылки (smart-link.css — жёсткие #fff) */
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__card {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--cabinet-card-shadow) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__card-main strong {
+    color: var(--text-primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__meta {
+    color: var(--text-secondary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__meta::before {
+    background: var(--text-tertiary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__url {
+    background: rgba(37, 99, 235, 0.15) !important;
+    border: 1px solid rgba(59, 130, 246, 0.4) !important;
+    color: #5eead4 !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__url:hover {
+    background: rgba(37, 99, 235, 0.22) !important;
+    border-color: rgba(96, 165, 250, 0.55) !important;
+    color: #99f6e4 !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__empty {
+    background: var(--bg-tertiary) !important;
+    border: 2px dashed rgba(59, 130, 246, 0.35) !important;
+    color: var(--text-primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__card-actions .btn-ghost {
+    background: var(--bg-tertiary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .smart-link-hub__card-actions .btn-ghost:hover {
+    background: var(--bg-hover) !important;
+}
+
+/* Аналитика — баннер «временно недоступна»: тёмный, светлый текст (вместо жёлтой плашки) */
+html[data-theme="dark"]:has(.app-container) .stats-outage-banner {
+    background: linear-gradient(145deg, #0f172a 0%, #422006 50%, #78350f 100%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.45) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35) !important;
+}
+html[data-theme="dark"]:has(.app-container) .stats-outage-title,
+html[data-theme="dark"]:has(.app-container) .stats-outage-text {
+    color: #fef3c7 !important;
+}
+html[data-theme="dark"]:has(.app-container) .stats-outage-text {
+    color: #fde68a !important;
+    opacity: 0.95;
+}
+html[data-theme="dark"]:has(.app-container) .stats-outage-date {
+    background: #d97706 !important;
+    color: #fff !important;
+}
+html[data-theme="dark"]:has(.app-container) .stats-outage-icon .gear {
+    color: #fbbf24 !important;
+}
+
+/* Флэш-сообщения: вернуть смысловые цвета (общий .flash-message в блоке тёмной темы их затирал) */
+html[data-theme="dark"]:has(.app-container) .flash-success {
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #86efac !important;
+    border: 1px solid rgba(34, 197, 94, 0.35) !important;
+}
+html[data-theme="dark"]:has(.app-container) .flash-error {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #fecaca !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+html[data-theme="dark"]:has(.app-container) .flash-warning {
+    background: rgba(245, 158, 11, 0.18) !important;
+    color: #fef3c7 !important;
+    border: 1px solid rgba(245, 158, 11, 0.45) !important;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12) !important;
+}
+html[data-theme="dark"]:has(.app-container) .flash-info {
+    background: rgba(59, 130, 246, 0.12) !important;
+    color: #5eead4 !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Основной текст в типичных карточках/формах (без !important на все p/h) */
+html[data-theme="dark"]:has(.app-container) .content .card-header,
+html[data-theme="dark"]:has(.app-container) .content .card-title,
+html[data-theme="dark"]:has(.app-container) .content .form-group > label,
+html[data-theme="dark"]:has(.app-container) .content .rlc-head__title,
+html[data-theme="dark"]:has(.app-container) .content .rlc-panel__title,
+html[data-theme="dark"]:has(.app-container) .content .rlc-field > label,
+html[data-theme="dark"]:has(.app-container) .content .rlc-cover-label,
+html[data-theme="dark"]:has(.app-container) .content .rel-empty__title,
+html[data-theme="dark"]:has(.app-container) .content .rel-head__title,
+html[data-theme="dark"]:has(.app-container) .content .tools-form-section-title,
+html[data-theme="dark"]:has(.app-container) .content .tools-form-field label,
+html[data-theme="dark"]:has(.app-container) .content .tools-form-field-pro label,
+html[data-theme="dark"]:has(.app-container) .content .tools-list-title-pro,
+html[data-theme="dark"]:has(.app-container) .content .auto-form-title,
+html[data-theme="dark"]:has(.app-container) .content .auto-form-label {
+    color: var(--text-primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .content .rel-empty__text,
+html[data-theme="dark"]:has(.app-container) .content .rel-head__subtitle,
+html[data-theme="dark"]:has(.app-container) .content .rlc-head__subtitle,
+html[data-theme="dark"]:has(.app-container) .content .rlc-aside-hint,
+html[data-theme="dark"]:has(.app-container) .content .form-hint,
+html[data-theme="dark"]:has(.app-container) .content .text-muted,
+html[data-theme="dark"]:has(.app-container) .content .auto-form-intro,
+html[data-theme="dark"]:has(.app-container) .support-table-subtitle,
+html[data-theme="dark"]:has(.app-container) .support-table th {
+    color: var(--text-secondary) !important;
+}
+
+/* Кнопки primary — плотнее шрифт */
+html[data-theme="dark"]:has(.app-container) .btn-primary,
+html[data-theme="dark"]:has(.app-container) .rel-btn--primary,
+html[data-theme="dark"]:has(.app-container) .tools-form-btn,
+html[data-theme="dark"]:has(.app-container) .tools-form-btn-pro {
+    font-weight: 700 !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Material icons в контенте — чуть ярже, чем серая «муть» */
+html[data-theme="dark"]:has(.app-container) .content .material-icons {
+    color: #a3b4cc !important;
+}
+html[data-theme="dark"]:has(.app-container) .content .releases-user-catalog .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .release-view-page .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .rf-create .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .re2 .material-icons {
+    color: inherit !important;
+}
+html[data-theme="dark"]:has(.app-container) .content .db-panel__title .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .db-metric__icon .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .rlc-panel__title .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .tools-form-section-title .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .tools-list-title-pro .material-icons {
+    color: var(--primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .content .btn-primary .material-icons,
+html[data-theme="dark"]:has(.app-container) .content .rel-btn--primary .material-icons {
+    color: #fff !important;
+}
+
+/* =============================================================================
+   Last-resort dark compatibility layer
+   Для разделов с legacy/inline светлыми блоками и белым текстом.
+   ============================================================================= */
+
+/* Почти все "карточные" контейнеры делаем темными */
+html[data-theme="dark"]:has(.app-container) .content :is(
+    .card, .panel, .box, .widget, .block, .sheet, .table-wrap, .list-wrap,
+    .tools-form-card, .tools-form-section, .tools-list-section-pro, .tools-pitch-card-pro,
+    .release-create-cover-card, .rlc-cover-card, .rlc-panel, .releases-redesign .rel-card,
+    .releases-redesign .rel-empty, .releases-redesign .rel-toolbar,
+    .smart-link-hub__card, .smart-link-hub__empty,
+    .stats-outage-banner, .auto-form-block, .ticket-create-card, .ticket-view .card
+) {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Элементы с inline белым фоном */
+html[data-theme="dark"]:has(.app-container) .content [style*="background: #fff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="background:#fff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="background: #ffffff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="background:#ffffff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="background: white"],
+html[data-theme="dark"]:has(.app-container) .content [style*="background:white"] {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border) !important;
+}
+
+/* Текстовый fallback: если цвет задан белым/черным inline */
+html[data-theme="dark"]:has(.app-container) .content [style*="color: #fff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color:#fff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color: #ffffff"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color:#ffffff"] {
+    color: var(--text-primary) !important;
+}
+html[data-theme="dark"]:has(.app-container) .content [style*="color: #000"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color:#000"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color: #0f172a"],
+html[data-theme="dark"]:has(.app-container) .content [style*="color:#0f172a"] {
+    color: var(--text-primary) !important;
+}
+
+/* Глобальная читабельность по типам */
+html[data-theme="dark"]:has(.app-container) .content :is(h1, h2, h3, h4, h5, h6, p, li, dt, dd, td, th, label) {
+    color: inherit;
+}
+html[data-theme="dark"]:has(.app-container) .content :is(
+    .card, .panel, .box, .widget, .block, .sheet, .table-wrap, .list-wrap,
+    .tools-form-card, .tools-form-section, .tools-list-section-pro, .tools-pitch-card-pro,
+    .release-create-cover-card, .rlc-cover-card, .rlc-panel,
+    .smart-link-hub__card, .smart-link-hub__empty, .auto-form-block
+) :is(h1, h2, h3, h4, h5, h6) {
+    color: var(--text-primary);
+}
+
+/* Вторичный текст */
+html[data-theme="dark"]:has(.app-container) .content :is(
+    .text-secondary, .text-tertiary, .text-muted,
+    .form-hint, .auto-form-intro, .rlc-head__subtitle, .rel-head__subtitle, .support-table-subtitle
+) {
+    color: var(--text-secondary) !important;
+}
+
+/* Таблицы и инпуты */
+html[data-theme="dark"]:has(.app-container) .content table,
+html[data-theme="dark"]:has(.app-container) .content table tr,
+html[data-theme="dark"]:has(.app-container) .content table td,
+html[data-theme="dark"]:has(.app-container) .content table th {
+    border-color: #3d3d3d !important;
+}
+html[data-theme="dark"]:has(.app-container) .content input,
+html[data-theme="dark"]:has(.app-container) .content select,
+html[data-theme="dark"]:has(.app-container) .content textarea {
+    background: #141414 !important;
+    color: #f0f0f0 !important;
+    border-color: #3d3d3d !important;
+}
+html[data-theme="dark"]:has(.app-container) .content input::placeholder,
+html[data-theme="dark"]:has(.app-container) .content textarea::placeholder {
+    color: #808080 !important;
+}
+
+/* Текстовые ссылки (не кнопки и не карточки-ссылки) */
+html[data-theme="dark"]:has(.app-container) .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]) {
+    color: var(--primary);
+}
+html[data-theme="dark"]:has(.app-container) .content a:not(.btn):not([class*="btn-"]):not(.nav-item):not(.rel-user-card):not(.rel-tile):not(.rel-user-page):not(.rel-card):not([class*="rdc-"]):hover {
+    color: var(--primary-hover);
+}
+
+/* =============================================================================
+   Dark theme — clean (variables + chrome only, no nuclear !important paint)
+   ============================================================================= */
+html[data-theme="dark"]:has(.app-container),
+html[data-theme="dark"] {
+    --bg-primary: #100f0d;
+    --bg-secondary: #171512;
+    --bg-tertiary: #1e1c18;
+    --bg-hover: #262320;
+    --border: #2a2723;
+    --border-light: #3a352f;
+    --text-primary: #f3efe6;
+    --text-secondary: #a39a8c;
+    --text-tertiary: #736b60;
+    --logo-text: #f3efe6;
+    --logo-subtitle: #a39a8c;
+    --cabinet-card-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+}
+
+html[data-theme="dark"] .app-container .main-content,
+html[data-theme="dark"] .app-container .content {
+    background: transparent;
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .app-container .sidebar {
+    background: rgba(23, 21, 18, 0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-right: 1px solid rgba(243, 239, 230, 0.1);
+}
+
+html[data-theme="dark"] .app-container .header {
+    background: rgba(23, 21, 18, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(243, 239, 230, 0.1);
+}
+
+html[data-theme="dark"] .app-container .page-title,
+html[data-theme="dark"] .app-container .user-name {
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .app-container .content :is(
+    .card, .dashboard-card, .tools-form-card, .tools-form-section,
+    .tools-list-section-pro, .tools-pitch-card-pro,
+    .releases-redesign .rel-toolbar, .releases-redesign .rel-card, .releases-redesign .rel-empty,
+    .rlc-panel, .rlc-cover-card, .smart-link-hub__card, .smart-link-hub__empty,
+    .support-table-card, .support-table-wrap, .ticket-list-item,
+    .ticket-chat-header, .ticket-chat-reply, .ticket-chat-actions, .auto-form-block,
+    .sl2-card, .sl2-form, .sl2-surface, .sl2-hero, .sl2-url-box, .sl2-metric,
+    .money-desk__panel, .profile-v2__card, .re2-surface, .re2-progress, .re2-track
+) {
+    background: var(--bg-secondary);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+html[data-theme="dark"] .app-container .content :is(input, select, textarea, .form-control) {
+    background: #141414;
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+html[data-theme="dark"] .app-container .content :is(input, select, textarea, .form-control)::placeholder {
+    color: var(--text-tertiary);
+}
+
+html[data-theme="dark"] .app-container .sidebar-btn.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+    border-color: var(--primary);
+    color: #fff;
+}

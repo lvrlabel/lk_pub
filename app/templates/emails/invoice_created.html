@@ -1,0 +1,35 @@
+{% extends "emails/base.html" %}
+{% block email_title %}Новый счёт · Toolls Music Distribution{% endblock %}
+{% block preheader %}Вам выставлен счёт {{ invoice_number }}{% endblock %}
+{% block content %}
+<p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Финансы
+</p>
+<p style="margin: 0 0 18px; font-size: 20px; font-weight: 800; line-height: 1.25; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Новый счёт
+</p>
+<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6; color: rgba(243, 239, 230, 0.62); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Здравствуйте{% if author_name %}, {{ author_name }}{% endif %}! Вам выставлен счёт.
+</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 0 0 22px; background: #1e1b17; border-radius: 12px; border: 1px solid rgba(243, 239, 230, 0.08);">
+    <tr>
+        <td style="padding: 16px 18px;">
+            <p style="margin: 0 0 6px; font-size: 12px; color: rgba(243, 239, 230, 0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Номер</p>
+            <p style="margin: 0 0 14px; font-size: 15px; font-weight: 700; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ invoice_number }}</p>
+            <p style="margin: 0 0 6px; font-size: 12px; color: rgba(243, 239, 230, 0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Тема</p>
+            <p style="margin: 0 0 14px; font-size: 14px; font-weight: 600; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ subject }}</p>
+            <p style="margin: 0 0 6px; font-size: 12px; color: rgba(243, 239, 230, 0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Сумма</p>
+            <p style="margin: 0 0 14px; font-size: 18px; font-weight: 800; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ amount }} {{ currency }}</p>
+            <p style="margin: 0 0 6px; font-size: 12px; color: rgba(243, 239, 230, 0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Срок оплаты</p>
+            <p style="margin: 0; font-size: 14px; font-weight: 600; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ due_date }}</p>
+        </td>
+    </tr>
+</table>
+<p style="margin: 0;">
+    {% if payment_url %}
+    <a href="{{ payment_url }}" style="display: inline-block; padding: 13px 26px; background: #c3f000; color: #100f0d !important; text-decoration: none; font-size: 14px; font-weight: 800; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Оплатить счёт</a>
+    <span style="display: inline-block; width: 8px;">&nbsp;</span>
+    {% endif %}
+    <a href="{{ invoices_url }}" style="display: inline-block; padding: 13px 22px; background: transparent; color: #c3f000 !important; text-decoration: none; font-size: 14px; font-weight: 700; border-radius: 10px; border: 1px solid rgba(195, 240, 0, 0.35); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Все счета</a>
+</p>
+{% endblock %}

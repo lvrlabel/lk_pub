@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <title>{% block email_title %}Toolls Music Distribution{% endblock %}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #100f0d; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all;" aria-hidden="true">
+        {% block preheader %}{% endblock %}
+    </div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #100f0d;">
+        <tr>
+            <td align="center" style="padding: 40px 16px 44px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" style="max-width: 560px; width: 100%; background: #171512; border-radius: 16px; overflow: hidden; border: 1px solid rgba(243, 239, 230, 0.10);">
+                    <tr>
+                        <td style="height: 3px; line-height: 3px; font-size: 0; background: linear-gradient(90deg, transparent 0%, #c3f000 50%, transparent 100%);">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 22px 28px 18px; border-bottom: 1px solid rgba(243, 239, 230, 0.08);">
+                            <a href="{{ dashboard_url }}" style="text-decoration: none; display: inline-block;">
+                                <table role="presentation" cellspacing="0" cellpadding="0">
+                                    <tr>
+                                        <td style="width: 32px; height: 32px; background: #c3f000; border-radius: 8px; text-align: center; vertical-align: middle; line-height: 32px; font-size: 14px; font-weight: 800; color: #100f0d; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">▶</td>
+                                        <td style="padding-left: 12px; vertical-align: middle;">
+                                            <div style="font-size: 15px; font-weight: 800; letter-spacing: 0.12em; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">TOOLLS</div>
+                                            <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: rgba(243, 239, 230, 0.42); text-transform: uppercase; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Music Distribution</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 28px 28px 26px; background: #171512;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 16px 28px 20px; background: #1e1b17; border-top: 1px solid rgba(243, 239, 230, 0.08); font-size: 12px; line-height: 1.55; color: rgba(243, 239, 230, 0.42); text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            {% block email_footer %}
+                            Личный кабинет · <a href="{{ dashboard_url }}" style="color: #c3f000; text-decoration: none; font-weight: 600;">Toolls Music Distribution</a>
+                            {% endblock %}
+                        </td>
+                    </tr>
+                </table>
+                <p style="margin: 18px 0 0; font-size: 11px; line-height: 1.5; color: rgba(243, 239, 230, 0.32); max-width: 520px; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    Письмо отправлено автоматически. Если вы не ожидали его — проигнорируйте.
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

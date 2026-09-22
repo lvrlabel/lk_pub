@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Заявка #{{ approval.id }}{% endblock %}
+{% block page_title %}Заявка на согласование{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/finance-v2.css', v='20260917-f4') }}">{% endblock %}
+{% block content %}
+<div class="money-desk finance-form-page">
+<div class="card finance-form-card">
+    <div class="card-content">
+        <p><strong>Пользователь:</strong> {{ approval.user.name }}</p>
+        <p><strong>Сумма:</strong> {{ approval.amount_formatted }}</p>
+        {% if approval.contact_info %}<p><strong>Контакт:</strong> {{ approval.contact_info }}</p>{% endif %}
+        <p><strong>Статус:</strong> <span class="{{ approval.status_class }}">{{ approval.status_display }}</span></p>
+        {% if approval.admin_comment %}<p><strong>Комментарий:</strong> {{ approval.admin_comment }}</p>{% endif %}
+        {% if approval.status == 'pending' %}
+        <form method="POST" action="{{ url_for('money.approve_approval', id=approval.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="text" name="comment" placeholder="Комментарий"><button type="submit" class="btn btn-success">Одобрить</button></form>
+        <form method="POST" action="{{ url_for('money.reject_approval', id=approval.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="text" name="comment" placeholder="Причина отклонения" required><button type="submit" class="btn btn-danger">Отклонить</button></form>
+        {% endif %}
+    </div>
+</div>
+<a href="{{ url_for('money.approvals') }}" class="btn btn-ghost">Назад</a>
+</div>
+{% endblock %}

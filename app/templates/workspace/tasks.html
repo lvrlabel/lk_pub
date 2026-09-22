@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Задачи — Моё пространство{% endblock %}
+{% block page_title %}Задачи{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Задачи и to-do</h1>
+            <p class="ws-sub">Дедлайны, списки и повседневные дела по творчеству и карьере</p>
+        </div>
+        <a href="{% if show_done %}{{ url_for('workspace.tasks') }}{% else %}{{ url_for('workspace.tasks', done=1) }}{% endif %}" class="btn btn-ghost btn-sm">
+            {% if show_done %}Скрыть выполненные{% else %}Показать выполненные{% endif %}
+        </a>
+    </header>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-compose">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" class="form-control" placeholder="Новая задача…" required maxlength="300">
+        <div class="ws-compose__row">
+            <input type="text" name="list_name" class="form-control" placeholder="Список (необязательно)" maxlength="100">
+            <input type="date" name="due_at" class="form-control" title="Дедлайн">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+    </form>
+
+    {% if tasks %}
+    <ul class="ws-tasks">
+        {% for t in tasks %}
+        <li class="ws-task {% if t.is_done %}is-done{% endif %} {% if t.is_overdue %}is-overdue{% endif %}">
+            <form method="POST" action="{{ url_for('workspace.task_toggle', task_id=t.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="ws-task__check" title="Отметить">
+                    <span class="material-icons">{% if t.is_done %}check_box{% else %}check_box_outline_blank{% endif %}</span>
+                </button>
+            </form>
+            <div class="ws-task__body">
+                <strong>{{ t.title }}</strong>
+                <span class="ws-task__meta">
+                    {% if t.list_name %}{{ t.list_name }} · {% endif %}
+                    {% if t.due_display %}до {{ t.due_display }}{% else %}без срока{% endif %}
+                </span>
+            </div>
+            <form method="POST" action="{{ url_for('workspace.task_delete', task_id=t.id) }}" onsubmit="return confirm('Удалить задачу?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm" title="Удалить"><span class="material-icons">delete</span></button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ws-empty">Пока нет задач — добавьте первую выше.</p>
+    {% endif %}
+</div>
+{% endblock %}

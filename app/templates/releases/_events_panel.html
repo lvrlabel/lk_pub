@@ -1,0 +1,41 @@
+<section class="rv-panel rv-panel--events" id="release-events">
+    {% if not events_panel_embedded|default(false) %}
+    <div class="rv-panel__head">
+        <h2 class="rv-panel__title">
+            <span class="material-icons rv-panel__title-icon" aria-hidden="true">history</span>
+            События по релизу
+        </h2>
+        <p class="rv-panel__subtitle">История модерации и действий с релизом</p>
+    </div>
+    {% endif %}
+    <div class="rv-panel__body{% if events_panel_embedded|default(false) %} rv-panel__body--embedded{% endif %}">
+        {% if release_events %}
+        <ol class="rv-events">
+            {% for event in release_events %}
+            <li class="rv-events__item rv-events__item--{{ event.tone }}">
+                <span class="rv-events__icon" aria-hidden="true">
+                    <span class="material-icons">{{ event.icon }}</span>
+                </span>
+                <div class="rv-events__content">
+                    <div class="rv-events__row">
+                        <span class="rv-events__label">
+                            {% if current_user.is_admin %}
+                            {{ event.label_for_viewer }}
+                            {% else %}
+                            {{ event.label }}
+                            {% endif %}
+                        </span>
+                        <time class="rv-events__time" datetime="{{ event.created_at.isoformat() }}">{{ event.created_display }}</time>
+                    </div>
+                    {% if event.comment and event.event_type in ('rejected', 'revoked') %}
+                    <p class="rv-events__comment">{{ event.comment }}</p>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <p class="rv-events__empty">События появятся после отправки релиза на модерацию.</p>
+        {% endif %}
+    </div>
+</section>

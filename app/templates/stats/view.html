@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Аналитики{% endblock %}
+{% block page_title %}{{ analytics.period_display }} — {{ release.title }}{% endblock %}
+{% block content %}
+<div class="card"><div class="card-content">
+<p><strong>Период:</strong> {{ analytics.period_display }}</p>
+<p><strong>Стримы (всего):</strong> {{ analytics.streams }}</p>
+<p><strong>Скачивания:</strong> {{ analytics.downloads }}</p>
+<p><strong>Доход:</strong> {{ "%.2f"|format(analytics.revenue) }} ₽</p>
+</div></div>
+
+{% if platform_analytics %}
+<div class="card" style="margin-top:1rem;"><div class="card-header"><h3 style="margin:0;">Прослушивания по площадкам</h3></div>
+<div class="card-content">
+<div style="position:relative; height:320px; max-width:100%;">
+  <canvas id="platformChart" aria-label="График по площадкам"></canvas>
+</div>
+{% if device_analytics %}
+<div style="margin-top:1.5rem;"><strong>По устройствам</strong>
+<ul style="margin:0.5rem 0 0; padding-left:1.25rem;">{% for d in device_analytics %}<li>{{ d.device_type }}: стримы {{ d.streams }}, скач. {{ d.downloads }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+</div></div>
+{% elif analytics.streams or analytics.downloads %}
+<p class="form-hint" style="margin-top:1rem;">По-площадочная разбивка не вводилась. При добавлении аналитики заполните блок «По площадкам» — тогда здесь появится график.</p>
+{% endif %}
+
+<div style="margin-top:1rem;">
+<a href="{{ url_for('stats.index', release_id=release.id) }}" class="btn btn-ghost">Назад к списку</a>
+{% if current_user.is_admin %}
+<a href="{{ url_for('stats.edit', id=analytics.id) }}" class="btn btn-primary btn-ghost">Редактировать</a>
+<form method="POST" action="{{ url_for('stats.delete', id=analytics.id) }}" style="display:inline;" onsubmit="return confirm('Удалить?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-danger btn-ghost">Удалить</button></form>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if platform_analytics %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  var labels = {{ platform_analytics | map(attribute='platform_name') | list | tojson }};
+  var values = {{ platform_analytics | map(attribute='streams') | list | tojson }};
+  var ctx = document.getElementById('platformChart');
+  if (!ctx || !labels.length || typeof Chart === 'undefined') return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Прослушивания',
+        data: values,
+        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+        borderColor: 'rgba(249, 115, 22, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { color: '#94a3b8' } },
+        x: { ticks: { color: '#94a3b8', maxRotation: 45 } }
+      }
+    }
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

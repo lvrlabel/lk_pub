@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Поддержка{% endblock %}
+{% block page_title %}Поддержка{% endblock %}
+{% block content %}
+<div class="tl-page tl-tickets tickets-page tickets-refine">
+    <div class="filters-bar">
+        <div class="filters-tabs">
+            <a href="{{ url_for('tickets.index') }}" class="filter-tab {% if not status %}active{% endif %}">
+                <span class="material-icons">folder_open</span>
+                Все ({{ counts.all }})
+            </a>
+            <a href="{{ url_for('tickets.index', status='open') }}" class="filter-tab {% if status == 'open' %}active{% endif %}">
+                <span class="material-icons">chat_bubble</span>
+                Открытые ({{ counts.open }})
+            </a>
+            <a href="{{ url_for('tickets.index', status='closed') }}" class="filter-tab {% if status == 'closed' %}active{% endif %}">
+                <span class="material-icons">check_circle</span>
+                Закрытые ({{ counts.closed }})
+            </a>
+        </div>
+        <a href="{{ url_for('tickets.create') }}" class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Новый тикет
+        </a>
+    </div>
+
+    {% if tickets.items %}
+    <div class="tickets-list">
+        {% for ticket in tickets.items %}
+        <a href="{{ url_for('tickets.view', id=ticket.id) }}" class="ticket-card">
+            <div class="ticket-card-header">
+                <span class="ticket-id">#{{ ticket.id }}</span>
+                <span class="ticket-status {{ ticket.status_class }}">{{ ticket.status_display }}</span>
+            </div>
+            <h3 class="ticket-subject">{{ ticket.subject }}</h3>
+            <p class="ticket-preview">{{ ticket.message[:120] }}{% if ticket.message|length > 120 %}...{% endif %}</p>
+            <div class="ticket-meta">
+                <span class="material-icons">schedule</span>
+                {{ ticket.created_at_formatted }}
+                {% if ticket.messages_count > 0 %}
+                <span class="ticket-replies">
+                    <span class="material-icons">forum</span>
+                    {{ ticket.messages_count }}
+                </span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    {% if tickets.pages > 1 %}
+    <div class="pagination">
+        {% if tickets.has_prev %}
+        <a href="{{ url_for('tickets.index', page=tickets.prev_num, status=status) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <span class="pagination-info">Страница {{ tickets.page }} из {{ tickets.pages }}</span>
+        {% if tickets.has_next %}
+        <a href="{{ url_for('tickets.index', page=tickets.next_num, status=status) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state tickets-empty">
+        <span class="material-icons">support_agent</span>
+        <h3>Обращений пока нет</h3>
+        <p>Создайте тикет, и мы ответим в ближайшее время</p>
+        <a href="{{ url_for('tickets.create') }}" class="btn btn-primary">
+            <span class="material-icons">add</span>
+            Создать обращение
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    const ticketCards = document.querySelectorAll('.ticket-card');
+    if (!ticketCards.length) return;
+
+    // Собираем ID тикетов и соответствующие элементы статуса
+    const ticketMap = new Map();
+    ticketCards.forEach(card => {
+        const href = card.getAttribute('href');
+        const match = href.match(/\/tickets\/(\d+)/);
+        if (!match) return;
+        const ticketId = match[1];
+        const statusEl = card.querySelector('.ticket-status');
+        if (statusEl) {
+            ticketMap.set(ticketId, {
+                statusEl,
+                lastStatus: statusEl.dataset.status || statusEl.textContent.trim(),
+                lastUpdated: statusEl.dataset.updatedAt || ''
+            });
+        }
+    });
+
+    if (ticketMap.size === 0) return;
+
+    function fetchTicketStatus(ticketId) {
+        return fetch(`/tickets/${ticketId}/status`, {
+            headers: { 'Accept': 'application/json' },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        });
+    }
+
+    function updateAllStatuses() {
+        ticketMap.forEach((data, ticketId) => {
+            fetchTicketStatus(ticketId)
+                .then(data => {
+                    if (data.ok) {
+                        const { statusEl, lastStatus, lastUpdated } = ticketMap.get(ticketId);
+                        if (data.status !== lastStatus || data.updated_at !== lastUpdated) {
+                            // Обновляем элемент
+                            statusEl.textContent = data.status_display;
+                            statusEl.className = 'ticket-status ' + data.status_class;
+                            // Обновляем кэш
+                            ticketMap.set(ticketId, {
+                                statusEl,
+                                lastStatus: data.status,
+                                lastUpdated: data.updated_at
+                            });
+                        }
+                    }
+                })
+                .catch(error => console.error(`Error fetching status for ticket ${ticketId}:`, error));
+        });
+    }
+
+    // Опрашиваем каждые 30 секунд
+    setInterval(updateAllStatuses, 30000);
+})();
+</script>
+
+{% endblock %}

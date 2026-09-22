@@ -1,0 +1,175 @@
+/* Статусы релиза — view + каталог, один язык light/dark */
+
+/* ===== View: статус ===== */
+.release-view-page .rv-status {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+    margin: 0 0 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary, var(--bg-primary));
+    color: var(--text-primary);
+}
+
+.release-view-page .rv-status__icon-wrap {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(148, 163, 184, 0.16);
+    color: var(--text-secondary);
+}
+
+.release-view-page .rv-status__icon {
+    font-size: 1.35rem !important;
+    margin: 0;
+    color: inherit;
+}
+
+.release-view-page .rv-status__text {
+    min-width: 0;
+    flex: 1;
+}
+
+.release-view-page .rv-status__label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    margin: 0 0 0.3rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.release-view-page .rv-status__hint {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    font-weight: 450;
+    color: var(--text-secondary);
+    opacity: 1;
+}
+
+.release-view-page .rv-status--approved .rv-status__icon-wrap {
+    background: rgba(34, 197, 94, 0.14);
+    color: #16a34a;
+}
+.release-view-page .rv-status--approved .rv-status__label {
+    color: #15803d;
+    border-color: rgba(34, 197, 94, 0.35);
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.release-view-page .rv-status--moderation .rv-status__icon-wrap {
+    background: rgba(245, 158, 11, 0.14);
+    color: #d97706;
+}
+.release-view-page .rv-status--moderation .rv-status__label {
+    color: #b45309;
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.12);
+}
+
+.release-view-page .rv-status--draft .rv-status__icon-wrap {
+    background: rgba(100, 116, 139, 0.14);
+    color: #64748b;
+}
+.release-view-page .rv-status--draft .rv-status__label {
+    color: var(--text-secondary);
+    border-color: var(--border);
+    background: var(--bg-secondary);
+}
+
+.release-view-page .rv-status--rejected .rv-status__icon-wrap,
+.release-view-page .rv-status--revoked .rv-status__icon-wrap {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+}
+.release-view-page .rv-status--rejected .rv-status__label,
+.release-view-page .rv-status--revoked .rv-status__label {
+    color: #b91c1c;
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.release-view-page .rv-status--deletion .rv-status__icon-wrap {
+    background: rgba(249, 115, 22, 0.14);
+    color: #ea580c;
+}
+.release-view-page .rv-status--deletion .rv-status__label {
+    color: #c2410c;
+    border-color: rgba(249, 115, 22, 0.4);
+    background: rgba(249, 115, 22, 0.12);
+}
+
+html[data-theme="dark"] .release-view-page .rv-status {
+    background: #1a1a1a;
+    border-color: #333;
+    color: #f5f5f5;
+}
+
+html[data-theme="dark"] .release-view-page .rv-status__hint {
+    color: #b0b0b0;
+}
+
+html[data-theme="dark"] .release-view-page .rv-status--approved .rv-status__icon-wrap { color: #4ade80; }
+html[data-theme="dark"] .release-view-page .rv-status--approved .rv-status__label {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.14);
+    border-color: rgba(74, 222, 128, 0.35);
+}
+
+html[data-theme="dark"] .release-view-page .rv-status--moderation .rv-status__icon-wrap { color: #fbbf24; }
+html[data-theme="dark"] .release-view-page .rv-status--moderation .rv-status__label {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+html[data-theme="dark"] .release-view-page .rv-status--draft .rv-status__icon-wrap { color: #94a3b8; }
+html[data-theme="dark"] .release-view-page .rv-status--draft .rv-status__label {
+    color: #cbd5e1;
+    background: #252525;
+    border-color: #404040;
+}
+
+html[data-theme="dark"] .release-view-page .rv-status--rejected .rv-status__icon-wrap,
+html[data-theme="dark"] .release-view-page .rv-status--revoked .rv-status__icon-wrap { color: #f87171; }
+html[data-theme="dark"] .release-view-page .rv-status--rejected .rv-status__label,
+html[data-theme="dark"] .release-view-page .rv-status--revoked .rv-status__label {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+
+html[data-theme="dark"] .release-view-page .rv-status--deletion .rv-status__icon-wrap { color: #fb923c; }
+html[data-theme="dark"] .release-view-page .rv-status--deletion .rv-status__label {
+    color: #fb923c;
+    background: rgba(249, 115, 22, 0.14);
+    border-color: rgba(251, 146, 60, 0.35);
+}
+
+/* Override old refine dark status paint */
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--draft,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--moderation,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--approved,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--rejected,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--revoked,
+html[data-theme="dark"] body.dark-theme:has(.app-container) .rv-refine .rv-status--deletion {
+    background: #1a1a1a;
+    border-color: #333;
+    color: #f5f5f5;
+}
+

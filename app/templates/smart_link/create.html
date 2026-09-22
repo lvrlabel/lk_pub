@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Новая смарт-ссылка{% endblock %}
+{% block page_title %}Создание смарт-ссылки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/smart-links-v2.css', v='20260721-sl2') }}">
+{% endblock %}
+{% block content %}
+<div class="sl2">
+    <header class="sl2__head">
+        <div class="sl2__head-main">
+            <a href="{{ url_for('smart_link.index') }}" class="sl2__back" aria-label="К списку">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="sl2__title">Новая смарт-ссылка</h1>
+                <p class="sl2__lead">Выберите релиз и хотя бы одну площадку — получите публичную страницу с обложкой и кнопками «Слушать».</p>
+            </div>
+        </div>
+    </header>
+
+    <form method="POST" class="sl2-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <h2 class="sl2-section-title">Основное</h2>
+        <div class="sl2-grid">
+            <div class="sl2-field sl2-field--full">
+                <label for="release_id">Релиз <span class="req">*</span></label>
+                <select id="release_id" name="release_id" {% if releases %}required{% else %}disabled{% endif %}>
+                    {% if not releases %}
+                    <option value="">Нет одобренных релизов</option>
+                    {% else %}
+                    {% for r in releases %}
+                    <option value="{{ r.id }}">{{ r.title }} — {{ r.artists }}</option>
+                    {% endfor %}
+                    {% endif %}
+                </select>
+                {% if not releases %}
+                <p class="sl2-hint" style="margin:0.4rem 0 0">Дождитесь одобрения релиза модератором, затем создайте смарт-ссылку.</p>
+                {% endif %}
+            </div>
+            <div class="sl2-field">
+                <label for="custom_name">Название в кабинете</label>
+                <input type="text" id="custom_name" name="custom_name" placeholder="Необязательно">
+            </div>
+            <div class="sl2-field">
+                <label for="theme">Тема страницы</label>
+                <select id="theme" name="theme">
+                    <option value="dark">Тёмная</option>
+                    <option value="light">Светлая</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 class="sl2-section-title sl2-section-title--spaced">Площадки</h2>
+        <p class="sl2-hint">Заполните хотя бы одно поле — на странице появятся только указанные сервисы.</p>
+        <div class="sl2-platforms">
+            <div class="sl2-field"><label for="link_spotify">Spotify</label><input type="url" id="link_spotify" name="link_spotify" placeholder="https://open.spotify.com/…"></div>
+            <div class="sl2-field"><label for="link_apple_music">Apple Music</label><input type="url" id="link_apple_music" name="link_apple_music" placeholder="https://music.apple.com/…"></div>
+            <div class="sl2-field"><label for="link_yandex_music">Яндекс Музыка</label><input type="url" id="link_yandex_music" name="link_yandex_music" placeholder="https://music.yandex.ru/…"></div>
+            <div class="sl2-field"><label for="link_vk_music">VK Музыка</label><input type="url" id="link_vk_music" name="link_vk_music" placeholder="https://…"></div>
+            <div class="sl2-field"><label for="link_youtube_music">YouTube Music</label><input type="url" id="link_youtube_music" name="link_youtube_music" placeholder="https://music.youtube.com/…"></div>
+            <div class="sl2-field"><label for="link_deezer">Deezer</label><input type="url" id="link_deezer" name="link_deezer" placeholder="https://deezer.com/…"></div>
+            <div class="sl2-field"><label for="link_zvooq">Zvooq</label><input type="url" id="link_zvooq" name="link_zvooq" placeholder="https://…"></div>
+            <div class="sl2-field"><label for="link_wink">Wink</label><input type="url" id="link_wink" name="link_wink" placeholder="https://…"></div>
+        </div>
+
+        <div class="sl2-form__footer">
+            <a href="{{ url_for('smart_link.index') }}" class="sl2-btn">Отмена</a>
+            <button type="submit" class="sl2-btn sl2-btn--primary" {% if not releases %}disabled{% endif %}>Создать</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

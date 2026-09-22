@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Уведомления{% endblock %}
+{% block page_title %}Уведомления{% endblock %}
+{% block content %}
+{% if unread_notifications_count and unread_notifications_count > 0 %}
+<form method="POST" action="{{ url_for('notifications.mark_all_read') }}" style="margin-bottom:1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-ghost btn-sm">Отметить все прочитанными</button>
+</form>
+{% endif %}
+<div class="card"><div class="card-content">
+    {% for n in notifications %}
+    <div style="padding:1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; {{ 'opacity:0.85;' if n.is_read else '' }}">
+        <div>
+            <strong>{{ n.title }}</strong>
+            {% if n.message %}<br><span class="text-secondary">{{ n.message }}</span>{% endif %}
+            <br><span class="text-tertiary" style="font-size:0.875rem;">{{ n.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+        </div>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+            {% if n.release_id %}
+            <a href="{{ url_for('releases.view', id=n.release_id) }}" class="btn btn-ghost btn-sm">К релизу</a>
+            {% elif n.ticket_id %}
+            <a href="{{ url_for('tickets.view', id=n.ticket_id) }}" class="btn btn-ghost btn-sm">К тикету</a>
+            {% endif %}
+            {% if not n.is_read %}
+            <form method="POST" action="{{ url_for('notifications.mark_read', id=n.id) }}" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm">Прочитано</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% if not notifications %}
+    <div class="empty-state small"><p>Уведомлений нет</p></div>
+    {% endif %}
+</div></div>
+{% endblock %}

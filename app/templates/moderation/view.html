@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+{% block title %}Модерация: {{ release.title }}{% endblock %}
+{% block page_title %}{{ release.title }}{% endblock %}
+{% block content %}
+<div class="moderation-page">
+    <nav class="moderation-nav">
+        <a href="{{ url_for('moderation.index') }}" class="moderation-back">
+            <span class="material-icons">arrow_back</span> К списку
+        </a>
+    </nav>
+
+    <!-- Карточка релиза: обложка + действия -->
+    <section class="moderation-hero card">
+        <div class="moderation-hero-cover">
+            <img src="{{ release.cover_url }}" alt="{{ release.title }}">
+            <a href="{{ url_for('moderation.download_cover', id=release.id) }}" class="btn btn-ghost btn-sm moderation-dl-cover">
+                <span class="material-icons">download</span> Скачать обложку
+            </a>
+        </div>
+        <div class="moderation-hero-info">
+            <span class="release-status-badge {{ release.status_class }}">{{ release.status_display }}</span>
+            <h1 class="moderation-title">{{ release.title }}</h1>
+            <p class="moderation-artists">{{ release.artists }}</p>
+            <p class="moderation-owner">Владелец: {{ release.owner.name }}</p>
+            {% if release.status == 'moderation' %}
+            <div class="moderation-actions">
+                <form method="POST" action="{{ url_for('moderation.approve', id=release.id) }}" class="moderation-form-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="upc" placeholder="UPC (опционально)" class="moderation-input-upc">
+                    <button type="submit" class="btn btn-success">
+                        <span class="material-icons">check_circle</span> Одобрить
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('moderation.reject', id=release.id) }}" class="moderation-form-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="comment" placeholder="Причина отклонения" required class="moderation-input-comment">
+                    <button type="submit" class="btn btn-danger">
+                        <span class="material-icons">cancel</span> Отклонить
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            {% if release.status in ('approved', 'moderation', 'rejected') %}
+            <div class="moderation-actions">
+                <form method="POST" action="{{ url_for('moderation.revoke', id=release.id) }}" class="moderation-form-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="text" name="comment" placeholder="Причина отзыва релиза (обязательно)" required class="moderation-input-comment">
+                    <button type="submit" class="btn btn-danger">
+                        <span class="material-icons">gpp_bad</span> Отозвать релиз
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            {% if release.status == 'deletion' %}
+            <div class="moderation-actions">
+                <form method="POST" action="{{ url_for('moderation.confirm_delete', id=release.id) }}" class="moderation-form-inline" onsubmit="return confirm('Удалить релиз?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">Подтвердить удаление</button>
+                </form>
+                <form method="POST" action="{{ url_for('moderation.cancel_delete', id=release.id) }}" class="moderation-form-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost">Отменить удаление</button>
+                </form>
+            </div>
+            {% endif %}
+            {% if release.status == 'approved' %}
+            <div class="moderation-upc-after-approval">
+                <p class="moderation-upc-after-approval__hint">После одобрения можно указать UPC релиза и ISRC для каждого трека (ниже).</p>
+                <form method="POST" action="{{ url_for('moderation.update_upc', id=release.id) }}" class="moderation-form-inline moderation-upc-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <label class="moderation-upc-label"><span class="material-icons">qr_code_2</span> UPC</label>
+                    <input type="text" name="upc" value="{{ release.upc or '' }}" placeholder="Например 8600123456789" class="moderation-input-upc moderation-input-upc--wide" maxlength="20" autocomplete="off">
+                    <button type="submit" class="btn btn-primary btn-sm">Сохранить UPC</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Данные формы релиза -->
+    <section class="moderation-section card">
+        <h2 class="moderation-section-title">Данные релиза</h2>
+        <p class="moderation-section-desc">Поля, заполненные пользователем при создании и редактировании</p>
+        <div class="moderation-grid">
+            <div class="moderation-block">
+                <h3 class="moderation-block-title">Основное</h3>
+                <dl class="moderation-dl">
+                    <dt>Название</dt><dd>{{ release.title }}</dd>
+                    <dt>Артисты</dt><dd>{{ release.artists }}</dd>
+                    <dt>Тип</dt><dd>{{ release.type_display }}</dd>
+                    <dt>Жанр</dt><dd>{{ release.genre }}</dd>
+                </dl>
+            </div>
+            <div class="moderation-block">
+                <h3 class="moderation-block-title">Дополнительно</h3>
+                <dl class="moderation-dl">
+                    <dt>Версия</dt><dd>{{ release.version or '—' }}</dd>
+                    <dt>Дата релиза</dt><dd>{{ release.release_date.strftime('%d.%m.%Y') }}</dd>
+                    <dt>Яндекс Пресейв</dt><dd>{% if release.yandex_presave %}Да{% else %}Нет{% endif %}</dd>
+                    <dt>Описание / заметка</dt><dd style="white-space:pre-wrap">{{ release.extra_notes or '—' }}</dd>
+                    <dt>Площадки</dt>
+                    <dd>
+                        {% set _platforms = release.platform_names_ordered() %}
+                        {% if _platforms %}{{ _platforms | join(', ') }}{% else %}— не выбраны{% endif %}
+                    </dd>
+                    <dt>Копирайт</dt><dd>{{ release.copyright or '—' }}</dd>
+                    <dt>Документы</dt>
+                    <dd>
+                        {% if release_documents %}
+                        <ul class="moderation-docs-list">
+                            {% for doc in release_documents %}
+                            <li>
+                                <a href="{{ url_for('releases.download_release_document', id=release.id, filename=doc.filename) }}" class="moderation-doc-link">
+                                    <span class="material-icons">description</span>
+                                    <span>{{ doc.filename }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        —
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </section>
+
+    <section class="moderation-section card" id="moderation-delivery">
+        <h2 class="moderation-section-title">Доставка на площадки</h2>
+        <p class="moderation-section-desc">Статусы выставляет администратор — пользователь видит их на карточке релиза</p>
+        {% if delivery_rows %}
+        {% set next_url = url_for('moderation.view', id=release.id) ~ '#moderation-delivery' %}
+        {% set form_id = 'deliveryBulkFormMod' %}
+        {% include 'releases/_delivery_admin_form.html' %}
+        {% else %}
+        <p class="form-hint" style="margin:0">Площадки не выбраны пользователем — статусов нет.</p>
+        {% endif %}
+    </section>
+
+    <!-- Треки -->
+    <section class="moderation-section card">
+        <h2 class="moderation-section-title">Треки</h2>
+        <p class="moderation-section-desc">Метаданные, текст песни и аудио по каждому треку</p>
+        {% for track in tracks %}
+        <div class="moderation-track card">
+            <div class="moderation-track-head">
+                <div class="moderation-track-title-row">
+                    <span class="moderation-track-num">#{{ track.track_order }}</span>
+                    <strong>{{ track.display_title }}</strong>
+                    <span class="moderation-track-artists">{{ track.artists }}</span>
+                </div>
+                <a href="{{ url_for('moderation.download_track', release_id=release.id, track_id=track.id) }}" class="btn btn-ghost btn-sm">
+                    <span class="material-icons">download</span> WAV
+                </a>
+            </div>
+            <div class="moderation-track-body">
+                <dl class="moderation-dl moderation-dl-sm">
+                    <dt>Название</dt><dd>{{ track.title }}</dd>
+                    <dt>Артисты</dt><dd>{{ track.artists }}</dd>
+                    <dt>Версия</dt><dd>{{ track.version or '—' }}</dd>
+                    <dt>Композиторы</dt><dd>{{ track.composers or '—' }}</dd>
+                    <dt>Авторы текста</dt><dd>{{ track.authors or '—' }}</dd>
+                    <dt>Explicit</dt><dd>{% if track.explicit %}Да{% else %}Нет{% endif %}</dd>
+                    <dt>Язык</dt><dd>{{ track.language or '—' }}</dd>
+                </dl>
+                <div class="moderation-track-isrc">
+                    <form method="POST" action="{{ url_for('moderation.set_track_isrc', release_id=release.id, track_id=track.id) }}" class="moderation-isrc-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <label class="moderation-isrc-label">
+                            <span class="material-icons">fingerprint</span> ISRC {% if release.status == 'approved' %}<span class="moderation-isrc-badge">после одобрения</span>{% endif %}
+                        </label>
+                        <input type="text" name="isrc" value="{{ track.isrc or '' }}" class="moderation-isrc-input" maxlength="128" autocomplete="off" {% if release.status not in ('approved', 'moderation') %}readonly title="Редактирование недоступно для этого статуса"{% endif %}>
+                        <button type="submit" class="btn btn-primary btn-sm" {% if release.status not in ('approved', 'moderation') %}disabled{% endif %}>Сохранить</button>
+                    </form>
+                </div>
+                <dl class="moderation-dl moderation-dl-sm">
+                    <dt>Аудио</dt><dd>Загружен (WAV)</dd>
+                </dl>
+                <div class="moderation-track-player-wrap">
+                    <label class="moderation-track-player-label">
+                        <span class="material-icons">play_circle</span>
+                        Предпрослушивание
+                    </label>
+                    {% if track.wav_file %}
+                    <audio class="moderation-track-player" controls preload="none">
+                        <source src="{{ url_for('moderation.download_track', release_id=release.id, track_id=track.id, play=1) }}" type="audio/wav">
+                        Ваш браузер не поддерживает аудио-плеер.
+                    </audio>
+                    {% else %}
+                    <p class="form-hint" style="margin: 0;">Файл трека не найден — предпрослушивание недоступно.</p>
+                    {% endif %}
+                </div>
+                <dl class="moderation-dl moderation-dl-sm">
+                    <dt>Текст песни</dt>
+                    <dd>
+                        {% if track.lyrics %}
+                        <span class="moderation-lyrics-badge">Загружен</span>
+                        <pre class="moderation-lyrics-pre">{{ track.lyrics }}</pre>
+                        {% else %}
+                        Не загружен
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section class="moderation-section card moderation-section--events">
+        <div class="moderation-section-head">
+            <h2 class="moderation-section-title">События по релизу</h2>
+            <p class="moderation-section-desc">Хронология отправки, проверки и решений по релизу</p>
+        </div>
+        <div class="rv-refine moderation-events-wrap">
+            {% set events_panel_embedded = true %}
+            {% include 'releases/_events_panel.html' %}
+        </div>
+        <div class="moderation-events-actions">
+            <a href="{{ url_for('releases.view', id=release.id) }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons">open_in_new</span>
+                Карточка релиза (как у пользователя)
+            </a>
+        </div>
+    </section>
+
+
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.moderation-page { max-width: 900px; margin: 0 auto; padding-bottom: 2rem; }
+.moderation-nav { margin-bottom: 1.5rem; }
+.moderation-back { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--text-secondary); text-decoration: none; font-size: 0.9375rem; }
+.moderation-back:hover { color: var(--primary); }
+.moderation-back .material-icons { font-size: 1.25rem; }
+
+.moderation-page .card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.moderation-hero {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+.moderation-hero-cover { position: relative; aspect-ratio: 1; border-radius: var(--border-radius-sm); overflow: hidden; }
+.moderation-hero-cover img { width: 100%; height: 100%; object-fit: cover; }
+.moderation-dl-cover { position: absolute; bottom: 0.5rem; left: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.7); color: #fff; }
+.moderation-dl-cover:hover { background: rgba(0,0,0,0.85); color: #fff; }
+
+.moderation-hero-info .release-status-badge { margin-bottom: 0.5rem; }
+.moderation-title { font-size: 1.5rem; margin: 0 0 0.25rem; }
+.moderation-artists { color: var(--text-secondary); margin: 0 0 0.25rem; }
+.moderation-owner { font-size: 0.875rem; color: var(--text-tertiary); margin: 0 0 1rem; }
+
+.moderation-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 1rem; }
+.moderation-form-inline { display: inline-flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.moderation-form-inline .btn .material-icons { font-size: 1.1rem; vertical-align: middle; }
+.moderation-input-upc { width: 140px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.875rem; }
+.moderation-input-upc--wide { width: min(100%, 220px); }
+.moderation-upc-after-approval { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.moderation-upc-after-approval__hint { font-size: 0.8125rem; color: var(--text-secondary); margin: 0 0 0.65rem 0; }
+.moderation-upc-form { margin-top: 0.25rem; }
+.moderation-upc-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.875rem; font-weight: 500; }
+.moderation-isrc-badge { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--primary); margin-left: 0.35rem; }
+.moderation-input-comment { width: 200px; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.875rem; }
+
+.moderation-section-title { font-size: 1.125rem; margin: 0 0 0.25rem; }
+.moderation-section-desc { font-size: 0.8125rem; color: var(--text-secondary); margin: 0 0 1.25rem; }
+.moderation-section--events .moderation-section-head { margin-bottom: 0.75rem; }
+.moderation-events-wrap .rv-panel--events {
+    margin-bottom: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+}
+.moderation-events-wrap .rv-panel__head {
+    padding: 1rem 1.15rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+}
+.moderation-events-wrap .rv-panel__body--embedded {
+    padding: 0;
+}
+.moderation-events-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.85rem;
+}
+.moderation-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 640px) { .moderation-grid { grid-template-columns: 1fr; } }
+
+.moderation-block-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin: 0 0 0.5rem; }
+.moderation-dl { margin: 0; display: grid; gap: 0.25rem 1rem; grid-template-columns: auto 1fr; font-size: 0.9375rem; }
+.moderation-dl dt { font-weight: 500; color: var(--text-secondary); }
+.moderation-dl dd { margin: 0; }
+.moderation-dl-sm { font-size: 0.875rem; }
+.moderation-docs-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.moderation-doc-link { display: inline-flex; align-items: center; gap: 0.35rem; text-decoration: none; color: var(--text-primary); }
+.moderation-doc-link:hover { color: var(--primary); }
+
+.moderation-track { margin-bottom: 1rem; }
+.moderation-track:last-child { margin-bottom: 0; }
+.moderation-track-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+.moderation-track-title-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.moderation-track-num { color: var(--text-tertiary); font-weight: 600; }
+.moderation-track-artists { color: var(--text-secondary); font-size: 0.9375rem; }
+
+.moderation-track-body { display: grid; gap: 1rem; }
+.moderation-track-isrc { padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--border-radius-sm); border: 1px solid var(--border); }
+.moderation-isrc-form { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.moderation-isrc-label { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 500; font-size: 0.875rem; }
+.moderation-isrc-input { padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.875rem; min-width: 200px; max-width: 100%; flex: 1; font-family: monospace; }
+.moderation-track-player-wrap { padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--border-radius-sm); border: 1px solid var(--border); }
+.moderation-track-player-label { display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 500; color: var(--text-primary); }
+.moderation-track-player-label .material-icons { font-size: 1.05rem; color: var(--primary); }
+.moderation-track-player { width: 100%; height: 38px; }
+.moderation-track-meta { font-size: 0.875rem; }
+.moderation-track-lyrics dt { font-weight: 500; color: var(--text-secondary); margin-bottom: 0.25rem; }
+.moderation-lyrics-badge { color: var(--primary); font-size: 0.8125rem; }
+.moderation-lyrics-pre { white-space: pre-wrap; word-break: break-word; margin: 0.5rem 0 0; padding: 1rem; background: var(--bg-tertiary); border-radius: 4px; font-size: 0.8125rem; max-height: 200px; overflow-y: auto; border: 1px solid var(--border); }
+
+@media (max-width: 640px) {
+    .moderation-hero { grid-template-columns: 1fr; }
+    .moderation-hero-cover { max-width: 220px; }
+}
+</style>
+{% endblock %}

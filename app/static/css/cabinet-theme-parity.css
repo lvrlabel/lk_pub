@@ -1,0 +1,279 @@
+/**
+ * Theme parity — светлая и тёмная тема делят одну геометрию.
+ * Меняются только цвета/альфа. Подключать ПОСЛЕ cabinet-theme.css.
+ */
+
+/* ===== Общие токены геометрии (оба темы) ===== */
+html:has(.app-container) {
+    --cabinet-radius: 12px;
+    --cabinet-radius-sm: 10px;
+    --cabinet-radius-lg: 16px;
+    --border-radius: 6px;
+    --border-radius-sm: 6px;
+    --cabinet-ring: 0 0 0 3px var(--primary-light);
+    /* одинаковый blur/offset; цвет тени ниже по теме */
+    --cabinet-card-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 18px rgba(15, 23, 42, 0.05);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
+    --cabinet-sidebar-shadow: 4px 0 32px rgba(30, 64, 120, 0.05);
+}
+
+html[data-theme="dark"]:has(.app-container),
+html[data-theme="dark"] body.dark-theme:has(.app-container) {
+    --cabinet-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 4px 18px rgba(0, 0, 0, 0.28);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --cabinet-sidebar-shadow: 4px 0 32px rgba(0, 0, 0, 0.4);
+    --border-radius: 6px;
+    --border-radius-sm: 6px;
+}
+
+/* ===== Общая геометрия оболочки ===== */
+html:has(.app-container) .page-title {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.025em !important;
+}
+
+html:has(.app-container) .content {
+    padding: clamp(1.15rem, 2.2vw, 1.85rem) clamp(1.15rem, 2.5vw, 2rem) !important;
+}
+
+html:has(.app-container) .content.tickets-content {
+    max-width: none;
+}
+
+@media (min-width: 769px) {
+    html:has(.app-container) .content.tickets-content {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    html:has(.app-container) .page-title {
+        font-size: 1.15rem !important;
+    }
+}
+
+html:has(.app-container) .nav-item {
+    border-radius: var(--cabinet-radius-sm) !important;
+    font-weight: 500;
+}
+
+html:has(.app-container) .nav-item.active {
+    font-weight: 600;
+    /* кольцо всегда зарезервировано — не прыгает ширина */
+    box-shadow: 0 0 0 1px transparent !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item.active {
+    box-shadow: 0 0 0 1px transparent, 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .nav-item.active {
+    box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.35) !important;
+}
+
+html:has(.app-container) .sidebar-btn.btn-primary {
+    border-radius: var(--cabinet-radius-sm) !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+html:has(.app-container) .btn,
+html:has(.app-container) .btn-ghost {
+    border-radius: var(--cabinet-radius-sm) !important;
+}
+
+html:has(.app-container) .btn-primary {
+    font-weight: 600 !important;
+}
+
+html:has(.app-container) .card,
+html:has(.app-container) .dashboard-card {
+    border-radius: var(--cabinet-radius-lg) !important;
+    box-shadow: var(--cabinet-card-shadow) !important;
+}
+
+html:has(.app-container) .form-control {
+    border-radius: var(--cabinet-radius-sm) !important;
+}
+
+html:has(.app-container) .flash-messages {
+    padding-left: clamp(1rem, 2.5vw, 2rem);
+    padding-right: clamp(1rem, 2.5vw, 2rem);
+}
+
+html:has(.app-container) .flash-message {
+    border-radius: var(--cabinet-radius-sm) !important;
+    border: 1px solid transparent;
+}
+
+html:has(.app-container) .badge {
+    border-radius: 6px !important;
+}
+
+html:has(.app-container) .user-menu .user-info {
+    border-radius: var(--cabinet-radius-sm) !important;
+    padding: 0.2rem 0.5rem 0.2rem 0.2rem !important;
+}
+
+html:has(.app-container) .header-notifications-dropdown {
+    border-radius: var(--cabinet-radius) !important;
+}
+
+html:has(.app-container) .empty-state {
+    border-radius: var(--cabinet-radius-lg) !important;
+    border: 1px dashed var(--border) !important;
+}
+
+html:has(.app-container) table.data-table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    border-radius: var(--cabinet-radius-sm) !important;
+    overflow: hidden;
+    border: 1px solid var(--border) !important;
+}
+
+html:has(.app-container) table.data-table th {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+html:has(.app-container) .dashboard.db-redesign .db-shortcut {
+    border-radius: var(--cabinet-radius) !important;
+}
+
+/* Sidebar / header — одинаковая геометрия тени */
+html:has(.app-container) .sidebar {
+    box-shadow: var(--cabinet-sidebar-shadow) !important;
+}
+
+html:has(.app-container) .header {
+    /* не убираем/добаём inset только в одной теме — всегда один слой */
+    box-shadow: none !important;
+}
+
+/* Карточки в тёмной: не раздувать тень относительно светлой */
+html[data-theme="dark"]:has(.app-container) .card,
+html[data-theme="dark"]:has(.app-container) .dashboard-card,
+html[data-theme="dark"]:has(.app-container) .db-panel,
+html[data-theme="dark"]:has(.app-container) .db-metric,
+html[data-theme="dark"]:has(.app-container) .db-shortcut,
+html[data-theme="dark"]:has(.app-container) .support-table-card,
+html[data-theme="dark"]:has(.app-container) .ticket-list-item,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-header,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-reply,
+html[data-theme="dark"]:has(.app-container) .ticket-chat-actions {
+    box-shadow: var(--cabinet-card-shadow) !important;
+}
+
+/* Тикеты: всегда border-left 3px — актив меняет только цвет */
+html:has(.app-container) body.tickets-inbox-page .ticket-list-item {
+    border: 1px solid var(--border) !important;
+    border-left: 3px solid transparent !important;
+}
+
+html:has(.app-container) body.tickets-inbox-page .ticket-list-item.active {
+    border-left-width: 3px !important;
+    border-left-style: solid !important;
+}
+
+/* Статус релиза: одна типографика подсказки */
+html:has(.app-container) .rv-refine .rv-status .rv-status__hint,
+html:has(.app-container) .release-view-page .rv-status__hint {
+    font-size: 0.875rem !important;
+    font-weight: 450 !important;
+    line-height: 1.45 !important;
+}
+
+/* Гайды: рамка картинки всегда, цвет — из темы */
+html:has(.app-container) .guide-step-img--v2 img {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+/* Каталог релизов / hover — одинаковая геометрия тени */
+html:has(.app-container) .releases-user-catalog {
+    --rel-cover-shadow: 0 8px 22px rgba(15, 23, 42, 0.1);
+}
+
+html[data-theme="dark"]:has(.app-container) .releases-user-catalog {
+    --rel-cover-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+}
+
+html:has(.app-container) .rel-tile:hover {
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"]:has(.app-container) .rel-tile:hover {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Не анимировать геометрию при смене темы */
+html:has(.app-container) .card,
+html:has(.app-container) .dashboard-card,
+html:has(.app-container) .btn,
+html:has(.app-container) .nav-item,
+html:has(.app-container) .form-control,
+html:has(.app-container) .page-title,
+html:has(.app-container) .content,
+html:has(.app-container) .sidebar,
+html:has(.app-container) .header {
+    transition-property: background-color, color, border-color, box-shadow, filter, opacity !important;
+}
+
+/* =============================================================================
+   Auth-style ambient background (тёмный кабинет = как на входе)
+   ============================================================================= */
+html[data-theme="light"]:has(.app-container) .cabinet-ambient {
+    display: block;
+}
+
+.cabinet-ambient {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.cabinet-ambient__gradient {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(115deg, transparent 0%, transparent 62%, rgba(195, 240, 0, 0.14) 62%, rgba(195, 240, 0, 0.14) 63%, transparent 63%),
+        #100f0d;
+}
+
+.cabinet-ambient__noise {
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    background-image: radial-gradient(circle at 1px 1px, rgba(243, 239, 230, 0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+}
+
+html[data-theme="dark"]:has(.app-container) body {
+    background: #100f0d;
+}
+
+/* Ambient (z-index:0) иначе перекрывает карточки без position/z-index —
+   сайдбар/шапка/hero с position видны, а stats/panels «пропадают». */
+html:has(.app-container) .app-container {
+    position: relative;
+    z-index: 1;
+}
+
+html[data-theme="dark"]:has(.app-container) .main-content,
+html[data-theme="dark"]:has(.app-container) .content,
+html[data-theme="dark"]:has(.app-container) body.tickets-inbox-page .main-content,
+html[data-theme="dark"]:has(.app-container) body.support-table-page .main-content,
+html[data-theme="dark"]:has(.app-container) body.manager-chat-page .main-content {
+    background: transparent !important;
+}

@@ -1,0 +1,14 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="auth-flash-list" role="status">
+        {% for category, message in messages %}
+        <div class="auth-flash auth-flash--{{ category }}">
+            <span class="material-icons" aria-hidden="true">
+                {% if category == 'success' %}check_circle{% elif category == 'error' %}error{% elif category == 'warning' %}warning{% elif category == 'support' %}support_agent{% else %}info{% endif %}
+            </span>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}

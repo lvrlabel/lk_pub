@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}База знаний — админ{% endblock %}
+{% block page_title %}База знаний{% endblock %}
+{% block content %}
+<div class="uni-skin kb-admin">
+    {# Панель быстрых действий #}
+    <div class="kb-admin-quickbar">
+        <div class="kb-admin-quickbar__primary">
+            <a href="{{ url_for('admin.knowledge_section_new') }}" class="btn btn-primary">
+                <span class="material-icons" aria-hidden="true">create_new_folder</span>
+                Новый раздел
+            </a>
+            <a href="{{ url_for('admin.knowledge_article_new') }}" class="btn btn-primary">
+                <span class="material-icons" aria-hidden="true">note_add</span>
+                Новая статья
+            </a>
+        </div>
+        <div class="kb-admin-quickbar__secondary">
+            <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost" target="_blank" rel="noopener">
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+                Открыть базу знаний
+            </a>
+        </div>
+    </div>
+
+    {# Справка #}
+    <details class="kb-admin-help"{% if not sections %} open{% endif %}>
+        <summary class="kb-admin-help__summary">
+            <span class="material-icons kb-admin-help__summary-icon" aria-hidden="true">info</span>
+            Как устроена база знаний
+            <span class="kb-admin-help__hint">(нажмите, чтобы {{ 'скрыть' if sections else 'узнать' }})</span>
+        </summary>
+        <div class="kb-admin-help__body text-secondary">
+            <div class="kb-admin-help__grid">
+                <div class="kb-admin-help__card">
+                    <span class="material-icons" aria-hidden="true">folder</span>
+                    <div>
+                        <strong>Раздел</strong> — группа статей. Создаётся с названием и адресом в URL.
+                        <code>/knowledge/раздел</code>
+                    </div>
+                </div>
+                <div class="kb-admin-help__card">
+                    <span class="material-icons" aria-hidden="true">tab</span>
+                    <div>
+                        <strong>Подраздел</strong> — вкладка внутри раздела (например, «Отчёты», «YouTube»).
+                        <code>?topic=подраздел</code>
+                    </div>
+                </div>
+                <div class="kb-admin-help__card">
+                    <span class="material-icons" aria-hidden="true">article</span>
+                    <div>
+                        <strong>Статья</strong> — материал с текстом. Если в разделе нет статей, можно включить запасной шаблон.
+                        <code>/knowledge/раздел/статья</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </details>
+
+    {% if not sections %}
+    <div class="kb-admin-empty-page">
+        <div class="kb-admin-empty-page__icon">
+            <span class="material-icons" aria-hidden="true">menu_book</span>
+        </div>
+        <h2 class="kb-admin-empty-page__title">База знаний пуста</h2>
+        <p class="kb-admin-empty-page__text">Создайте первый раздел, чтобы начать наполнять базу знаний инструкциями и материалами.</p>
+        <a href="{{ url_for('admin.knowledge_section_new') }}" class="btn btn-primary">
+            <span class="material-icons" aria-hidden="true">add</span>
+            Создать раздел
+        </a>
+    </div>
+    {% else %}
+    {# Статистика #}
+    <div class="kb-admin-stats">
+        <div class="kb-admin-stat">
+            <span class="kb-admin-stat__value">{{ sections|length }}</span>
+            <span class="kb-admin-stat__label">Разделов</span>
+        </div>
+        {% set total_articles = namespace(count=0) %}
+        {% for sec in sections %}
+            {% set total_articles.count = total_articles.count + sec.articles_ordered|length %}
+        {% endfor %}
+        <div class="kb-admin-stat">
+            <span class="kb-admin-stat__value">{{ total_articles.count }}</span>
+            <span class="kb-admin-stat__label">Статей</span>
+        </div>
+        {% set published = namespace(count=0) %}
+        {% for sec in sections %}
+            {% for a in sec.articles_ordered %}
+                {% if a.is_published and a.has_body %}
+                    {% set published.count = published.count + 1 %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <div class="kb-admin-stat">
+            <span class="kb-admin-stat__value">{{ published.count }}</span>
+            <span class="kb-admin-stat__label">Опубликовано</span>
+        </div>
+        {% set drafts = namespace(count=0) %}
+        {% for sec in sections %}
+            {% for a in sec.articles_ordered %}
+                {% if not a.is_published or not a.has_body %}
+                    {% set drafts.count = drafts.count + 1 %}
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        <div class="kb-admin-stat">
+            <span class="kb-admin-stat__value">{{ drafts.count }}</span>
+            <span class="kb-admin-stat__label">Черновиков</span>
+        </div>
+    </div>
+
+    {# Список разделов #}
+    <div class="kb-admin-sections">
+        {% for sec in sections %}
+        <article class="kb-admin-section" data-section-id="{{ sec.id }}">
+            {# Шапка раздела #}
+            <header class="kb-admin-section__head">
+                <div class="kb-admin-section__info">
+                    <div class="kb-admin-section__title-row">
+                        <span class="material-icons kb-admin-section__folder-icon" aria-hidden="true">{{ sec.icon or 'folder' }}</span>
+                        <h2 class="kb-admin-section__title">
+                            <a href="{{ url_for('knowledge.section', slug=sec.slug) }}" target="_blank" rel="noopener">{{ sec.title }}</a>
+                        </h2>
+                        {% if not sec.is_published %}
+                        <span class="kb-admin-badge kb-admin-badge--hidden">скрыт</span>
+                        {% endif %}
+                    </div>
+                    <div class="kb-admin-section__meta">
+                        <code class="kb-admin-code">/knowledge/{{ sec.slug }}</code>
+                        {% if sec.static_fallback %}
+                        <span class="kb-admin-meta-tag">запасной шаблон: {{ sec.static_fallback }}</span>
+                        {% endif %}
+                        {% if sec.highlight_index %}
+                        <span class="kb-admin-meta-tag kb-admin-meta-tag--accent">крупная карточка</span>
+                        {% endif %}
+                        <span class="kb-admin-meta-tag">сортировка: {{ sec.sort_order }}</span>
+                    </div>
+                </div>
+                <div class="kb-admin-section__actions">
+                    <a href="{{ url_for('admin.knowledge_article_new', section_id=sec.id) }}" class="btn btn-primary btn-sm" title="Добавить статью в раздел">
+                        <span class="material-icons" aria-hidden="true">note_add</span>
+                        <span>Статья</span>
+                    </a>
+                    <div class="kb-admin-dropdown">
+                        <button type="button" class="btn btn-ghost btn-sm kb-admin-dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="Действия с разделом">
+                            <span class="material-icons" aria-hidden="true">more_horiz</span>
+                        </button>
+                        <div class="kb-admin-dropdown__menu" hidden>
+                            <a href="{{ url_for('admin.knowledge_section_edit', sid=sec.id) }}" class="kb-admin-dropdown__item">
+                                <span class="material-icons" aria-hidden="true">tune</span>
+                                Настройки раздела
+                            </a>
+                            <a href="{{ url_for('admin.knowledge_topic_new', sid=sec.id) }}" class="kb-admin-dropdown__item">
+                                <span class="material-icons" aria-hidden="true">tab</span>
+                                Добавить подраздел
+                            </a>
+                            <a href="{{ url_for('knowledge.section', slug=sec.slug) }}" class="kb-admin-dropdown__item" target="_blank" rel="noopener">
+                                <span class="material-icons" aria-hidden="true">visibility</span>
+                                Просмотр на сайте
+                            </a>
+                            <hr class="kb-admin-dropdown__divider">
+                            <form method="POST" action="{{ url_for('admin.knowledge_section_delete', sid=sec.id) }}" class="kb-admin-dropdown__form" onsubmit="return confirm('Удалить раздел «{{ sec.title|e }}» и все статьи внутри?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="kb-admin-dropdown__item kb-admin-dropdown__item--danger">
+                                    <span class="material-icons" aria-hidden="true">delete_forever</span>
+                                    Удалить раздел
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {# Тело раздела #}
+            <div class="kb-admin-section__body">
+                {# Подразделы #}
+                {% for top in sec.topics_ordered %}
+                <div class="kb-admin-topic">
+                    <div class="kb-admin-topic__main">
+                        <div class="kb-admin-topic__title">
+                            <span class="material-icons kb-admin-topic__icon" aria-hidden="true">tab</span>
+                            <strong>{{ top.title }}</strong>
+                            {% if not top.is_published %}
+                            <span class="kb-admin-badge kb-admin-badge--hidden">скрыт</span>
+                            {% endif %}
+                        </div>
+                        <code class="kb-admin-code kb-admin-code--sm">?topic={{ top.slug }}</code>
+                    </div>
+                    <div class="kb-admin-topic__actions">
+                        <a href="{{ url_for('admin.knowledge_article_new', section_id=sec.id, topic_id=top.id) }}" class="btn btn-primary btn-sm">Статья</a>
+                        <div class="kb-admin-dropdown kb-admin-dropdown--sm">
+                            <button type="button" class="btn btn-ghost btn-sm kb-admin-dropdown__trigger" aria-haspopup="true" aria-expanded="false" aria-label="Действия с подразделом">
+                                <span class="material-icons" aria-hidden="true">more_horiz</span>
+                            </button>
+                            <div class="kb-admin-dropdown__menu" hidden>
+                                <a href="{{ url_for('admin.knowledge_topic_edit', tid=top.id) }}" class="kb-admin-dropdown__item">
+                                    <span class="material-icons" aria-hidden="true">edit</span>
+                                    Изменить подраздел
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.knowledge_topic_delete', tid=top.id) }}" class="kb-admin-dropdown__form" onsubmit="return confirm('Удалить подраздел «{{ top.title|e }}»? Статьи останутся без вкладки.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="kb-admin-dropdown__item kb-admin-dropdown__item--danger">
+                                        <span class="material-icons" aria-hidden="true">delete</span>
+                                        Удалить подраздел
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {# Статьи #}
+                {% if sec.articles_ordered %}
+                <div class="kb-admin-articles">
+                    <div class="kb-admin-articles__header">
+                        <span class="kb-admin-articles__header-title">Статьи раздела</span>
+                        <span class="kb-admin-articles__header-count">{{ sec.articles_ordered|length }}</span>
+                    </div>
+                    <ul class="kb-admin-articles__list" role="list">
+                        {% for a in sec.articles_ordered %}
+                        <li class="kb-admin-articles__row" data-article-id="{{ a.id }}">
+                            <div class="kb-admin-articles__main">
+                                <span class="material-icons kb-admin-articles__doc" aria-hidden="true">
+                                    {% if a.is_landing %}star{% else %}article{% endif %}
+                                </span>
+                                <div class="kb-admin-articles__text">
+                                    <span class="kb-admin-articles__title">
+                                        <a href="{{ url_for('knowledge.article_page', section_slug=sec.slug, article_slug=a.slug) }}" target="_blank" rel="noopener">{{ a.title }}</a>
+                                    </span>
+                                    <span class="kb-admin-articles__slug">/knowledge/{{ sec.slug }}/{{ a.slug }}</span>
+                                </div>
+                            </div>
+                            <div class="kb-admin-articles__flags">
+                                {% if a.is_landing %}
+                                <span class="kb-admin-pill kb-admin-pill--landing" title="Главная статья раздела">главная</span>
+                                {% endif %}
+                                {% if not a.is_published %}
+                                <span class="kb-admin-pill kb-admin-pill--draft">черновик</span>
+                                {% endif %}
+                                {% if a.topic %}
+                                <span class="kb-admin-pill kb-admin-pill--topic">{{ a.topic.title }}</span>
+                                {% endif %}
+                                {% if not a.has_body %}
+                                <span class="kb-admin-pill kb-admin-pill--warn">нет текста</span>
+                                {% endif %}
+                                {% if a.is_published and a.has_body %}
+                                <span class="kb-admin-pill kb-admin-pill--published">опубликовано</span>
+                                {% endif %}
+                            </div>
+                            <div class="kb-admin-articles__acts">
+                                <a href="{{ url_for('admin.knowledge_article_edit', aid=a.id) }}" class="btn btn-ghost btn-sm kb-admin-icon-btn" title="Редактировать статью">
+                                    <span class="material-icons" aria-hidden="true">edit</span>
+                                </a>
+                                <form method="POST" action="{{ url_for('admin.knowledge_article_delete', aid=a.id) }}" class="kb-admin-inline-form" onsubmit="return confirm('Удалить статью «{{ a.title|e }}»?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-ghost btn-sm kb-admin-icon-btn kb-admin-icon-btn--danger" title="Удалить статью" aria-label="Удалить статью">
+                                        <span class="material-icons" aria-hidden="true">delete</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <div class="kb-admin-section__empty">
+                    <span class="material-icons" aria-hidden="true">note_alt</span>
+                    <span>В разделе пока нет статей. <a href="{{ url_for('admin.knowledge_article_new', section_id=sec.id) }}">Напишите первую</a>.</span>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+{# Скрипт для дропдаунов #}
+<script>
+(function() {
+    document.querySelectorAll('.kb-admin-dropdown__trigger').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var menu = this.closest('.kb-admin-dropdown').querySelector('.kb-admin-dropdown__menu');
+            var isOpen = !menu.hidden;
+            // Закрыть все остальные
+            document.querySelectorAll('.kb-admin-dropdown__menu').forEach(function(m) {
+                m.hidden = true;
+            });
+            document.querySelectorAll('.kb-admin-dropdown__trigger').forEach(function(t) {
+                t.setAttribute('aria-expanded', 'false');
+            });
+            if (!isOpen) {
+                menu.hidden = false;
+                this.setAttribute('aria-expanded', 'true');
+            }
+        });
+    });
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.kb-admin-dropdown__menu').forEach(function(m) {
+            m.hidden = true;
+        });
+        document.querySelectorAll('.kb-admin-dropdown__trigger').forEach(function(t) {
+            t.setAttribute('aria-expanded', 'false');
+        });
+    });
+})();
+</script>
+{% endblock %}

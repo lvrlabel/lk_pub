@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Редактирование профиля{% endblock %}
+{% block page_title %}Редактирование профиля{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-v2.css', v='20260721-p1') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-profile profile-v2 profile-v2-edit">
+    <section class="profile-v2__card">
+        <header class="profile-v2__card-head">
+            <h1 class="profile-v2__card-title"><span class="material-icons">edit</span> Редактирование профиля</h1>
+            <a href="{{ url_for('profile.index') }}" class="btn btn-ghost btn-sm">← Назад</a>
+        </header>
+        <div class="profile-v2__card-body">
+            <form method="POST" enctype="multipart/form-data" class="profile-edit-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="profile-v2-edit__avatar">
+                    <img src="{{ current_user.avatar_url }}" alt="Текущий аватар" id="avatarPreview" width="96" height="96">
+                    <div>
+                        <label class="btn btn-ghost btn-sm" for="avatarInput">
+                            <span class="material-icons">photo_camera</span>
+                            Загрузить фото
+                        </label>
+                        <input type="file" name="avatar" id="avatarInput" accept=".jpg,.jpeg,.png" class="profile-v2-edit__file" aria-label="Выбрать файл аватара">
+                        <p class="profile-v2__hint" style="margin:0.55rem 0 0">JPG или PNG</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Имя <span class="required">*</span></label>
+                    <input type="text" name="name" id="name" value="{{ current_user.name }}" required class="form-control" placeholder="Ваше имя">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" name="email" id="email" value="{{ current_user.email }}" required class="form-control" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Телефон</label>
+                    <input type="tel" name="phone" id="phone" value="{{ current_user.phone or '' }}" class="form-control" placeholder="+7 999 123-45-67">
+                    <small class="form-text text-muted">Изменения телефона применятся после подтверждения кода из email.</small>
+                </div>
+                <div class="form-group">
+                    <label for="telegram_username">Telegram</label>
+                    <input type="text" name="telegram_username" id="telegram_username" value="{{ current_user.telegram_username or '' }}" class="form-control" placeholder="@username" autocomplete="off">
+                    <small class="form-text text-muted">Username без @ или с @. Для уведомлений нажмите «Привязать» в профиле.</small>
+                </div>
+                <div class="form-group">
+                    <label for="copyright">Копирайт</label>
+                    <input type="text" name="copyright" id="copyright" value="{{ current_user.copyright or '' }}" class="form-control" placeholder="© 2026 Ваше имя">
+                </div>
+
+                <div class="profile-v2-edit__actions">
+                    <a href="{{ url_for('profile.index') }}" class="btn btn-ghost">Отмена</a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">save</span>
+                        Сохранить и подтвердить
+                    </button>
+                </div>
+            </form>
+            {% if current_user.avatar %}
+            <div class="profile-v2-edit__delete">
+                <form method="POST" action="{{ url_for('profile.delete_avatar') }}" onsubmit="return confirm('Удалить аватар?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost btn-sm btn-danger">Удалить аватар</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+<script>
+document.getElementById('avatarInput').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (file && file.type.match('image.*')) {
+        var reader = new FileReader();
+        reader.onload = function(e) { document.getElementById('avatarPreview').src = e.target.result; };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

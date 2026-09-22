@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Налоговая информация{% endblock %}
+{% block page_title %}Налоговая и платёжная информация{% endblock %}
+{% block content %}
+<div class="profile-edit-page uni-skin">
+    <div class="profile-edit-card card profile-tax-edit-card">
+        <header class="card-header">
+            <h3 class="card-header__title"><span class="material-icons">account_balance</span> Налоговая и платёжная информация</h3>
+            <a href="{{ url_for('profile.index') }}" class="btn btn-ghost btn-sm">← Назад в профиль</a>
+        </header>
+        <div class="card-content">
+            <p class="text-secondary profile-tax-edit-lead">Здесь вы редактируете только <strong>свои</strong> реквизиты. Данные других пользователей меняются в разделе «Пользователи» при обращении в поддержку.</p>
+            <form method="POST" class="profile-tax-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% include 'profile/_tax_form_fields.html' %}
+                <div class="form-actions">
+                    <a href="{{ url_for('profile.index') }}" class="btn btn-ghost">Отмена</a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-icons">save</span>
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

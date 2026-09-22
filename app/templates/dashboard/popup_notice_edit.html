@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Всплывающие уведомления{% endblock %}
+{% block page_title %}Всплывающие уведомления{% endblock %}
+
+{% macro popup_user_picker(index, selected_ids) %}
+<div class="popup-user-picker">
+    <label class="form-label" for="popup_{{ index }}_user_search">Пользователи</label>
+    <input type="search" id="popup_{{ index }}_user_search" class="form-control popup-user-picker__search" placeholder="Поиск по имени, логину или email" autocomplete="off">
+    <p class="popup-user-picker__hint text-secondary">Выберите одного или нескольких пользователей — уведомление увидят только они.</p>
+    <div class="popup-user-picker__list" role="group" aria-label="Выбор пользователей">
+        {% for u in cabinet_users %}
+        <label class="popup-user-picker__item" data-search="{{ (u.display_name ~ ' ' ~ u.login ~ ' ' ~ u.email)|lower }}">
+            <input type="checkbox" name="popup_{{ index }}_user_ids" value="{{ u.id }}" {% if u.id in (selected_ids or []) %}checked{% endif %}>
+            <span class="popup-user-picker__label">
+                <span class="popup-user-picker__name">{{ u.display_name }}</span>
+                <span class="popup-user-picker__meta">{{ u.login }} · {{ u.email }}{% if u.role == 'label' %} · лейбл{% elif u.role == 'admin' %} · админ{% else %} · исполнитель{% endif %}</span>
+            </span>
+        </label>
+        {% else %}
+        <p class="popup-user-picker__empty text-secondary">Нет активных пользователей.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{% block content %}
+<div class="card popup-notice-edit-card">
+    <div class="card-content">
+        <p class="text-secondary popup-notice-edit-intro">
+            Всплывающее окно показывается на главной и/или в разделе релизов — только <strong>выбранным пользователям</strong>.
+            Окно появляется при каждом входе в кабинет и при обновлении страницы. «Понятно» закрывает его до следующей загрузки.
+            Файл на сервере: <code>instance/user_popup_notice.json</code>
+        </p>
+        <p class="popup-notice-edit-links">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-ghost btn-sm">← На главную</a>
+            <a href="{{ url_for('dashboard.legal_notice_edit') }}" class="btn btn-ghost btn-sm">Баннеры на главной</a>
+        </p>
+        <form method="POST" id="popupNoticeForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div id="popup-notice-blocks">
+                {% for row in popup_rows %}
+                {% set p = row.popup %}
+                {% set i = loop.index0 %}
+                <fieldset class="popup-notice-block card" data-index="{{ i }}">
+                    <legend class="popup-notice-block__legend">Уведомление {{ loop.index }}</legend>
+                    <div class="card-content popup-notice-block__body">
+                        <input type="hidden" name="popup_{{ i }}_id" value="{{ p.id }}">
+                        <div class="form-group">
+                            <label class="popup-notice-toggle">
+                                <input type="checkbox" name="popup_{{ i }}_enabled" value="1" {% if p.enabled %}checked{% endif %}>
+                                Показывать это уведомление
+                            </label>
+                        </div>
+                        {{ popup_user_picker(i, p.user_ids or []) }}
+                        <div class="form-group">
+                            <span class="form-label">Где показывать</span>
+                            <div class="popup-notice-checks">
+                                <label class="popup-notice-check">
+                                    <input type="checkbox" name="popup_{{ i }}_pages" value="dashboard" {% if 'dashboard' in (p.pages or []) %}checked{% endif %}>
+                                    Главная
+                                </label>
+                                <label class="popup-notice-check">
+                                    <input type="checkbox" name="popup_{{ i }}_pages" value="releases" {% if 'releases' in (p.pages or []) %}checked{% endif %}>
+                                    Раздел релизов
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <span class="form-label">Цвет</span>
+                            <div class="popup-notice-checks">
+                                <label class="popup-notice-check">
+                                    <input type="radio" name="popup_{{ i }}_tone" value="red" {% if (p.tone or 'red') != 'orange' %}checked{% endif %}>
+                                    Красный
+                                </label>
+                                <label class="popup-notice-check">
+                                    <input type="radio" name="popup_{{ i }}_tone" value="orange" {% if (p.tone or 'red') == 'orange' %}checked{% endif %}>
+                                    Оранжевый
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="popup_{{ i }}_badge">Подпись в бейдже</label>
+                            <input type="text" id="popup_{{ i }}_badge" name="popup_{{ i }}_badge" class="form-control" value="{{ p.badge }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="popup_{{ i }}_title">Заголовок</label>
+                            <input type="text" id="popup_{{ i }}_title" name="popup_{{ i }}_title" class="form-control" value="{{ p.title }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="popup_{{ i }}_lead">Текст сообщения</label>
+                            <textarea id="popup_{{ i }}_lead" name="popup_{{ i }}_lead" class="form-control" rows="4" placeholder="Например: отправка релизов временно ограничена">{{ p.lead }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="popup_{{ i }}_points">Список (каждая строка — отдельный пункт)</label>
+                            <textarea id="popup_{{ i }}_points" name="popup_{{ i }}_points" class="form-control" rows="4" placeholder="Первая строка&#10;Вторая строка">{{ row.points_text }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="popup_{{ i }}_callout">Дополнительный блок внизу</label>
+                            <textarea id="popup_{{ i }}_callout" name="popup_{{ i }}_callout" class="form-control" rows="2">{{ p.callout }}</textarea>
+                        </div>
+                        <p class="popup-notice-id text-secondary">ID: <code>{{ p.id }}</code></p>
+                        <p class="popup-notice-block__actions">
+                            <button type="button" class="btn btn-ghost btn-sm js-remove-popup-block" {% if popup_rows|length < 2 %}hidden{% endif %}>Удалить это уведомление</button>
+                        </p>
+                    </div>
+                </fieldset>
+                {% endfor %}
+            </div>
+            <p class="popup-notice-add-row">
+                <button type="button" class="btn btn-ghost btn-sm" id="popupNoticeAddBlock">+ Добавить уведомление</button>
+            </p>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить все</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="popup-notice-block-template">
+    <fieldset class="popup-notice-block card" data-index="__IX__">
+        <legend class="popup-notice-block__legend">Уведомление __NUM__</legend>
+        <div class="card-content popup-notice-block__body">
+            <input type="hidden" name="popup___IX___id" value="">
+            <div class="form-group">
+                <label class="popup-notice-toggle">
+                    <input type="checkbox" name="popup___IX___enabled" value="1">
+                    Показывать это уведомление
+                </label>
+            </div>
+            <div class="popup-user-picker">
+                <label class="form-label" for="popup___IX___user_search">Пользователи</label>
+                <input type="search" id="popup___IX___user_search" class="form-control popup-user-picker__search" placeholder="Поиск по имени, логину или email" autocomplete="off">
+                <p class="popup-user-picker__hint text-secondary">Выберите одного или нескольких пользователей — уведомление увидят только они.</p>
+                <div class="popup-user-picker__list" role="group" aria-label="Выбор пользователей">
+                    {% for u in cabinet_users %}
+                    <label class="popup-user-picker__item" data-search="{{ (u.display_name ~ ' ' ~ u.login ~ ' ' ~ u.email)|lower }}">
+                        <input type="checkbox" name="popup___IX___user_ids" value="{{ u.id }}">
+                        <span class="popup-user-picker__label">
+                            <span class="popup-user-picker__name">{{ u.display_name }}</span>
+                            <span class="popup-user-picker__meta">{{ u.login }} · {{ u.email }}{% if u.role == 'label' %} · лейбл{% elif u.role == 'admin' %} · админ{% else %} · исполнитель{% endif %}</span>
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Где показывать</span>
+                <div class="popup-notice-checks">
+                    <label class="popup-notice-check">
+                        <input type="checkbox" name="popup___IX___pages" value="dashboard" checked>
+                        Главная
+                    </label>
+                    <label class="popup-notice-check">
+                        <input type="checkbox" name="popup___IX___pages" value="releases" checked>
+                        Раздел релизов
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Цвет</span>
+                <div class="popup-notice-checks">
+                    <label class="popup-notice-check">
+                        <input type="radio" name="popup___IX___tone" value="red" checked>
+                        Красный
+                    </label>
+                    <label class="popup-notice-check">
+                        <input type="radio" name="popup___IX___tone" value="orange">
+                        Оранжевый
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="popup___IX___badge">Подпись в бейдже</label>
+                <input type="text" id="popup___IX___badge" name="popup___IX___badge" class="form-control" value="Важно">
+            </div>
+            <div class="form-group">
+                <label for="popup___IX___title">Заголовок</label>
+                <input type="text" id="popup___IX___title" name="popup___IX___title" class="form-control" value="Уведомление">
+            </div>
+            <div class="form-group">
+                <label for="popup___IX___lead">Текст сообщения</label>
+                <textarea id="popup___IX___lead" name="popup___IX___lead" class="form-control" rows="4" placeholder="Например: отправка релизов временно ограничена"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="popup___IX___points">Список (каждая строка — отдельный пункт)</label>
+                <textarea id="popup___IX___points" name="popup___IX___points" class="form-control" rows="4" placeholder="Первая строка&#10;Вторая строка"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="popup___IX___callout">Дополнительный блок внизу</label>
+                <textarea id="popup___IX___callout" name="popup___IX___callout" class="form-control" rows="2"></textarea>
+            </div>
+            <p class="popup-notice-block__actions">
+                <button type="button" class="btn btn-ghost btn-sm js-remove-popup-block">Удалить это уведомление</button>
+            </p>
+        </div>
+    </fieldset>
+</template>
+<script>
+(function () {
+    var container = document.getElementById('popup-notice-blocks');
+    var tpl = document.getElementById('popup-notice-block-template');
+    var addBtn = document.getElementById('popupNoticeAddBlock');
+    if (!container || !tpl || !addBtn) return;
+
+    function wireUserPicker(root) {
+        if (!root) return;
+        var search = root.querySelector('.popup-user-picker__search');
+        var items = root.querySelectorAll('.popup-user-picker__item');
+        if (!search) return;
+        search.addEventListener('input', function () {
+            var q = (search.value || '').trim().toLowerCase();
+            items.forEach(function (item) {
+                var hay = item.getAttribute('data-search') || '';
+                item.hidden = q && hay.indexOf(q) === -1;
+            });
+        });
+    }
+
+    function maxIndex() {
+        var max = -1;
+        container.querySelectorAll('.popup-notice-block[data-index]').forEach(function (el) {
+            var n = parseInt(el.getAttribute('data-index'), 10);
+            if (!isNaN(n) && n > max) max = n;
+        });
+        return max;
+    }
+
+    function renumberLegends() {
+        var blocks = container.querySelectorAll('.popup-notice-block');
+        blocks.forEach(function (el, idx) {
+            var leg = el.querySelector('.popup-notice-block__legend');
+            if (leg) leg.textContent = 'Уведомление ' + (idx + 1);
+        });
+        var showRemove = blocks.length > 1;
+        blocks.forEach(function (el) {
+            var b = el.querySelector('.js-remove-popup-block');
+            if (b) b.hidden = !showRemove;
+        });
+    }
+
+    function wireRemove(btn) {
+        btn.addEventListener('click', function () {
+            var block = btn.closest('.popup-notice-block');
+            if (!block || container.querySelectorAll('.popup-notice-block').length < 2) return;
+            block.remove();
+            renumberLegends();
+        });
+    }
+
+    container.querySelectorAll('.popup-user-picker').forEach(wireUserPicker);
+    container.querySelectorAll('.js-remove-popup-block').forEach(wireRemove);
+
+    addBtn.addEventListener('click', function () {
+        var ix = maxIndex() + 1;
+        var html = tpl.innerHTML.replace(/__IX__/g, String(ix)).replace(/__NUM__/g, String(container.querySelectorAll('.popup-notice-block').length + 1));
+        var wrap = document.createElement('div');
+        wrap.innerHTML = html.trim();
+        var node = wrap.firstElementChild;
+        if (!node) return;
+        container.appendChild(node);
+        wireUserPicker(node.querySelector('.popup-user-picker'));
+        var rm = node.querySelector('.js-remove-popup-block');
+        if (rm) wireRemove(rm);
+        renumberLegends();
+    });
+
+    renumberLegends();
+})();
+</script>
+{% endblock %}

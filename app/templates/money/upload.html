@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Загрузка отчёта{% endblock %}
+{% block page_title %}Загрузка финансового отчёта{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/finance-v2.css', v='20260917-f4') }}">{% endblock %}
+{% block content %}
+<div class="uni-skin money-desk finance-form-page">
+<p class="text-secondary" style="margin-bottom: 1rem; font-size: 0.9375rem;">Финансовый отчёт и разбивка по площадкам доступны только администратору. Сумма квартала при заполненных строках считается автоматически (роялти − штрафы).</p>
+<form method="POST" enctype="multipart/form-data" class="release-form finance-upload-form finance-form-card js-submit-loading" id="finance-upload-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group"><label>Пользователь *</label><select name="user_id" required class="form-control">{% for u in users %}<option value="{{ u.id }}">{{ u.name }} ({{ u.login }})</option>{% endfor %}</select></div>
+    <div class="form-row">
+        <div class="form-group"><label>Квартал *</label><select name="quarter" required class="form-control"><option value="1">I</option><option value="2">II</option><option value="3">III</option><option value="4">IV</option></select></div>
+        <div class="form-group"><label>Год *</label><select name="year" required class="form-control">{% for y in years %}<option value="{{ y }}">{{ y }}</option>{% endfor %}</select></div>
+    </div>
+
+    <div class="dashboard-card" style="margin-bottom: 1.25rem;">
+        <div class="card-header"><h3><span class="material-icons">storefront</span> По площадкам</h3></div>
+        <div class="card-content">
+            <p class="text-secondary" style="font-size: 0.875rem; margin-bottom: 0.75rem;">Добавьте строку на каждую площадку: роялти и при необходимости штрафы/удержания (положительным числом).</p>
+            {% if platform_name_suggestions %}
+            <datalist id="platform-names-datalist">
+                {% for name in platform_name_suggestions %}<option value="{{ name }}">{% endfor %}
+            </datalist>
+            {% endif %}
+            <div class="finance-platform-table-wrap">
+                <table class="finance-platform-table finance-upload-table" id="platform-lines-table">
+                    <thead>
+                        <tr>
+                            <th>Площадка</th>
+                            <th class="num">Роялти, ₽</th>
+                            <th class="num">Штрафы, ₽</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="platform-lines-body">
+                        <tr class="platform-line-row">
+                            <td><input type="text" name="line_platform" class="form-control" placeholder="Например, Spotify" {% if platform_name_suggestions %}list="platform-names-datalist"{% endif %} autocomplete="off"></td>
+                            <td class="num"><input type="text" name="line_royalty" class="form-control line-royalty" inputmode="decimal" placeholder="0"></td>
+                            <td class="num"><input type="text" name="line_penalty" class="form-control line-penalty" inputmode="decimal" placeholder="0"></td>
+                            <td class="finance-line-actions"><button type="button" class="btn btn-ghost btn-sm line-remove" title="Удалить строку" disabled>&times;</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="add-platform-line" style="margin-top: 0.75rem;"><span class="material-icons">add</span> Добавить площадку</button>
+            <p class="finance-lines-total" id="lines-total-preview" style="margin-top: 1rem; font-weight: 600;">Итого по строкам: <span id="lines-total-value">0,00</span> ₽</p>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Сумма отчёта (₽), если строк нет</label>
+        <input type="number" name="amount" id="finance-amount-manual" step="0.01" class="form-control" placeholder="Только если таблица пустая">
+        <p class="form-hint text-secondary" style="font-size: 0.8125rem; margin-top: 0.35rem;">Если заполнены площадки, поле игнорируется — итог берётся из таблицы.</p>
+    </div>
+    <div class="form-group"><label>Файл CSV</label><input type="file" name="file" accept=".csv" class="form-control"></div>
+    <div class="form-actions"><a href="{{ url_for('money.index') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary" data-loading-text="Загружаем...">Загрузить</button></div>
+</form>
+</div>
+<script>
+(function () {
+    var tbody = document.getElementById('platform-lines-body');
+    var addBtn = document.getElementById('add-platform-line');
+    var totalEl = document.getElementById('lines-total-value');
+    var manualAmount = document.getElementById('finance-amount-manual');
+
+    function parseNum(s) {
+        if (!s || typeof s !== 'string') return 0;
+        var t = s.trim().replace(',', '.');
+        if (!t) return 0;
+        var n = parseFloat(t);
+        return isNaN(n) ? 0 : n;
+    }
+
+    function recalc() {
+        var rows = tbody.querySelectorAll('.platform-line-row');
+        var sum = 0;
+        var anyName = false;
+        rows.forEach(function (row) {
+            var name = row.querySelector('input[name="line_platform"]');
+            var r = row.querySelector('.line-royalty');
+            var p = row.querySelector('.line-penalty');
+            if (name && name.value.trim()) anyName = true;
+            sum += parseNum(r && r.value) - parseNum(p && p.value);
+        });
+        totalEl.textContent = sum.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        rows.forEach(function (row, i) {
+            var rm = row.querySelector('.line-remove');
+            if (rm) rm.disabled = rows.length === 1;
+        });
+    }
+
+    function bindRow(row) {
+        row.querySelectorAll('input').forEach(function (inp) {
+            inp.addEventListener('input', recalc);
+        });
+        var rm = row.querySelector('.line-remove');
+        if (rm) rm.addEventListener('click', function () {
+            if (tbody.querySelectorAll('.platform-line-row').length <= 1) return;
+            row.remove();
+            recalc();
+        });
+    }
+
+    tbody.querySelectorAll('.platform-line-row').forEach(bindRow);
+    addBtn.addEventListener('click', function () {
+        var first = tbody.querySelector('.platform-line-row');
+        var clone = first.cloneNode(true);
+        clone.querySelectorAll('input').forEach(function (inp) { inp.value = ''; });
+        tbody.appendChild(clone);
+        bindRow(clone);
+        recalc();
+    });
+    recalc();
+
+    document.getElementById('finance-upload-form').addEventListener('submit', function () {
+        var rows = tbody.querySelectorAll('.platform-line-row');
+        var hasLine = false;
+        rows.forEach(function (row) {
+            var name = row.querySelector('input[name="line_platform"]');
+            if (name && name.value.trim()) hasLine = true;
+        });
+        if (hasLine) {
+            manualAmount.removeAttribute('required');
+            manualAmount.value = '';
+        }
+    });
+})();
+</script>
+{% endblock %}

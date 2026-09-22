@@ -1,0 +1,21 @@
+{# active: 'tickets' | 'manager_chat' #}
+{% set nav_active = active | default('tickets') %}
+<nav class="support-hub-nav" aria-label="Разделы поддержки">
+    <a href="{{ url_for('tickets.index') }}"
+       class="support-hub-nav__item {% if nav_active == 'tickets' %}is-active{% endif %}">
+        <span class="material-icons" aria-hidden="true">forum</span>
+        <span>Обращения</span>
+    </a>
+    {% if manager_chat_enabled|default(false) %}
+    {% set mcc = (manager_chat_unread_count|default(0))|int %}
+    <a href="{{ url_for('tickets.manager_chat_index') }}"
+       class="support-hub-nav__item {% if nav_active == 'manager_chat' %}is-active{% endif %}"
+       {% if mcc > 0 %}title="Новых сообщений: {{ mcc }}"{% endif %}>
+        <span class="material-icons" aria-hidden="true">support_agent</span>
+        <span>Чат с менеджером</span>
+        {% if mcc > 0 %}
+        <span class="support-hub-nav__badge">{{ '99+' if mcc > 99 else mcc }}</span>
+        {% endif %}
+    </a>
+    {% endif %}
+</nav>

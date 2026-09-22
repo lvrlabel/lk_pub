@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Согласование выплат{% endblock %}
+{% block page_title %}Согласование выплат{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{{ url_for('static', filename='css/finance-v2.css', v='20260917-f4') }}">{% endblock %}
+{% block content %}
+<div class="uni-skin money-desk finance-approval-page">
+<div class="filters-bar finance-filter-bar">
+    <a href="{{ url_for('money.approvals', status='pending') }}" class="btn {% if status == 'pending' %}btn-primary{% else %}btn-ghost{% endif %}">На рассмотрении ({{ counts.pending }})</a>
+    <a href="{{ url_for('money.approvals', status='approved') }}" class="btn {% if status == 'approved' %}btn-primary{% else %}btn-ghost{% endif %}">Одобрено</a>
+    <a href="{{ url_for('money.approvals', status='rejected') }}" class="btn {% if status == 'rejected' %}btn-primary{% else %}btn-ghost{% endif %}">Отклонено</a>
+</div>
+{% if approvals %}
+<div class="uni-list">
+{% for approval in approvals %}
+<div class="uni-list__row">
+  <div class="uni-list__main">
+    <strong>{{ approval.user.name }}</strong> — {{ approval.amount_formatted }} — <span class="{{ approval.status_class }}">{{ approval.status_display }}</span>
+  </div>
+  <div class="uni-list__actions">
+    <a href="{{ url_for('money.view_approval', id=approval.id) }}" class="btn btn-ghost btn-sm">Подробнее</a>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><div class="empty-state small" style="margin:0;"><p>Заявок нет</p></div></div></div>
+{% endif %}
+</div>
+{% endblock %}

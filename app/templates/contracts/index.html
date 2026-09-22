@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Договоры{% endblock %}
+{% block page_title %}Договоры{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="filters-bar">
+    <a href="{{ url_for('contracts.index') }}" class="btn {% if not status %}btn-primary{% else %}btn-ghost{% endif %}">Все ({{ counts.get('all', 0) }})</a>
+    <a href="{{ url_for('contracts.index', status='pending') }}" class="btn {% if status == 'pending' %}btn-primary{% else %}btn-ghost{% endif %}">Ожидают ({{ counts.get('pending', 0) }})</a>
+    <a href="{{ url_for('contracts.index', status='pending_review') }}" class="btn {% if status == 'pending_review' %}btn-primary{% else %}btn-ghost{% endif %}">На проверке ({{ counts.get('pending_review', 0) }})</a>
+    <a href="{{ url_for('contracts.index', status='signed') }}" class="btn {% if status == 'signed' %}btn-primary{% else %}btn-ghost{% endif %}">Подписаны ({{ counts.get('signed', 0) }})</a>
+</div>
+{% if contracts %}
+<div class="uni-list">
+{% for contract in contracts %}
+<div class="uni-list__row">
+  <div class="uni-list__main">
+    <strong>{{ contract.title }}</strong>
+    <br><span class="{{ contract.status_class }}">{{ contract.status_display }}</span> — до {{ contract.deadline_formatted }}
+  </div>
+  <div class="uni-list__actions">
+    <a href="{{ url_for('contracts.download', id=contract.id) }}" class="btn btn-ghost btn-sm">Оригинал</a>
+    {% if contract.signed_file_path %}
+    <a href="{{ url_for('contracts.download_signed', id=contract.id) }}" class="btn btn-ghost btn-sm">Подписанный</a>
+    {% endif %}
+    <a href="{{ url_for('contracts.view', id=contract.id) }}" class="btn btn-primary btn-sm">{% if current_user.is_admin and contract.status == 'pending_review' %}Проверить{% else %}Подробнее{% endif %}</a>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><div class="empty-state small" style="margin:0;"><p>Договоров нет</p></div></div></div>
+{% endif %}
+{% if current_user.is_admin %}<a href="{{ url_for('contracts.create') }}" class="btn btn-primary" style="margin-top:1rem;"><span class="material-icons">add</span> Создать договор</a>{% endif %}
+</div>
+{% endblock %}

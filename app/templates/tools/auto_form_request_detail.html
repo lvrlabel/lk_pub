@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Заявка {{ req.display_id }}{% endblock %}
+{% block page_title %}{{ req.display_id }} · {{ req.request_type_display }}{% endblock %}
+{% block content %}
+<div class="tools-admin-page">
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <span class="tools-admin-status {{ req.status_class }}">{{ req.status_display }}</span>
+            <span>{{ req.user.display_name if req.user else '—' }} · {{ req.user.email if req.user else '' }}</span>
+            <span style="color: var(--text-secondary);">{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            <a href="{{ url_for('tools.auto_form_requests_admin') }}" class="btn btn-ghost btn-sm">← К списку</a>
+        </div>
+
+        <h3 style="margin: 0 0 1rem;">Данные заявки</h3>
+        {% if req.request_type == 'transfer_release' %}
+            {% if req.release %}<p><strong>Релиз:</strong> {{ req.release.title }}</p>{% endif %}
+            {% if req.platform %}<p><strong>Площадка:</strong> {{ req.platform }}</p>{% endif %}
+            {% if req.wrong_card_url %}<p><strong>Ошибочная карточка:</strong> <a href="{{ req.wrong_card_url }}" target="_blank" rel="noopener">{{ req.wrong_card_url }}</a></p>{% endif %}
+            {% if req.correct_card_url %}<p><strong>Целевая карточка:</strong> <a href="{{ req.correct_card_url }}" target="_blank" rel="noopener">{{ req.correct_card_url }}</a></p>{% endif %}
+        {% elif req.request_type == 'youtube_note' %}
+            {% if req.artist_name %}<p><strong>Артист:</strong> {{ req.artist_name }}</p>{% endif %}
+            {% if req.channel_url %}<p><strong>Канал:</strong> <a href="{{ req.channel_url }}" target="_blank" rel="noopener">{{ req.channel_url }}</a></p>{% endif %}
+            {% if req.topic_urls %}<p><strong>Темы (Topic):</strong><br><pre style="white-space: pre-wrap; margin: 0.5rem 0; font-size: 0.875rem;">{{ req.topic_urls }}</pre></p>{% endif %}
+        {% elif req.request_type == 'vk_restore' %}
+            {% if req.previous_distributor %}<p><strong>Прошлый дистрибьютор:</strong> {{ req.previous_distributor }}</p>{% endif %}
+            {% if req.upc_codes %}<p><strong>UPC-коды:</strong><br><pre style="white-space: pre-wrap; margin: 0.5rem 0; font-size: 0.875rem;">{{ req.upc_codes }}</pre></p>{% endif %}
+        {% elif req.request_type == 'cabinet_wish' %}
+            {% if req.topic_urls %}<p><strong>Пожелание:</strong><br><pre style="white-space: pre-wrap; margin: 0.5rem 0; font-size: 0.875rem;">{{ req.topic_urls }}</pre></p>{% endif %}
+        {% endif %}
+    </div>
+
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <h3 style="margin: 0 0 1rem;">Переписка</h3>
+        {% if messages %}
+        <div class="ticket-messages" style="margin-bottom: 1rem;">
+            {% for m in messages %}
+            <div class="ticket-message-item" style="padding: 0.75rem; margin-bottom: 0.5rem; background: var(--bg-secondary, #f5f5f5); border-radius: 8px; {% if m.is_admin %}border-left: 3px solid var(--primary);{% endif %}">
+                <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                    {% if m.is_admin %}<strong>Поддержка</strong>{% else %}{{ m.author.display_name if m.author else '—' }}{% endif %}
+                    · {{ m.created_at.strftime('%d.%m.%Y %H:%M') }}
+                </div>
+                <div style="white-space: pre-wrap;">{{ m.message }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color: var(--text-secondary); margin: 0 0 1rem;">Сообщений пока нет.</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('tools.auto_form_request_reply', id=req.id) }}" class="auto-form-reply-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="message">Ответить пользователю (уведомление придёт на почту)</label>
+                <textarea name="message" id="message" class="form-control" rows="3" required placeholder="Текст ответа..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить ответ</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3 style="margin: 0 0 0.75rem;">Действия</h3>
+        <form method="post" action="{{ url_for('tools.auto_form_request_status', id=req.id) }}" style="display: inline-block; margin-right: 0.5rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="processed">
+            <button type="submit" class="btn btn-ghost">В обработке</button>
+        </form>
+        <form method="post" action="{{ url_for('tools.auto_form_request_status', id=req.id) }}" style="display: inline-block;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="status" value="closed">
+            <button type="submit" class="btn btn-ghost">Закрыть заявку</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

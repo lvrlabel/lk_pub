@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="{% if link.theme == 'light' %}#eff6ff{% else %}#0f172a{% endif %}">
+    <title>{{ release.title }} | Toolls Music Distribution</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg', v='20260818-redesign1') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/smart-link.css', v='20260726-toolls') }}">
+</head>
+<body class="sl-public theme-{{ link.theme }}">
+    <header class="sl-public__topbar" role="banner">
+        <div class="sl-public__topbar-inner">
+            <svg class="sl-public__logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 52" fill="none" aria-label="Toolls Music Distribution">
+                <title>Toolls Music Distribution</title>
+                <defs>
+                    <linearGradient id="slPubMark" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#22d3ee"/>
+                        <stop offset="100%" stop-color="#0891b2"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(0, 8)">
+                    <rect x="1" y="0" width="36" height="36" rx="10" fill="url(#slPubMark)"/>
+                    <polygon points="14,10.5 14,25.5 27,18" fill="#ffffff" stroke="rgba(0,0,0,0.10)" stroke-width="0.6" stroke-linejoin="round"/>
+                </g>
+                <text class="sl-public__logo-text-toolls" x="48" y="30" font-family="Syne, DM Sans, -apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="700" letter-spacing="0.06em">TOOLLS</text>
+                <text class="sl-public__logo-text-sub" x="48" y="46" font-family="DM Sans, -apple-system, BlinkMacSystemFont, sans-serif" font-size="9.5" font-weight="500" letter-spacing="0.12em">MUSIC DISTRIBUTION</text>
+            </svg>
+            <p class="sl-public__distributed">Distributed by Toolls Music Distribution</p>
+        </div>
+    </header>
+    <div class="sl-public__inner">
+        <div class="sl-public__panel">
+            <div class="sl-public__cover-wrap">
+                <img src="{{ release.cover_url }}" alt="{{ release.title }}" class="sl-public__cover" width="560" height="560" decoding="async" loading="lazy">
+            </div>
+            <h1 class="sl-public__title">{{ release.title }}</h1>
+            <p class="sl-public__artists">{{ release.artists }}</p>
+            <p class="sl-public__cta-label">Слушать</p>
+            <div class="sl-public__platforms">
+                {% for pl in link.get_platform_links_list() %}
+                <a href="{{ url_for('smart_link.track_click', link_code=link.link_code, platform=pl.key) }}" class="sl-public__platform-btn" target="_blank" rel="noopener noreferrer" aria-label="Слушать на {{ pl.name }}">
+                    {{ pl.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

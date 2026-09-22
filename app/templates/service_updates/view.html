@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }}{% endblock %}
+{% block page_title %}{{ item.title }}{% endblock %}
+{% block content %}
+<div class="svc-updates-refine uni-skin">
+    <div class="svc-updates-refine__toolbar">
+        <a href="{{ url_for('service_updates.index') }}" class="btn btn-ghost btn-sm svc-updates-refine__back">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>
+            К списку
+        </a>
+        {% if current_user.is_admin %}
+        <div class="svc-updates-refine__admin-actions">
+            <a href="{{ url_for('service_updates.edit', id=item.id) }}" class="btn btn-primary btn-sm">
+                <span class="material-icons" aria-hidden="true">edit</span>
+                Редактировать
+            </a>
+            <form method="POST" action="{{ url_for('service_updates.delete', id=item.id) }}" class="inline-form"
+                  onsubmit="return confirm('Удалить эту запись?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger btn-ghost btn-sm">
+                    <span class="material-icons" aria-hidden="true">delete</span>
+                    Удалить
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <article class="svc-updates-refine__article">
+        <header class="svc-updates-refine__article-head">
+            <div class="svc-updates-refine__meta">
+                <time datetime="{{ item.created_at.isoformat() }}">{{ item.date_display }}</time>
+                {% if item.is_urgent %}
+                <span class="svc-updates-badge svc-updates-badge--urgent">Срочно</span>
+                {% endif %}
+                <span class="svc-updates-badge">{{ item.source_display }}</span>
+            </div>
+            <h1 class="svc-updates-refine__article-title">{{ item.title }}</h1>
+        </header>
+
+        <div class="svc-updates-refine__article-content">
+            {{ item.content | replace('\n', '<br>') | safe }}
+        </div>
+    </article>
+</div>
+{% endblock %}

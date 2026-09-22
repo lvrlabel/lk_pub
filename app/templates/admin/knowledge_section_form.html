@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}{% if section %}Раздел{% else %}Новый раздел{% endif %} — база знаний{% endblock %}
+{% block page_title %}{% if section %}Редактирование раздела{% else %}Новый раздел{% endif %}{% endblock %}
+{% block content %}
+<div class="uni-skin" style="max-width:720px;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost btn-sm">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>
+            К обзору
+        </a>
+    </div>
+
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;padding:1.5rem;">
+        <form method="POST" action="{% if section %}{{ url_for('admin.knowledge_section_edit', sid=section.id) }}{% else %}{{ url_for('admin.knowledge_section_new') }}{% endif %}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            {# Адрес #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="ks-slug">Адрес в URL (slug)</label>
+                {% if section %}
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <input type="text" id="ks-slug" class="form-input" value="{{ form_slug }}" readonly style="background:var(--bg-tertiary);flex:1;">
+                    <span class="kb-admin-code" style="padding:0.5rem 0.75rem;background:var(--bg-tertiary);border-radius:8px;">/knowledge/{{ form_slug }}</span>
+                </div>
+                <p class="form-hint" style="margin-top:0.35rem;">Сменить адрес нельзя (сломаются ссылки). При необходимости создайте новый раздел.</p>
+                {% else %}
+                <input type="text" name="slug" id="ks-slug" class="form-input" required value="{{ form_slug }}" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="naprimer-dokumenty">
+                <p class="form-hint" style="margin-top:0.35rem;">Только латиница и дефисы. Страница: <code>/knowledge/<span id="ks-slug-hint">{{ form_slug or '…' }}</span></code></p>
+                {% endif %}
+            </div>
+
+            {# Название #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="ks-title">Название раздела</label>
+                <input type="text" name="title" id="ks-title" class="form-input" required maxlength="255" value="{{ form_title }}" placeholder="Например: Документы и договоры">
+            </div>
+
+            {# Описание #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="ks-summary">Краткое описание</label>
+                <textarea name="summary" id="ks-summary" class="form-textarea" rows="2" maxlength="500" placeholder="Отображается на карточке раздела на главной">{{ form_summary }}</textarea>
+            </div>
+
+            {# Иконка и сортировка #}
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;">
+                <div style="flex:2;min-width:180px;">
+                    <label class="form-label" for="ks-icon">Иконка <span class="form-hint" style="display:inline;font-weight:400;">Material Icons</span></label>
+                    <input type="text" name="icon" id="ks-icon" class="form-input" maxlength="64" value="{{ form_icon }}" placeholder="menu_book">
+                </div>
+                <div style="flex:1;min-width:100px;">
+                    <label class="form-label" for="ks-sort">Порядок на главной</label>
+                    <input type="number" name="sort_order" id="ks-sort" class="form-input" style="max-width:120px;" value="{{ form_sort_order }}" min="0">
+                </div>
+            </div>
+
+            {# Запасной шаблон #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="ks-fb">Если нет статей с текстом</label>
+                <select name="static_fallback" id="ks-fb" class="form-select">
+                    {% for val, label in static_fallback_choices %}
+                    <option value="{{ val }}" {% if form_static_fallback == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <p class="form-hint" style="margin-top:0.35rem;">Показывать встроенную страницу-заглушку, если в разделе нет опубликованных статей.</p>
+            </div>
+
+            {# Переключатели #}
+            <div style="display:flex;flex-wrap:wrap;gap:1.25rem;align-items:center;padding:0.75rem 0;margin-bottom:0.5rem;border-top:1px solid var(--border);">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+                    <input type="checkbox" name="is_published" value="on" {% if form_published %}checked{% endif %} style="width:1.1rem;height:1.1rem;accent-color:var(--primary);cursor:pointer;">
+                    <span>Раздел опубликован (виден в базе знаний)</span>
+                </label>
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+                    <input type="checkbox" name="highlight_index" value="on" {% if form_highlight %}checked{% endif %} style="width:1.1rem;height:1.1rem;accent-color:var(--primary);cursor:pointer;">
+                    <span>Крупная карточка на главной</span>
+                </label>
+            </div>
+
+            {# Кнопки #}
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;padding-top:0.5rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons" aria-hidden="true">save</span>
+                    Сохранить
+                </button>
+                <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% if not section %}
+<script>
+(function() {
+    var s = document.getElementById('ks-slug');
+    var h = document.getElementById('ks-slug-hint');
+    if (s && h) s.addEventListener('input', function() { h.textContent = s.value || '…'; });
+})();
+</script>
+{% endif %}
+{% endblock %}

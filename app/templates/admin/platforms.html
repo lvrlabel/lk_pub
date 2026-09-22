@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Платформы{% endblock %}
+{% block page_title %}Платформы распространения{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div style="display:flex;flex-wrap:wrap;gap:0.75rem;align-items:center;margin-bottom:1rem;">
+  <a href="{{ url_for('admin.create_platform') }}" class="btn btn-primary" style="margin:0;"><span class="material-icons">add</span> Добавить платформу</a>
+  <form method="POST" action="{{ url_for('admin.init_platforms') }}" style="display:inline;margin:0;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-ghost">Инициализировать платформы по умолчанию</button>
+  </form>
+</div>
+{% if platforms_by_category %}
+{% for category, plats in platforms_by_category.items() %}
+<div class="uni-list" style="margin-bottom:1rem;">
+  <div class="uni-list__row" style="border-bottom:none;background:var(--bg-tertiary);font-weight:600;">
+    {{ plats[0].category_display if plats else category }}
+  </div>
+  {% for platform in plats %}
+  <div class="uni-list__row">
+    <div class="uni-list__main">
+      <strong>{{ platform.name }}</strong>
+      {% if platform.warning_message %}<span class="material-icons" style="font-size:16px;color:var(--warning);vertical-align:middle;" title="{{ platform.warning_message }}">warning</span>{% endif %}
+      — {% if platform.is_active %}<span class="status-approved">Активна</span>{% else %}<span class="status-rejected">Неактивна</span>{% endif %}
+    </div>
+    <div class="uni-list__actions">
+      <a href="{{ url_for('admin.edit_platform', id=platform.id) }}" class="btn btn-ghost btn-sm">Редактировать</a>
+      <form method="POST" action="{{ url_for('admin.toggle_platform', id=platform.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-ghost btn-sm">{% if platform.is_active %}Деактивировать{% else %}Активировать{% endif %}</button></form>
+      <form method="POST" action="{{ url_for('admin.delete_platform', id=platform.id) }}" onsubmit="return confirm('Удалить?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button></form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% else %}
+<div class="uni-list"><div class="uni-list__row" style="justify-content:center;border:none;"><div class="empty-state small" style="margin:0;"><p>Платформ нет. Нажмите «Инициализировать платформы по умолчанию».</p></div></div></div>
+{% endif %}
+</div>
+{% endblock %}

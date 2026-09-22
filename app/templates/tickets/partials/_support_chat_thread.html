@@ -1,0 +1,37 @@
+{# Expects: ticket, messages #}
+{% set chat_timeline = build_support_chat_timeline(ticket, messages) %}
+
+<div class="manager-chat-messages manager-chat-bubbles support-chat-ui tl-support-chat" data-support-chat-messages>
+    {% for item in chat_timeline %}
+    {% if item.type == 'date' %}
+    <div class="tl-chat-date support-chat-date-chip" role="separator" aria-label="{{ item.label }}">
+        <span>{{ item.label }}</span>
+    </div>
+    {% else %}
+    <div class="manager-chat-bubble-row {% if item.from_me %}is-me{% else %}is-other{% endif %}">
+        {% if not item.from_me %}
+        <div class="manager-chat-bubble-avatar" aria-hidden="true">
+            <span class="material-icons">{% if item.is_admin %}admin_panel_settings{% else %}person{% endif %}</span>
+        </div>
+        {% endif %}
+        <div class="manager-chat-bubble-wrap">
+            <div class="manager-chat-bubble">
+                {% if item.text %}
+                <div class="manager-chat-bubble-text">{{ item.text }}</div>
+                {% endif %}
+                {% if item.msg and item.msg.attachments.count() > 0 %}
+                <div class="manager-chat-bubble-attachments chat-message-attachments">
+                    <ul class="attachments-list">
+                        {% for att in item.msg.attachments %}
+                        {% include 'tickets/partials/_chat_attachment.html' %}
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                <div class="manager-chat-bubble-meta">{{ item.time }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+</div>

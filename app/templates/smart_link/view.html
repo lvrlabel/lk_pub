@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ link.display_name }}{% endblock %}
+{% block page_title %}{{ link.display_name }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/smart-links-v2.css', v='20260721-sl2') }}">
+{% endblock %}
+{% block content %}
+<div class="sl2">
+    <header class="sl2__head">
+        <div class="sl2__head-main">
+            <a href="{{ url_for('smart_link.index') }}" class="sl2__back" aria-label="К списку">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="sl2__title">Смарт-ссылка</h1>
+                <p class="sl2__lead">Ссылка для соцсетей и краткая статистика переходов.</p>
+            </div>
+        </div>
+        <div class="sl2__actions">
+            <a href="{{ url_for('smart_link.public_view', link_code=link.link_code) }}" class="sl2-btn sl2-btn--primary" target="_blank" rel="noopener">
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+                Как видят слушатели
+            </a>
+            <a href="{{ url_for('smart_link.stats', id=link.id) }}" class="sl2-btn">
+                <span class="material-icons" aria-hidden="true">bar_chart</span>
+                Статистика
+            </a>
+        </div>
+    </header>
+
+    <section class="sl2-hero" aria-label="Релиз">
+        <div class="sl2-hero__cover">
+            {% if link.release and link.release.cover %}
+            <img src="{{ link.release.cover_url }}" alt="">
+            {% else %}
+            <div class="sl2-card__cover-ph" style="height:100%"><span class="material-icons" aria-hidden="true">album</span></div>
+            {% endif %}
+        </div>
+        <div>
+            <h2 class="sl2-hero__name">{{ link.display_name }}</h2>
+            <p class="sl2-hero__release">Релиз: {{ link.release.title if link.release else '—' }}{% if link.release and link.release.artists %} · {{ link.release.artists }}{% endif %}</p>
+        </div>
+    </section>
+
+    <div class="sl2-url-box">
+        <code id="slDetailUrl">{{ link.full_url }}</code>
+        <button type="button" class="sl2-btn sl2-btn--sm" onclick="copyToClipboard({{ link.full_url|tojson }})">
+            <span class="material-icons" aria-hidden="true">content_copy</span>
+            Копировать
+        </button>
+    </div>
+
+    <div class="sl2-metrics">
+        <div class="sl2-metric">
+            <p class="sl2-metric__label">Посещений</p>
+            <p class="sl2-metric__value">{{ total_visits }}</p>
+        </div>
+        <div class="sl2-metric">
+            <p class="sl2-metric__label">Кликов</p>
+            <p class="sl2-metric__value">{{ total_clicks }}</p>
+        </div>
+        <div class="sl2-metric">
+            <p class="sl2-metric__label">Тема</p>
+            <p class="sl2-metric__value sl2-metric__value--text">{% if link.theme == 'light' %}Светлая{% else %}Тёмная{% endif %}</p>
+        </div>
+    </div>
+
+    {% if platform_clicks %}
+    <p class="sl2-platforms-line">
+        <strong>По платформам:</strong>
+        {% for pc in platform_clicks %}{{ pc.platform }} — {{ pc.count }}{% if not loop.last %} · {% endif %}{% endfor %}
+    </p>
+    {% endif %}
+
+    <p class="sl2-detail-hint">На публичной странице: обложка, исполнители, кнопки стримингов и подпись Toolls Music Distribution.</p>
+
+    <div class="sl2-detail-actions">
+        <a href="{{ url_for('smart_link.edit', id=link.id) }}" class="sl2-btn sl2-btn--primary">
+            <span class="material-icons" aria-hidden="true">edit</span>
+            Редактировать
+        </a>
+        <a href="{{ url_for('smart_link.index') }}" class="sl2-btn">Ко всем ссылкам</a>
+    </div>
+</div>
+{% endblock %}

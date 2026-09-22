@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+    <title>Часто задаваемые вопросы | Toolls Music Distribution</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg', v='20260818-redesign1') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="faq-page">
+    <div class="faq-page-bg" aria-hidden="true"></div>
+    <div class="faq-wrap">
+        <header class="faq-header">
+            <a href="{{ url_for('auth.login') }}" class="faq-back">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+                Вернуться ко входу
+            </a>
+            <div class="faq-brand">
+                <img src="{{ url_for('static', filename='img/logo.svg', v='20260818-redesign1') }}" alt="Toolls Music Distribution" class="faq-logo" width="160" height="40">
+            </div>
+            <h1 class="faq-title">Часто задаваемые вопросы</h1>
+            <p class="faq-lead">Ответы на типичные вопросы о входе и доступе к личному кабинету</p>
+        </header>
+
+        <main class="faq-main">
+            <section class="faq-block" id="вопрос1" aria-labelledby="q1">
+                <h2 id="q1" class="faq-q"><span class="faq-num">1</span> Забыли пароль?</h2>
+                <p class="faq-a">Если вы забыли пароль, обратитесь в службу поддержки по электронной почте: <a href="mailto:support@toolls-music.ru">support@toolls-music.ru</a>. Либо на официальном сайте, в разделе «Контакты», в форме обратной связи.</p>
+            </section>
+
+            <section class="faq-block" id="вопрос2" aria-labelledby="q2">
+                <h2 id="q2" class="faq-q"><span class="faq-num">2</span> Как войти: логин или эл. почта?</h2>
+                <p class="faq-a">Можно ввести и логин, и адрес электронной почты — оба варианта подходят для входа в личный кабинет.</p>
+            </section>
+
+            <section class="faq-block" id="вопрос3" aria-labelledby="q3">
+                <h2 id="q3" class="faq-q"><span class="faq-num">3</span> Нет аккаунта. Как зарегистрироваться?</h2>
+                <p class="faq-a">Чтобы получить доступ к выкладке релиза, перейдите на официальный сайт лейбла <a href="https://toolls-muisic.ru/" target="_blank" rel="noopener noreferrer">toolls-muisic.ru</a>, выберите тариф. После оплаты свяжитесь с нами по телефону <a href="tel:+74992816548">+7 499 281 65 48</a> или по почте <a href="mailto:support@toolls-music.ru">support@toolls-music.ru</a>.</p>
+            </section>
+        </main>
+
+        <footer class="faq-footer">
+            <a href="{{ url_for('auth.login') }}" class="faq-back faq-back-bottom">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+                Вернуться ко входу
+            </a>
+        </footer>
+    </div>
+</body>
+</html>

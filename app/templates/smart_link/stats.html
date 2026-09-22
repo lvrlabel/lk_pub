@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Статистика: {{ link.display_name }}{% endblock %}
+{% block page_title %}Статистика смарт-ссылки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/smart-links-v2.css', v='20260721-sl2') }}">
+{% endblock %}
+{% block content %}
+<div class="sl2">
+    <header class="sl2__head">
+        <div class="sl2__head-main">
+            <a href="{{ url_for('smart_link.view', id=link.id) }}" class="sl2__back" aria-label="Назад">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="sl2__title">Статистика</h1>
+                <p class="sl2__lead">{{ link.display_name }} — посещения по дням и клики по площадкам.</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="sl2-surface">
+        <h2 class="sl2-section-title">Посещения по дням</h2>
+        {% if visits_by_day %}
+        <div class="sl2-table-wrap">
+            <table class="sl2-table">
+                <thead>
+                    <tr><th>Дата</th><th class="num">Посещений</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in visits_by_day %}
+                    <tr>
+                        <td>{{ row.date }}</td>
+                        <td class="num">{{ row.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="sl2-empty-inline">Пока нет данных о посещениях.</p>
+        {% endif %}
+
+        <h2 class="sl2-section-title sl2-section-title--spaced">Клики по платформам</h2>
+        {% if clicks_by_platform %}
+        <div class="sl2-table-wrap">
+            <table class="sl2-table">
+                <thead>
+                    <tr><th>Платформа</th><th class="num">Кликов</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in clicks_by_platform %}
+                    <tr>
+                        <td>{{ row.platform }}</td>
+                        <td class="num">{{ row.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="sl2-empty-inline">Пока никто не переходил по кнопкам площадок.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

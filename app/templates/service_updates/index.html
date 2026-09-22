@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Обновление сервиса{% endblock %}
+{% block page_title %}Обновление сервиса{% endblock %}
+{% block content %}
+<div class="svc-updates-refine uni-skin">
+    <header class="svc-updates-refine__head">
+        <div class="svc-updates-refine__head-main">
+            <h1 class="svc-updates-refine__title">Обновление сервиса</h1>
+            <p class="svc-updates-refine__subtitle">Важные правки и новые функции личного кабинета</p>
+        </div>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('service_updates.create') }}" class="btn btn-primary svc-updates-refine__add-btn">
+            <span class="material-icons" aria-hidden="true">add</span>
+            Добавить запись
+        </a>
+        {% endif %}
+    </header>
+
+    {% if updates.items %}
+    <div class="svc-updates-refine__list">
+        {% for item in updates.items %}
+        <article class="svc-updates-refine__item{% if item.is_urgent %} svc-updates-refine__item--urgent{% endif %}{% if item.id not in read_ids %} svc-updates-refine__item--unread{% endif %}">
+            <a href="{{ url_for('service_updates.view', id=item.id) }}" class="svc-updates-refine__item-link">
+                <div class="svc-updates-refine__item-body">
+                    <div class="svc-updates-refine__meta">
+                        <time datetime="{{ item.created_at.isoformat() }}">{{ item.date_display }}</time>
+                        {% if item.is_urgent %}
+                        <span class="svc-updates-badge svc-updates-badge--urgent">Срочно</span>
+                        {% endif %}
+                        <span class="svc-updates-badge">{{ item.source_display }}</span>
+                        {% if item.id not in read_ids %}
+                        <span class="svc-updates-badge svc-updates-badge--new">Новое</span>
+                        {% endif %}
+                    </div>
+                    <h2 class="svc-updates-refine__item-title">{{ item.title }}</h2>
+                    <p class="svc-updates-refine__item-excerpt">{{ item.short_content }}</p>
+                </div>
+                <span class="material-icons svc-updates-refine__item-chev" aria-hidden="true">chevron_right</span>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if updates.pages > 1 %}
+    <nav class="svc-updates-refine__pagination pagination-modern" aria-label="Страницы обновлений">
+        {% if updates.has_prev %}
+        <a href="{{ url_for('service_updates.index', page=updates.prev_num) }}" class="pagination-modern-btn pagination-modern-prev" aria-label="Предыдущая страница">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <div class="pagination-modern-pages">
+            {% for p in range(1, updates.pages + 1) %}
+                {% if p == updates.page %}
+                <span class="pagination-modern-page active" aria-current="page">{{ p }}</span>
+                {% else %}
+                <a href="{{ url_for('service_updates.index', page=p) }}" class="pagination-modern-page">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% if updates.has_next %}
+        <a href="{{ url_for('service_updates.index', page=updates.next_num) }}" class="pagination-modern-btn pagination-modern-next" aria-label="Следующая страница">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="svc-updates-refine__empty">
+        <span class="material-icons svc-updates-refine__empty-icon" aria-hidden="true">system_update</span>
+        <h2 class="svc-updates-refine__empty-title">Записей пока нет</h2>
+        <p class="svc-updates-refine__empty-text">Здесь появятся уведомления об обновлениях и правках кабинета</p>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('service_updates.create') }}" class="btn btn-primary">Добавить первую запись</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

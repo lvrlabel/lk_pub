@@ -1,0 +1,15 @@
+{% macro workspace_nav(section) -%}
+<nav class="ws-nav" aria-label="Рабочее пространство">
+    <a href="{{ url_for('workspace.index') }}" class="ws-nav__link {% if section == 'home' %}is-active{% endif %}">Обзор</a>
+    <a href="{{ url_for('workspace.tasks') }}" class="ws-nav__link {% if section == 'tasks' %}is-active{% endif %}">Задачи</a>
+    <a href="{{ url_for('workspace.notes') }}" class="ws-nav__link {% if section == 'notes' %}is-active{% endif %}">Заметки</a>
+    <a href="{{ url_for('workspace.ideas') }}" class="ws-nav__link {% if section == 'ideas' %}is-active{% endif %}">Идеи</a>
+    <a href="{{ url_for('workspace.plans') }}" class="ws-nav__link {% if section == 'plans' %}is-active{% endif %}">Планы</a>
+    <a href="{{ url_for('workspace.calendar') }}" class="ws-nav__link {% if section == 'calendar' %}is-active{% endif %}">Календарь</a>
+    <a href="{{ url_for('workspace.settings') }}" class="ws-nav__link {% if section == 'settings' %}is-active{% endif %}">Блоки</a>
+</nav>
+{%- endmacro %}
+
+{% macro workspace_shell_attrs(theme, with_bg=true) -%}
+class="ws x-ui xui-fade ws--themed"{% if theme %} style="--ws-accent: {{ theme.accent }};{% if with_bg and theme.gradient_css and theme.gradient_css != 'none' %} --ws-bg: {{ theme.gradient_css }};{% endif %}"{% endif %}
+{%- endmacro %}

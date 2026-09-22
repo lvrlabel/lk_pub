@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}{{ user.name }}{% endblock %}
+{% block page_title %}{{ user.name }}{% endblock %}
+{% block content %}
+<div class="uni-skin">
+<div class="dashboard-card" style="margin-bottom:1rem;">
+<div class="card-content">
+<p><strong>Логин:</strong> {{ user.login }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Телефон:</strong>
+    {% if user.phone_display %}
+    <a href="tel:+{{ user.phone }}">{{ user.phone_display }}</a>
+    {% else %}
+    —
+    {% endif %}
+</p>
+<p><strong>Роль:</strong> {{ user.role }}</p>
+<p><strong>Статус:</strong> {% if user.is_active %}Активен{% else %}Заблокирован{% endif %}</p>
+<p><strong>Telegram:</strong>
+    {% if user.telegram_display %}
+    <a href="https://t.me/{{ user.telegram_username }}" target="_blank" rel="noopener noreferrer">{{ user.telegram_display }}</a>
+    {% elif user.telegram_notifications_connected %}
+    <span class="text-secondary">привязан, username не указан</span>
+    {% else %}
+    —
+    {% endif %}
+</p>
+<p><strong>Telegram-уведомления:</strong>
+    {% if user.telegram_notifications_connected %}
+    <span class="status-approved users-page__badge" style="display:inline-flex;">подключены</span>
+    {% else %}
+    <span class="text-secondary">не подключены</span>
+    {% endif %}
+</p>
+{% if not user.is_active and user.block_reason %}
+<p><strong>Причина блокировки (видна пользователю при входе):</strong></p>
+<div class="user-block-reason-box">{{ user.block_reason }}</div>
+{% endif %}
+<p><strong>Релизов:</strong> {{ stats.releases_count }}, одобрено: {{ stats.approved_releases }}</p>
+{% if user.role != 'admin' %}
+<p><strong>Ограничение релизов:</strong>
+    {% if user.releases_restricted %}
+    <span class="text-danger">включено</span>
+    {% if user.releases_restriction_message %}
+    <span class="text-secondary">— пользователь видит уведомление при входе в кабинет</span>
+    {% endif %}
+    {% else %}
+    нет
+    {% endif %}
+</p>
+{% if user.releases_restricted and user.releases_restriction_message %}
+<div class="user-block-reason-box">{{ user.releases_restriction_message }}</div>
+{% endif %}
+{% endif %}
+<p><strong>Тикетов:</strong> {{ stats.tickets_count }}</p>
+{% if not user.is_admin %}
+<p><strong>Бонусный баланс:</strong> {{ user.bonus_balance_display|intcomma }} баллов</p>
+{% endif %}
+</div></div>
+
+{% if not user.is_admin %}
+<div class="dashboard-card" style="margin-bottom:1rem;">
+    <div class="card-content">
+        <p><strong>Подписка:</strong> {{ user.subscription_status_label }}</p>
+        {% if user.subscription_active %}
+        <p><strong>Действует до:</strong> {{ user.subscription_expires_at.strftime('%d.%m.%Y') }}</p>
+        {% elif user.subscription_plan and user.subscription_expires_at %}
+        <p><strong>Статус:</strong> истекла {{ user.subscription_expires_at.strftime('%d.%m.%Y') }}</p>
+        {% else %}
+        <p><strong>Статус:</strong> не оплачена</p>
+        {% endif %}
+        <form method="POST" action="{{ url_for('users.cancel_subscription', id=user.id) }}" onsubmit="return confirm('Отменить подписку и завершить доступ пользователя сейчас?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-ghost btn-sm">Отменить подписку</button>
+        </form>
+    </div>
+</div>
+<div class="dashboard-card profile-bonus-admin" style="margin-bottom:1rem;">
+    <div class="card-header">
+        <h3><span class="material-icons">loyalty</span> Бонусная программа</h3>
+    </div>
+    <div class="card-content">
+        <p class="text-secondary" style="margin-top:0;">Текущий баланс: <strong>{{ user.bonus_balance_display|intcomma }}</strong> бонусов</p>
+
+        <div class="profile-bonus-admin__forms">
+            <form method="POST" action="{{ url_for('users.bonus_adjust', id=user.id) }}" class="profile-bonus-admin__form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="credit">
+                <h4>Начислить</h4>
+                <label class="form-label" for="bonus_credit_amount">Количество баллов</label>
+                <input type="number" id="bonus_credit_amount" name="amount" class="form-control" min="1" step="1" required>
+                <label class="form-label" for="bonus_credit_comment">Комментарий</label>
+                <input type="text" id="bonus_credit_comment" name="comment" class="form-control" maxlength="512" placeholder="Например: бонус за активность">
+                <button type="submit" class="btn btn-primary btn-sm" style="margin-top:0.75rem;">Начислить</button>
+            </form>
+
+            <form method="POST" action="{{ url_for('users.bonus_adjust', id=user.id) }}" class="profile-bonus-admin__form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="debit">
+                <h4>Списать</h4>
+                <label class="form-label" for="bonus_debit_amount">Количество баллов</label>
+                <input type="number" id="bonus_debit_amount" name="amount" class="form-control" min="1" step="1" required>
+                <label class="form-label" for="bonus_debit_service">Услуга (необязательно)</label>
+                <select id="bonus_debit_service" name="service_key" class="form-control">
+                    <option value="">— без привязки к услуге —</option>
+                    {% for key, item in bonus_catalog.items() %}
+                    <option value="{{ key }}">{{ item.title }} ({{ item.cost|intcomma }} бонусов)</option>
+                    {% endfor %}
+                </select>
+                <label class="form-label" for="bonus_debit_comment">Комментарий</label>
+                <input type="text" id="bonus_debit_comment" name="comment" class="form-control" maxlength="512" placeholder="Например: выпуск сингла по бонусам">
+                <button type="submit" class="btn btn-ghost btn-sm" style="margin-top:0.75rem;">Списать</button>
+            </form>
+        </div>
+
+        {% if bonus_history %}
+        <h4 style="margin:1.25rem 0 0.5rem;">История операций</h4>
+        <div class="profile-bonus-history-wrap">
+            <table class="profile-bonus-history">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Операция</th>
+                        <th>Комментарий</th>
+                        <th class="profile-bonus-history__amount-col">Баллы</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in bonus_history %}
+                    <tr>
+                        <td>{{ tx.created_display }}</td>
+                        <td>
+                            {% if tx.is_credit %}Начисление{% else %}Списание{% endif %}
+                            {% if tx.service_key %} · {{ tx.service_title(bonus_catalog) }}{% endif %}
+                        </td>
+                        <td>{{ tx.comment or '—' }}</td>
+                        <td class="profile-bonus-history__amount-col">
+                            <span class="{% if tx.is_credit %}profile-bonus-amount--credit{% else %}profile-bonus-amount--debit{% endif %}">
+                                {{ tx.amount_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<div class="dashboard-card profile-tax-section" style="margin-bottom:1rem;">
+    <div class="card-header"><h3><span class="material-icons">receipt_long</span> Налоговая и платёжная информация</h3></div>
+    <div class="card-content profile-info__grid">
+        <div class="profile-info__row"><span class="profile-info__label">Налоговый статус</span><span class="profile-info__value">{{ user.tax_status_display }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Наименование юр. лица / ИП</span><span class="profile-info__value">{{ user.tax_legal_name or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">ИНН</span><span class="profile-info__value">{{ user.tax_inn or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Расчётный счёт</span><span class="profile-info__value">{{ user.tax_bank_account or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">Банк</span><span class="profile-info__value">{{ user.tax_bank_name or '—' }}</span></div>
+        <div class="profile-info__row"><span class="profile-info__label">БИК</span><span class="profile-info__value">{{ user.tax_bank_bik or '—' }}</span></div>
+    </div>
+</div>
+
+<a href="{{ url_for('users.edit', id=user.id) }}" class="btn btn-primary" style="margin-top:0.5rem;">Редактировать</a>
+{% if user.role != 'admin' %}
+<a href="{{ url_for('admin.user_activity', user_id=user.id) }}" class="btn btn-ghost" style="margin-top:0.5rem;"><span class="material-icons" style="font-size:18px;vertical-align:middle;">history</span> Журнал действий</a>
+{% endif %}
+{% if user.id != current_user.id %}
+{% if user.is_active %}
+<form method="POST" action="{{ url_for('users.toggle_status', id=user.id) }}" class="user-block-form" style="margin-top:1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label for="block_reason" class="user-block-form__label">Причина блокировки <span class="text-secondary">(обязательно, увидит пользователь на экране входа)</span></label>
+    <textarea id="block_reason" name="block_reason" class="user-block-form__textarea" rows="4" required minlength="5" maxlength="2000" placeholder="Кратко укажите причину: например, нарушение правил, задолженность, дубль аккаунта…"></textarea>
+    <button type="submit" class="btn btn-ghost" style="margin-top:0.5rem;">Заблокировать</button>
+</form>
+{% else %}
+<form method="POST" action="{{ url_for('users.toggle_status', id=user.id) }}" style="display:inline; margin-top:1rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-primary">Разблокировать</button>
+</form>
+{% endif %}
+{% endif %}
+<a href="{{ url_for('users.index') }}" class="btn btn-ghost" style="margin-top:1rem;">Назад</a>
+</div>
+{% endblock %}

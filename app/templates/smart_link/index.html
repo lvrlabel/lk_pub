@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Смарт-ссылки{% endblock %}
+{% block page_title %}Смарт-ссылки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/smart-links-v2.css', v='20260721-sl2') }}">
+{% endblock %}
+{% block content %}
+<div class="tl-page tl-smart sl2">
+    <header class="sl2__head">
+        <div>
+            <h1 class="sl2__title">Смарт-ссылки</h1>
+            <p class="sl2__lead">Одна страница с обложкой и кнопками стримингов — делитесь в соцсетях и смотрите переходы.</p>
+        </div>
+        <div class="sl2__actions">
+            <a href="{{ url_for('smart_link.create') }}" class="sl2-btn sl2-btn--primary">
+                <span class="material-icons" aria-hidden="true">add_link</span>
+                Создать
+            </a>
+        </div>
+    </header>
+
+    {% if links %}
+    <div class="sl2-list">
+        {% for link in links %}
+        <article class="sl2-card">
+            <div class="sl2-card__cover">
+                {% if link.release and link.release.cover %}
+                <img src="{{ link.release.cover_url }}" alt="">
+                {% else %}
+                <div class="sl2-card__cover-ph"><span class="material-icons" aria-hidden="true">link</span></div>
+                {% endif %}
+            </div>
+            <div>
+                <h2 class="sl2-card__name">{{ link.display_name }}</h2>
+                <a class="sl2-card__url" href="{{ link.full_url }}" target="_blank" rel="noopener">{{ link.full_url }}</a>
+                <span class="sl2-card__stats">Посещений: {{ link.visits_count }} · Кликов: {{ link.clicks_count }}</span>
+            </div>
+            <div class="sl2-card__actions">
+                <a href="{{ url_for('smart_link.view', id=link.id) }}" class="sl2-btn sl2-btn--sm">Открыть</a>
+                <a href="{{ url_for('smart_link.edit', id=link.id) }}" class="sl2-btn sl2-btn--sm">Изменить</a>
+                <form method="POST" action="{{ url_for('smart_link.delete', id=link.id) }}" onsubmit="return confirm('Удалить эту смарт-ссылку?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="sl2-btn sl2-btn--sm sl2-btn--danger">Удалить</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="sl2-empty">
+        <span class="material-icons" aria-hidden="true">hub</span>
+        <p>Пока нет смарт-ссылок. Создайте первую — выберите одобренный релиз и добавьте ссылки на площадки.</p>
+        <a href="{{ url_for('smart_link.create') }}" class="sl2-btn sl2-btn--primary">
+            <span class="material-icons" aria-hidden="true">add_link</span>
+            Создать смарт-ссылку
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

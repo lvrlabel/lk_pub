@@ -1,0 +1,28 @@
+{% extends "emails/base.html" %}
+{% block email_title %}Релиз не прошёл модерацию · Toolls Music Distribution{% endblock %}
+{% block preheader %}Релиз «{{ release_title }}» требует правок{% endblock %}
+{% block content %}
+<p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Релизы
+</p>
+<p style="margin: 0 0 18px; font-size: 20px; font-weight: 800; line-height: 1.25; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Нужны правки
+</p>
+<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6; color: rgba(243, 239, 230, 0.62); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Здравствуйте{% if artist_name %}, {{ artist_name }}{% endif %}! Релиз <strong style="color: #f3efe6;">«{{ release_title }}»</strong> не прошёл модерацию.
+</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 0 0 18px; background: #1e1b17; border-radius: 12px; border: 1px solid rgba(248, 113, 113, 0.35);">
+    <tr>
+        <td style="padding: 16px 18px;">
+            <p style="margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #f87171; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Комментарий модератора</p>
+            <p style="margin: 0; font-size: 14px; line-height: 1.6; color: rgba(243, 239, 230, 0.82); white-space: pre-wrap; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ rejection_reason }}</p>
+        </td>
+    </tr>
+</table>
+<p style="margin: 0 0 24px; font-size: 14px; line-height: 1.55; color: rgba(243, 239, 230, 0.55); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Внесите правки в кабинете и отправьте релиз на проверку снова.
+</p>
+<p style="margin: 0;">
+    <a href="{{ release_url }}" style="display: inline-block; padding: 13px 26px; background: #c3f000; color: #100f0d !important; text-decoration: none; font-size: 14px; font-weight: 800; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Открыть релиз</a>
+</p>
+{% endblock %}

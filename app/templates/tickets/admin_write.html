@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Написать пользователю{% endblock %}
+{% block page_title %}Обращение от поддержки{% endblock %}
+{% block content %}
+<div class="ticket-form-wrapper">
+    <div class="card ticket-create-card">
+        <div class="card-content">
+            <div class="ticket-form-intro">
+                <span class="material-icons">forward_to_inbox</span>
+                <p>Создаётся обращение от имени поддержки. Пользователь увидит его в разделе «Поддержка» и получит уведомление.</p>
+            </div>
+
+            <form method="POST" class="ticket-form js-submit-loading">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="user_id">
+                        <span class="material-icons">person</span>
+                        Пользователь *
+                    </label>
+                    <select id="user_id" name="user_id" required class="form-control">
+                        <option value="">— Выберите —</option>
+                        {% for u in users_list %}
+                        <option value="{{ u.id }}">{{ u.display_name }} ({{ u.login }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subject">
+                        <span class="material-icons">subject</span>
+                        Тема *
+                    </label>
+                    <input type="text" id="subject" name="subject" required class="form-control" placeholder="Тема обращения">
+                </div>
+                <div class="form-group">
+                    <label for="message">
+                        <span class="material-icons">message</span>
+                        Сообщение *
+                    </label>
+                    <textarea id="message" name="message" required class="form-control" rows="6" placeholder="Текст сообщения пользователю"></textarea>
+                </div>
+                <div class="form-actions">
+                    <a href="{{ url_for('tickets.index') }}" class="btn btn-ghost">Отмена</a>
+                    <button type="submit" class="btn btn-primary" data-loading-text="Отправляем...">
+                        <span class="material-icons">send</span>
+                        Отправить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

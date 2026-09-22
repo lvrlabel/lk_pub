@@ -1,0 +1,178 @@
+/**
+ * Оплата «Рингтоны и видео» — светлый остров внутри тёмного кабинета (виджет ЮKassa).
+ */
+
+.rtv-payment-island {
+    margin: -1.5rem -1.5rem -2rem;
+    padding: 1.5rem 1rem 2rem;
+    min-height: calc(100vh - 4rem);
+    background: #eef1f5;
+}
+
+.rtv-payment-page {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 1.75rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+    color: #0f172a;
+}
+
+.rtv-payment-intro {
+    margin: 0 0 1.5rem;
+    color: #475569;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.rtv-payment-back {
+    margin: 1.5rem 0 0;
+}
+
+.rtv-payment-page .ym-products,
+.rtv-payment-page .ym-customer-info,
+.rtv-payment-page .ym-payment-btn-block {
+    background: transparent !important;
+}
+
+.rtv-payment-page .ym-block-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+.rtv-payment-page .ym-product-description,
+.rtv-payment-page .ym-label-text {
+    color: #334155 !important;
+}
+
+.rtv-payment-page .ym-product-price,
+.rtv-payment-page .ym-price-output {
+    color: #ea580c !important;
+    font-weight: 700 !important;
+}
+
+.rtv-payment-page .ym-input {
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+.rtv-payment-page .ym-input::placeholder {
+    color: #64748b !important;
+}
+
+.rtv-payment-page .ym-btn-pay {
+    background: #22c55e !important;
+    border: 1px solid #16a34a !important;
+    color: #fff !important;
+}
+
+.rtv-payment-page .ym-btn-pay:hover {
+    background: #16a34a !important;
+    color: #fff !important;
+}
+
+.rtv-payment-page .btn-ghost {
+    background: transparent !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+.rtv-payment-page .btn-ghost:hover {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+/* Перебить глобальную тёмную тему кабинета */
+html[data-theme="dark"] .app-container .content .rtv-payment-island {
+    background: #eef1f5 !important;
+    color: #0f172a !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .rtv-payment-page {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .rtv-payment-page :is(
+    p, div, label, h1, h2, h3, h4, h5, h6, strong, b, li, dt, dd
+) {
+    color: #0f172a !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .rtv-payment-page span:not(.ym-product-price):not(.ym-price-output):not(.ym-text-crop) {
+    color: inherit;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .rtv-payment-intro {
+    color: #475569 !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-block-title {
+    color: #0f172a !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-product-description,
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-label-text {
+    color: #334155 !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-product-price,
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-price-output {
+    color: #ea580c !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-input {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-input::placeholder {
+    color: #64748b !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-btn-pay {
+    background: #22c55e !important;
+    border-color: #16a34a !important;
+    color: #ffffff !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-btn-pay span {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .ym-btn-pay:hover {
+    background: #16a34a !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island .btn-ghost {
+    background: transparent !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island a.btn-ghost {
+    color: #475569 !important;
+}
+
+html[data-theme="dark"] .app-container .content .rtv-payment-island a.btn-ghost:hover {
+    color: #0f172a !important;
+    background: #f1f5f9 !important;
+}
+
+@media (max-width: 640px) {
+    .rtv-payment-island {
+        margin: -1rem -1rem -1.5rem;
+        padding: 1rem 0.75rem 1.5rem;
+    }
+
+    .rtv-payment-page {
+        padding: 1.25rem;
+    }
+}

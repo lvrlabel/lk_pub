@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Оформление пространства{% endblock %}
+{% block page_title %}Моё пространство{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-settings ws-settings--wide" id="ws-layout-form" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="order" id="ws-order" value="{{ blocks|map(attribute='id')|join(',') }}">
+
+        <section class="ws-theme-card">
+            <h2 class="ws-theme-card__title">Атмосфера</h2>
+            <p class="ws-theme-card__hint">Акцент один на всех страницах пространства; фон и фото — тоже только здесь</p>
+
+            <div class="ws-theme-grid">
+                <div class="ws-theme-field">
+                    <label for="ws-accent">Акцентный цвет</label>
+                    <div class="ws-accent-row">
+                        <input type="color" id="ws-accent" name="accent" value="{{ theme.accent }}" class="ws-accent-picker">
+                        <span class="ws-accent-hex" id="ws-accent-hex">{{ theme.accent }}</span>
+                    </div>
+                </div>
+
+                <div class="ws-theme-field">
+                    <span class="ws-theme-field__label">Фон</span>
+                    <div class="ws-grad-picks" role="radiogroup" aria-label="Градиент фона">
+                        {% for key, g in gradients.items() %}
+                        <label class="ws-grad-pick {% if theme.gradient == key %}is-on{% endif %}" title="{{ g.label }}">
+                            <input type="radio" name="gradient" value="{{ key }}" {% if theme.gradient == key %}checked{% endif %}>
+                            <span class="ws-grad-pick__swatch" style="background: {% if g.css != 'none' %}{{ g.css }}{% else %}var(--bg-secondary){% endif %}"></span>
+                            <span class="ws-grad-pick__name">{{ g.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="ws-cover-field">
+                <span class="ws-theme-field__label">Своё фото</span>
+                <div class="ws-cover-row">
+                    <div class="ws-cover-preview {% if not theme.cover_url %}is-empty{% endif %}">
+                        {% if theme.cover_url %}
+                        <img src="{{ theme.cover_url }}" alt="Обложка пространства">
+                        {% else %}
+                        <span class="material-icons" aria-hidden="true">image</span>
+                        {% endif %}
+                    </div>
+                    <div class="ws-cover-actions">
+                        <label class="btn btn-ghost btn-sm">
+                            <span class="material-icons">upload</span>
+                            Загрузить
+                            <input type="file" name="cover" accept=".jpg,.jpeg,.png,image/jpeg,image/png" class="ws-file-input">
+                        </label>
+                        {% if theme.cover_url %}
+                        <label class="ws-check-label">
+                            <input type="checkbox" name="clear_cover" value="1"> Убрать фото
+                        </label>
+                        {% endif %}
+                        <p class="ws-theme-card__hint" style="margin:0">JPG или PNG</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ws-theme-card">
+            <h2 class="ws-theme-card__title">Блоки</h2>
+            <p class="ws-theme-card__hint">Включите нужные, перетащите порядок, выберите цвет карточки</p>
+
+            <ul class="ws-settings__list" id="ws-blocks">
+                {% for b in blocks %}
+                <li class="ws-settings__item ws-settings__item--rich" data-id="{{ b.id }}" draggable="true"
+                    style="{% if b.tint_color %}--ws-item-tint: {{ b.tint_color }};{% endif %}">
+                    <span class="material-icons ws-drag" aria-hidden="true">drag_indicator</span>
+                    <label class="ws-settings__toggle">
+                        <input type="checkbox" name="visible" value="{{ b.id }}" {% if b.visible %}checked{% endif %}>
+                        <span>{{ b.title }}</span>
+                    </label>
+                    <div class="ws-tint-picks" title="Цвет блока">
+                        {% for tkey, t in block_tints.items() %}
+                        <label class="ws-tint-pick {% if (b.tint or 'default') == tkey %}is-on{% endif %}" title="{{ t.label }}">
+                            <input type="radio" name="tint_{{ b.id }}" value="{{ tkey }}" {% if (b.tint or 'default') == tkey %}checked{% endif %}>
+                            <span class="ws-tint-pick__dot" style="background: {{ t.color or 'var(--border)' }}"></span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <div class="ws-form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{{ url_for('workspace.index') }}" class="btn btn-ghost">Отмена</a>
+        </div>
+    </form>
+</div>
+<script>
+(function () {
+  var list = document.getElementById('ws-blocks');
+  var orderInput = document.getElementById('ws-order');
+  var accent = document.getElementById('ws-accent');
+  var accentHex = document.getElementById('ws-accent-hex');
+  var shell = document.querySelector('.ws.ws--themed');
+  if (accent && accentHex) {
+    accent.addEventListener('input', function () {
+      accentHex.textContent = accent.value;
+      if (shell) shell.style.setProperty('--ws-accent', accent.value);
+    });
+  }
+  document.querySelectorAll('.ws-grad-pick input').forEach(function (input) {
+    input.addEventListener('change', function () {
+      document.querySelectorAll('.ws-grad-pick').forEach(function (el) { el.classList.remove('is-on'); });
+      input.closest('.ws-grad-pick').classList.add('is-on');
+    });
+  });
+  if (!list || !orderInput) return;
+  var dragEl = null;
+  function syncOrder() {
+    var ids = [].map.call(list.querySelectorAll('[data-id]'), function (el) { return el.getAttribute('data-id'); });
+    orderInput.value = ids.join(',');
+  }
+  list.addEventListener('dragstart', function (e) {
+    dragEl = e.target.closest('[data-id]');
+    if (dragEl) dragEl.classList.add('is-dragging');
+  });
+  list.addEventListener('dragend', function () {
+    if (dragEl) dragEl.classList.remove('is-dragging');
+    dragEl = null;
+    syncOrder();
+  });
+  list.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    var over = e.target.closest('[data-id]');
+    if (!dragEl || !over || over === dragEl) return;
+    var rect = over.getBoundingClientRect();
+    var after = (e.clientY - rect.top) > rect.height / 2;
+    list.insertBefore(dragEl, after ? over.nextSibling : over);
+  });
+  list.addEventListener('change', function (e) {
+    var input = e.target;
+    if (!input.name || input.name.indexOf('tint_') !== 0) return;
+    var item = input.closest('[data-id]');
+    if (!item) return;
+    item.querySelectorAll('.ws-tint-pick').forEach(function (el) { el.classList.remove('is-on'); });
+    input.closest('.ws-tint-pick').classList.add('is-on');
+    var dot = input.closest('.ws-tint-pick').querySelector('.ws-tint-pick__dot');
+    var color = window.getComputedStyle(dot).backgroundColor;
+    if (input.value === 'default') item.style.removeProperty('--ws-item-tint');
+    else item.style.setProperty('--ws-item-tint', color);
+  });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Модерация{% endblock %}
+{% block page_title %}Модерация релизов{% endblock %}
+{% block content %}
+<div class="releases-page releases-redesign mod-list">
+    <header class="rel-head">
+        <div class="rel-head__text">
+            <h1 class="rel-head__title">Модерация</h1>
+            <p class="rel-head__subtitle">Проверка и обработка релизов пользователей</p>
+        </div>
+    </header>
+
+    <div class="rel-toolbar">
+        <nav class="rel-tabs" aria-label="Разделы модерации">
+            <a href="{{ url_for('moderation.index', tab='moderation') }}" class="rel-tab {% if tab == 'moderation' %}is-active{% endif %}">
+                В работе{% if counts.moderation %} ({{ counts.moderation }}){% endif %}
+            </a>
+            <a href="{{ url_for('moderation.index', tab='approved') }}" class="rel-tab {% if tab == 'approved' %}is-active{% endif %}">Одобренные</a>
+            <a href="{{ url_for('moderation.index', tab='rejected') }}" class="rel-tab {% if tab == 'rejected' %}is-active{% endif %}">
+                Отклонённые{% if counts.rejected %} ({{ counts.rejected }}){% endif %}
+            </a>
+            <a href="{{ url_for('moderation.index', tab='revoked') }}" class="rel-tab {% if tab == 'revoked' %}is-active{% endif %}">
+                Отозванные{% if counts.revoked %} ({{ counts.revoked }}){% endif %}
+            </a>
+            <a href="{{ url_for('moderation.index', tab='deletion') }}" class="rel-tab {% if tab == 'deletion' %}is-active{% endif %}">На удалении</a>
+        </nav>
+    </div>
+
+    {% if releases.items %}
+    <div class="rel-list-bar">
+        <span class="rel-list-bar__count">Всего релизов: {{ releases.total }}</span>
+        <span class="rel-list-bar__sort">Сортировать по: <strong>Дата создания</strong></span>
+    </div>
+
+    <div class="rel-list">
+        {% for release in releases.items %}
+        {% set detail_url = url_for('moderation.view', id=release.id) %}
+        {% set show_owner = true %}
+        {% include 'releases/_list_row.html' with context %}
+        {% endfor %}
+    </div>
+
+    {% if releases.pages > 1 %}
+    <nav class="rel-pagination" aria-label="Страницы">
+        {% if releases.has_prev %}
+        <a href="{{ url_for('moderation.index', tab=tab, page=releases.prev_num) }}" class="rel-page-btn" aria-label="Предыдущая страница">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% else %}
+        <span class="rel-page-btn rel-page-btn--disabled" aria-disabled="true"><span class="material-icons">chevron_left</span></span>
+        {% endif %}
+        <span class="rel-page-info">Страница {{ releases.page }} из {{ releases.pages }}</span>
+        {% if releases.has_next %}
+        <a href="{{ url_for('moderation.index', tab=tab, page=releases.next_num) }}" class="rel-page-btn" aria-label="Следующая страница">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% else %}
+        <span class="rel-page-btn rel-page-btn--disabled" aria-disabled="true"><span class="material-icons">chevron_right</span></span>
+        {% endif %}
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="rel-empty">
+        <div class="rel-empty__icon"><span class="material-icons">fact_check</span></div>
+        <h3 class="rel-empty__title">Релизов нет</h3>
+        <p class="rel-empty__text">В этом разделе пока нет релизов для просмотра.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

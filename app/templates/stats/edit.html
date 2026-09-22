@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% block title %}Редактировать аналитику{% endblock %}
+{% block page_title %}Редактирование аналитики{% endblock %}
+{% set ru_months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'] %}
+{% block content %}
+<div class="uni-skin stats-admin-page">
+    <p class="stats-admin-lead">
+        Релиз: <strong>{{ release.title }}</strong>
+        {% if release.upc %}<span class="text-secondary"> · UPC {{ release.upc }}</span>{% endif %}
+    </p>
+
+    <form method="POST" class="stats-admin-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <section class="stats-admin-card" aria-labelledby="stats-admin-edit-period">
+            <h2 id="stats-admin-edit-period" class="stats-admin-card__title">
+                <span class="stats-admin-card__step">1</span>
+                Период
+            </h2>
+            <div class="form-group">
+                <label for="periodType">Тип периода</label>
+                <select name="period_type" class="form-control" id="periodType">
+                    <option value="monthly" {% if period_type == 'monthly' %}selected{% endif %}>Месяц</option>
+                    <option value="weekly" {% if period_type == 'weekly' %}selected{% endif %}>Неделя года (1–52)</option>
+                </select>
+            </div>
+            <div class="form-row stats-admin-period-row">
+                <div class="form-group" id="monthGroup">
+                    <label for="monthSelect">Месяц</label>
+                    <select name="month" class="form-control" id="monthSelect">
+                        {% for m in range(1, 13) %}
+                        <option value="{{ m }}" {% if analytics.month == m %}selected{% endif %}>{{ ru_months[m - 1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group" id="weekGroup" {% if period_type != 'weekly' %}hidden{% endif %}>
+                    <label for="weekInput">Неделя</label>
+                    <input id="weekInput" type="number" name="week" min="1" max="52" class="form-control" value="{{ analytics.week or '' }}" placeholder="1–52">
+                </div>
+                <div class="form-group">
+                    <label for="yearSelect">Год <span class="required">*</span></label>
+                    <select name="year" required class="form-control" id="yearSelect">
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if analytics.year == y %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-admin-card" aria-labelledby="stats-admin-edit-totals">
+            <h2 id="stats-admin-edit-totals" class="stats-admin-card__title">
+                <span class="stats-admin-card__step">2</span>
+                Итоги за период
+            </h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="streamsInput">Стримы (всего)</label>
+                    <input id="streamsInput" type="number" name="streams" value="{{ analytics.streams }}" min="0" class="form-control" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label for="downloadsInput">Скачивания</label>
+                    <input id="downloadsInput" type="number" name="downloads" value="{{ analytics.downloads }}" min="0" class="form-control" inputmode="numeric">
+                </div>
+                <div class="form-group">
+                    <label for="revenueInput">Доход (₽)</label>
+                    <input id="revenueInput" type="number" name="revenue" step="0.01" value="{{ analytics.revenue }}" class="form-control" inputmode="decimal">
+                </div>
+            </div>
+        </section>
+
+        <details class="stats-admin-card stats-admin-details" open>
+            <summary class="stats-admin-details__summary">
+                <span class="stats-admin-details__icon material-icons" aria-hidden="true">layers</span>
+                <span class="stats-admin-details__text">
+                    <strong>Разбивка по площадкам</strong>
+                    <span class="stats-admin-details__sub">Прослушивания, скачивания и доход по каждой площадке</span>
+                </span>
+            </summary>
+            <div class="stats-admin-details__body">
+                <div class="stats-admin-platform-rows">
+                    {% for name in platform_names %}
+                    {% set p = platform_prefill[loop.index0] %}
+                    <div class="stats-admin-platform-row">
+                        <div class="stats-admin-platform-name">{{ name }}</div>
+                        <div class="stats-admin-platform-fields">
+                            <label class="stats-admin-mini-label">
+                                Прослушивания
+                                <input type="number" name="platform_{{ loop.index0 }}_streams" value="{{ p.streams }}" min="0" class="form-control" inputmode="numeric">
+                            </label>
+                            <label class="stats-admin-mini-label">
+                                Скачив.
+                                <input type="number" name="platform_{{ loop.index0 }}_downloads" value="{{ p.downloads }}" min="0" class="form-control" inputmode="numeric">
+                            </label>
+                            <label class="stats-admin-mini-label">
+                                Доход ₽
+                                <input type="number" name="platform_{{ loop.index0 }}_revenue" step="0.01" value="{{ p.revenue }}" class="form-control" inputmode="decimal">
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="stats-admin-extra-platform">
+                    <p class="form-hint"><strong>Другая площадка</strong>:</p>
+                    <div class="form-row stats-admin-period-row">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="platform_extra_name">Название</label>
+                            <input id="platform_extra_name" type="text" name="platform_extra_name" class="form-control" placeholder="Например: Deezer" value="{{ extra_platform.name if extra_platform else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="platform_extra_streams">Прослушивания</label>
+                            <input id="platform_extra_streams" type="number" name="platform_extra_streams" value="{{ extra_platform.streams if extra_platform else 0 }}" min="0" class="form-control" inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label for="platform_extra_downloads">Скачив.</label>
+                            <input id="platform_extra_downloads" type="number" name="platform_extra_downloads" value="{{ extra_platform.downloads if extra_platform else 0 }}" min="0" class="form-control" inputmode="numeric">
+                        </div>
+                        <div class="form-group">
+                            <label for="platform_extra_revenue">Доход ₽</label>
+                            <input id="platform_extra_revenue" type="number" name="platform_extra_revenue" step="0.01" value="{{ extra_platform.revenue if extra_platform else 0 }}" class="form-control" inputmode="decimal">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>
+
+        <div class="stats-admin-actions form-actions">
+            <a href="{{ url_for('stats.view', id=analytics.id) }}" class="btn btn-ghost">Отмена</a>
+            <button type="submit" class="btn btn-primary">
+                <span class="material-icons" aria-hidden="true">save</span>
+                Сохранить
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var periodType = document.getElementById('periodType');
+    var monthGroup = document.getElementById('monthGroup');
+    var weekGroup = document.getElementById('weekGroup');
+    var monthSelect = document.getElementById('monthSelect');
+    function syncPeriodGroups() {
+        if (!periodType || !monthGroup || !weekGroup) return;
+        var monthly = periodType.value === 'monthly';
+        monthGroup.hidden = !monthly;
+        weekGroup.hidden = monthly;
+        if (monthSelect) monthSelect.disabled = !monthly;
+    }
+    if (periodType) {
+        periodType.addEventListener('change', syncPeriodGroups);
+        syncPeriodGroups();
+    }
+})();
+</script>
+{% endblock %}

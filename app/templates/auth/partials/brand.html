@@ -1,0 +1,5 @@
+{% set extra_class = extra_class | default('') %}
+<a href="{{ url_for('auth.login') }}" class="auth-brand{% if extra_class %} {{ extra_class }}{% endif %}" aria-label="Toolls Music Distribution">
+    <img src="{{ url_for('static', filename='img/logo.svg', v='20260818-redesign1') }}" alt="" class="auth-brand__img auth-brand__img--dark" width="160" height="40">
+    <img src="{{ url_for('static', filename='img/logo-light.svg', v='20260818-redesign1') }}" alt="" class="auth-brand__img auth-brand__img--light" width="160" height="40">
+</a>

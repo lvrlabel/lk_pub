@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Заявки на регистрацию{% endblock %}
+{% block page_title %}Заявки на регистрацию{% endblock %}
+{% block content %}
+<div class="filters-bar">
+<a href="{{ url_for('admin.registrations', status='pending') }}" class="btn {% if status=='pending' %}btn-primary{% else %}btn-ghost{% endif %}">На рассмотрении ({{ counts.pending }})</a>
+<a href="{{ url_for('admin.registrations', status='approved') }}" class="btn {% if status=='approved' %}btn-primary{% else %}btn-ghost{% endif %}">Одобрено</a>
+<a href="{{ url_for('admin.registrations', status='rejected') }}" class="btn {% if status=='rejected' %}btn-primary{% else %}btn-ghost{% endif %}">Отклонено</a>
+</div>
+<div class="card"><div class="card-content">
+{% for req in requests %}
+<div style="padding:1rem; border-bottom:1px solid var(--border);">
+<strong>{{ req.artist_name }}</strong> — {{ req.email }} — {{ req.artist_type_display }} — <span class="{{ req.status_class }}">{{ req.status_display }}</span><br>
+<small>{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+{% if req.status == 'pending' %}
+<form method="POST" action="{{ url_for('admin.approve_registration', id=req.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-success btn-sm">Одобрить</button></form>
+<form method="POST" action="{{ url_for('admin.reject_registration', id=req.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="text" name="notes" placeholder="Причина отклонения"><button type="submit" class="btn btn-danger btn-sm">Отклонить</button></form>
+{% endif %}
+</div>
+{% endfor %}
+{% if not requests %}<div class="empty-state small"><p>Заявок нет</p></div>{% endif %}
+</div></div>
+{% endblock %}

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark" data-accent="teal" data-cabinet-skin="refine" class="dark-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#100f0d" id="metaThemeColor">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>{% block title %}Личный кабинет{% endblock %} | Toolls Music Distribution</title>
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('toolls-cabinet-theme');
+            if (t !== 'light' && t !== 'dark') {
+                t = localStorage.getItem('lvr-cabinet-theme');
+            }
+            if (t !== 'light' && t !== 'dark') t = 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+            document.documentElement.classList.toggle('dark-theme', t === 'dark');
+            var meta = document.getElementById('metaThemeColor');
+            if (meta) meta.setAttribute('content', t === 'light' ? '#f2ede1' : '#100f0d');
+        } catch (e) {}
+    })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg', v='20260818-redesign1') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.svg', v='20260818-redesign1') }}">
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v='20260726-toolls1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/uni-skin.css', v='20260726-toolls1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabinet-refine.css', v='20260726-toolls1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabinet-theme.css', v='20260726-toolls1') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabinet-theme-parity.css', v='20260903-ambient-z') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cabinet-responsive.css', v='20260902-mobile') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tl-design-system.css', v='20260903-light') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tl-sections.css', v='20260902-graphite') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tl-burger.css', v='20260903-burger2') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tl-shell.css', v='20260903-shell') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tl-light.css', v='20260903-light2') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <script>
+    (function () {
+        var t = document.documentElement.getAttribute('data-theme') || 'dark';
+        document.body.classList.toggle('dark-theme', t === 'dark');
+    })();
+    </script>
+    <div class="cabinet-ambient" aria-hidden="true">
+        <div class="cabinet-ambient__gradient"></div>
+        <div class="cabinet-ambient__noise"></div>
+    </div>
+    <div class="app-container">
+        <!-- Боковое меню -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('dashboard.index') }}" class="logo">
+                    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 52" fill="none" aria-label="Toolls Music Distribution">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--logo-text)"/>
+                                <stop offset="100%" style="stop-color:var(--logo-subtitle)"/>
+                            </linearGradient>
+                            <linearGradient id="logoAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--logo-accent)"/>
+                                <stop offset="100%" style="stop-color:var(--logo-accent-end)"/>
+                            </linearGradient>
+                        </defs>
+                        <g transform="translate(0, 8)">
+                            <rect x="1" y="0" width="36" height="36" rx="10" fill="url(#logoAccent)"/>
+                            <polygon points="14,10.5 14,25.5 27,18" fill="#ffffff" stroke="rgba(0,0,0,0.10)" stroke-width="0.6" stroke-linejoin="round"/>
+                        </g>
+                        <text x="48" y="30" font-family="Unbounded, Manrope, sans-serif" font-size="20" font-weight="700" letter-spacing="0.5" fill="url(#logoGrad)">TOOLLS</text>
+                        <text x="48" y="46" font-family="Manrope, sans-serif" font-size="9.5" font-weight="600" letter-spacing="1.6" fill="var(--logo-subtitle)">MUSIC DISTRIBUTION</text>
+                    </svg>
+                </a>
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Закрыть меню">
+                    <span class="burger burger--close" aria-hidden="true"><span></span><span></span><span></span></span>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav sidebar-nav--grouped">
+                {% set ep = request.endpoint or '' %}
+                {% set nav_music_open = ep and 'releases' in ep %}
+                {% set rel_nav_status = request.args.get('status', '') if ep == 'releases.index' else none %}
+                {% set nav_marketing_open = ep and ('smart_link' in ep or 'ringtones_video' in ep) %}
+                {% set nav_tools_open = ep in ['tools.index', 'tools.auto_form', 'tools.cover_generator', 'tools.karaoke_ttml'] %}
+                {% set nav_finance_open = ep and (('money' in ep and ep != 'money.approvals') or 'documents' in ep) %}
+                {% set nav_label_open = ep and 'labels' in ep %}
+                {% set nav_support_open = ep and ('tickets' in ep or 'community' in ep) %}
+                {% set nav_more_open = ep and ('knowledge' in ep or 'service_updates' in ep) and not ep.startswith('admin.knowledge_') %}
+                {% set nav_admin_open = current_user.is_authenticated and current_user.is_admin and ep and (
+                    'users' in ep or 'moderation' in ep or ep in ['stats.add', 'stats.listens_daily_add', 'money.approvals']
+                    or ep.startswith('admin.') or ep.startswith('telegram_news.') or ep.startswith('documents.admin')
+                    or ep in ['tools.pitches_admin', 'tools.auto_form_requests_admin', 'tools.video_requests_admin']
+                ) %}
+                {% set mod_count = (sidebar_moderation_count|default(0))|int %}
+
+                <a href="{{ url_for('releases.create') }}" class="btn btn-primary sidebar-btn">
+                    <span class="material-icons">add_box</span>
+                    <span>Новый релиз</span>
+                </a>
+
+                <a href="{{ url_for('dashboard.index') }}" class="nav-item {% if ep == 'dashboard.index' %}active{% endif %}">
+                    <span class="material-icons">dashboard</span>
+                    <span>Обзор</span>
+                </a>
+
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('workspace.index') }}" class="nav-item {% if ep and ep.startswith('workspace.') %}active{% endif %}">
+                    <span class="material-icons">auto_awesome</span>
+                    <span>Моё пространство</span>
+                </a>
+                {% endif %}
+
+                <div class="nav-group{% if nav_music_open %} is-expanded{% endif %}" data-nav-group="music">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_music_open else 'false' }}" aria-controls="nav-group-music">
+                        <span class="material-icons">library_music</span>
+                        <span class="nav-group-label">Ваша музыка</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-music">
+                        <a href="{{ url_for('releases.index') }}" class="nav-item nav-item--sub {% if ep == 'releases.index' and not rel_nav_status %}active{% endif %}">
+                            <span>Релизы</span>
+                        </a>
+                        <a href="{{ url_for('releases.index', status='approved') }}" class="nav-item nav-item--sub {% if rel_nav_status == 'approved' %}active{% endif %}">
+                            <span>Одобрены</span>
+                        </a>
+                        <a href="{{ url_for('releases.index', status='rejected') }}" class="nav-item nav-item--sub {% if rel_nav_status == 'rejected' %}active{% endif %}">
+                            <span>Отклонены</span>
+                        </a>
+                        <a href="{{ url_for('releases.index', status='draft') }}" class="nav-item nav-item--sub {% if rel_nav_status == 'draft' %}active{% endif %}">
+                            <span>Черновик</span>
+                        </a>
+                        <a href="{{ url_for('releases.index', status='deletion') }}" class="nav-item nav-item--sub {% if rel_nav_status == 'deletion' %}active{% endif %}">
+                            <span>На удалении</span>
+                        </a>
+                        <a href="{{ url_for('releases.index', status='deleted') }}" class="nav-item nav-item--sub {% if rel_nav_status == 'deleted' %}active{% endif %}">
+                            <span>Удалены</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('stats.index') }}" class="nav-item {% if ep and 'stats' in ep and ep not in ['stats.add', 'stats.listens_daily_add'] %}active{% endif %}">
+                    <span class="material-icons">show_chart</span>
+                    <span>Аналитика</span>
+                </a>
+
+                <div class="nav-group{% if nav_finance_open %} is-expanded{% endif %}" data-nav-group="finance">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_finance_open else 'false' }}" aria-controls="nav-group-finance">
+                        <span class="material-icons">account_balance_wallet</span>
+                        <span class="nav-group-label">Финансы</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-finance">
+                        <a href="{{ url_for('money.index') }}" class="nav-item nav-item--sub {% if ep and 'money' in ep and ep != 'money.approvals' %}active{% endif %}">
+                            <span>Отчётность</span>
+                        </a>
+                        <a href="{{ url_for('documents.hub_invoices') }}" class="nav-item nav-item--sub {% if ep and 'documents' in ep and not ep.startswith('documents.admin') %}active{% endif %}">
+                            <span>Счета</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-group{% if nav_marketing_open %} is-expanded{% endif %}" data-nav-group="marketing">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_marketing_open else 'false' }}" aria-controls="nav-group-marketing">
+                        <span class="material-icons">local_fire_department</span>
+                        <span class="nav-group-label">Маркетинг</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-marketing">
+                        <a href="{{ url_for('smart_link.index') }}" class="nav-item nav-item--sub {% if ep and 'smart_link' in ep %}active{% endif %}">
+                            <span>Смарт-ссылки</span>
+                        </a>
+                        <a href="{{ url_for('ringtones_video.index') }}" class="nav-item nav-item--sub {% if ep and 'ringtones_video' in ep %}active{% endif %}">
+                            <span>Рингтоны и видео</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-group{% if nav_tools_open %} is-expanded{% endif %}" data-nav-group="tools">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_tools_open else 'false' }}" aria-controls="nav-group-tools">
+                        <span class="material-icons">build</span>
+                        <span class="nav-group-label">Инструменты</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-tools">
+                        <a href="{{ url_for('tools.index') }}" class="nav-item nav-item--sub {% if ep == 'tools.index' %}active{% endif %}">
+                            <span>Питчинг</span>
+                        </a>
+                        <a href="{{ url_for('tools.auto_form') }}" class="nav-item nav-item--sub {% if ep == 'tools.auto_form' %}active{% endif %}">
+                            <span>Автоматическая форма</span>
+                        </a>
+                        <a href="{{ url_for('tools.cover_generator') }}" class="nav-item nav-item--sub {% if ep == 'tools.cover_generator' %}active{% endif %}">
+                            <span class="nav-item__label">Генератор обложек</span>
+                        </a>
+                        <a href="{{ url_for('tools.karaoke_ttml') }}" class="nav-item nav-item--sub {% if ep == 'tools.karaoke_ttml' %}active{% endif %}">
+                            <span class="nav-item__label">Генератор караоке (TTML)</span>
+                            <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                        </a>
+                    </div>
+                </div>
+
+                {% if current_user.is_authenticated and (current_user.is_label or current_user.is_admin) %}
+                <div class="nav-group{% if nav_label_open %} is-expanded{% endif %}" data-nav-group="label">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_label_open else 'false' }}" aria-controls="nav-group-label">
+                        <span class="material-icons">business_center</span>
+                        <span class="nav-group-label">Лейбл</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-label">
+                        <a href="{{ url_for('labels.index') }}" class="nav-item nav-item--sub {% if nav_label_open %}active{% endif %}">
+                            <span>Лейблы</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <a href="{{ url_for('community.stories') }}" class="nav-item {% if ep and 'community' in ep %}active{% endif %}">
+                    <span class="material-icons">auto_stories</span>
+                    <span class="nav-item__label">Сторис артистов</span>
+                    <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                </a>
+
+                <a href="{{ url_for('stories.index') }}" class="nav-item {% if ep and ep.startswith('stories.') and not ep.startswith('community.') %}active{% endif %}">
+                    <span class="material-icons">newspaper</span>
+                    <span>Новости</span>
+                </a>
+
+                <div class="nav-group{% if nav_support_open %} is-expanded{% endif %}" data-nav-group="support">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_support_open else 'false' }}" aria-controls="nav-group-support">
+                        <span class="material-icons">support_agent</span>
+                        <span class="nav-group-label">Поддержка</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-support">
+                        <a href="{{ url_for('tickets.index') }}" class="nav-item nav-item--sub {% if ep in ['tickets.index', 'tickets.view', 'tickets.create', 'tickets.admin_write'] %}active{% endif %}">
+                            <span>Обращения</span>
+                        </a>
+                        {% if manager_chat_enabled|default(false) %}
+                        {% set mcc = (manager_chat_unread_count|default(0))|int %}
+                        <a href="{{ url_for('tickets.manager_chat_index') }}" class="nav-item nav-item--sub {% if ep and 'manager_chat' in ep %}active{% endif %}" {% if mcc > 0 %}title="Новых сообщений: {{ mcc }}"{% endif %}>
+                            <span class="nav-item__label">Чат с менеджером</span>
+                            {% if mcc > 0 %}
+                            <span class="nav-item-count-badge" aria-label="Новых сообщений: {{ mcc }}">{{ '99+' if mcc > 99 else mcc }}</span>
+                            {% endif %}
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('community.chat') }}" class="nav-item nav-item--sub {% if ep == 'community.chat' %}active{% endif %}">
+                            <span class="material-icons" style="font-size:17px;">groups</span>
+                            <span class="nav-item__label">Сообщество</span>
+                            <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                        </a>
+                        <a href="{{ url_for('tickets.tech_outage') }}" class="nav-item nav-item--sub {% if ep == 'tickets.tech_outage' %}active{% endif %}">
+                            <span>Тех. накладки</span>
+                        </a>
+                    </div>
+                </div>
+
+                {% if current_user.is_authenticated and current_user.is_admin %}
+                <div class="nav-group nav-group--admin{% if nav_admin_open %} is-expanded{% endif %}" data-nav-group="admin">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_admin_open else 'false' }}" aria-controls="nav-group-admin">
+                        <span class="material-icons">admin_panel_settings</span>
+                        <span class="nav-group-label">Админ-функции</span>
+                        {% if mod_count > 0 and not nav_admin_open %}
+                        <span class="nav-item-count-badge" aria-label="На модерации: {{ mod_count }}">{{ '99+' if mod_count > 99 else mod_count }}</span>
+                        {% endif %}
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-admin">
+                        <a href="{{ url_for('users.index') }}" class="nav-item nav-item--sub {% if ep and 'users' in ep %}active{% endif %}">
+                            <span>Пользователи</span>
+                        </a>
+                        <a href="{{ url_for('moderation.index') }}" class="nav-item nav-item--sub {% if ep and 'moderation' in ep %}active{% endif %}">
+                            <span>Модерация</span>
+                            {% if mod_count > 0 %}
+                            <span class="nav-item-count-badge" aria-label="На модерации: {{ mod_count }}">{{ '99+' if mod_count > 99 else mod_count }}</span>
+                            {% endif %}
+                        </a>
+                        <a href="{{ url_for('stats.add') }}" class="nav-item nav-item--sub {% if ep == 'stats.add' %}active{% endif %}">
+                            <span>Аналитики — добавить</span>
+                        </a>
+                        {% if has_endpoint is defined and has_endpoint('stats.listens_daily_add') %}
+                        <a href="{{ url_for('stats.listens_daily_add') }}" class="nav-item nav-item--sub {% if ep == 'stats.listens_daily_add' %}active{% endif %}">
+                            <span>Прослушивания за день</span>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('admin.management') }}" class="nav-item nav-item--sub {% if ep == 'admin.management' %}active{% endif %}">
+                            <span>Фирма</span>
+                        </a>
+                        <a href="{{ url_for('admin.user_activity') }}" class="nav-item nav-item--sub {% if ep == 'admin.user_activity' %}active{% endif %}">
+                            <span>Журнал действий</span>
+                        </a>
+                        <a href="{{ url_for('money.approvals') }}" class="nav-item nav-item--sub {% if ep == 'money.approvals' %}active{% endif %}">
+                            <span>Согласование</span>
+                        </a>
+                        <a href="{{ url_for('documents.admin_invoices') }}" class="nav-item nav-item--sub {% if ep and ep.startswith('documents.admin') %}active{% endif %}">
+                            <span>Счета</span>
+                        </a>
+                        <a href="{{ url_for('admin.bd') }}" class="nav-item nav-item--sub {% if ep == 'admin.bd' %}active{% endif %}">
+                            <span>Управление SYS</span>
+                        </a>
+                        <a href="{{ url_for('admin.platforms') }}" class="nav-item nav-item--sub {% if ep and 'admin.platform' in ep %}active{% endif %}">
+                            <span>Платформы</span>
+                        </a>
+                        <a href="{{ url_for('admin.knowledge_list') }}" class="nav-item nav-item--sub {% if ep and ep.startswith('admin.knowledge_') %}active{% endif %}">
+                            <span>База знаний</span>
+                        </a>
+                        <a href="{{ url_for('telegram_news.index') }}" class="nav-item nav-item--sub {% if ep and ep.startswith('telegram_news.') %}active{% endif %}">
+                            <span>TG бот · О ЧП</span>
+                        </a>
+                        <a href="{{ url_for('tools.pitches_admin') }}" class="nav-item nav-item--sub {% if ep == 'tools.pitches_admin' %}active{% endif %}">
+                            <span>Питчинг</span>
+                        </a>
+                        <a href="{{ url_for('tools.auto_form_requests_admin') }}" class="nav-item nav-item--sub {% if ep == 'tools.auto_form_requests_admin' %}active{% endif %}">
+                            <span>Запросы автоформы</span>
+                        </a>
+                        <a href="{{ url_for('tools.video_requests_admin') }}" class="nav-item nav-item--sub {% if ep == 'tools.video_requests_admin' %}active{% endif %}">
+                            <span>Заявки видео</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="nav-group{% if nav_more_open %} is-expanded{% endif %}" data-nav-group="more">
+                    <button type="button" class="nav-group-toggle" aria-expanded="{{ 'true' if nav_more_open else 'false' }}" aria-controls="nav-group-more">
+                        <span class="material-icons">more_horiz</span>
+                        <span class="nav-group-label">Ещё</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-more">
+                        <a href="{{ url_for('knowledge.index') }}" class="nav-item nav-item--sub {% if ep and 'knowledge' in ep %}active{% endif %}">
+                            <span>База знаний</span>
+                        </a>
+                        {% set svc_unread = (service_updates_unread_count|default(0))|int %}
+                        <a href="{{ url_for('service_updates.index') }}" class="nav-item nav-item--sub {% if ep and 'service_updates' in ep %}active{% endif %}" {% if svc_unread > 0 %}title="Новых обновлений: {{ svc_unread }}"{% endif %}>
+                            <span class="nav-item__label">Обновление сервиса</span>
+                            {% if svc_unread > 0 %}
+                            <span class="nav-item-count-badge" aria-label="Новых обновлений: {{ svc_unread }}">{{ '99+' if svc_unread > 99 else svc_unread }}</span>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-footer__copy">© Toolls Music Distribution, 2022 - 2026</div>
+                <div class="sidebar-footer__legal">
+                    <a href="{{ url_for('auth.legal_agreement') }}">Соглашение</a>
+                    <span class="sidebar-footer__dot" aria-hidden="true">·</span>
+                    <a href="{{ url_for('auth.legal_privacy') }}">Политика конфиденциальности</a>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true" title="Закрыть меню"></div>
+        
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Шапка -->
+            <header class="header">
+                <div class="header-left">
+                    <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="sidebar">
+                        <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+                    </button>
+                    <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button type="button" class="header-theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Тема">
+                        <span class="material-icons" id="themeToggleIcon" aria-hidden="true">light_mode</span>
+                    </button>
+                    {% if current_user.is_authenticated %}
+                    <!-- Затемнение под шапкой при открытых уведомлениях (мобилка) -->
+                    <div class="header-notifications-backdrop" id="headerNotifBackdrop" hidden aria-hidden="true"></div>
+                    <!-- Уведомления (выпадающий список) -->
+                    <div class="header-notifications-wrap" id="headerNotificationsWrap" data-unread-count="{{ (unread_notifications_count|default(0))|int }}" data-total-count="{{ (total_notifications_count|default(0))|int }}">
+                        {% set nuc = (unread_notifications_count|default(0))|int %}
+                        {% set tnc = (total_notifications_count|default(0))|int %}
+                        <button type="button" class="header-notifications" id="headerNotifToggle" aria-expanded="false" aria-haspopup="true" aria-controls="headerNotifDropdown" title="{% if nuc %}Непрочитанных: {{ nuc }}{% if tnc %} · всего: {{ tnc }}{% endif %}{% elif tnc %}Уведомлений в архиве: {{ tnc }}{% else %}Уведомлений нет{% endif %}" aria-label="{% if nuc %}Уведомления, непрочитанных {{ nuc }}{% if tnc != nuc %} из {{ tnc }}{% endif %}{% elif tnc %}Уведомления, всего {{ tnc }}, все прочитаны{% else %}Уведомлений нет{% endif %}">
+                            <span class="header-notifications__inner">
+                                <span class="material-icons" aria-hidden="true">notifications</span>
+                                {% if nuc > 0 %}
+                                <span class="notification-badge" aria-hidden="true">{{ '99+' if nuc > 99 else nuc }}</span>
+                                {% elif tnc > 0 %}
+                                <span class="notification-badge notification-badge--archive" aria-hidden="true">{{ '99+' if tnc > 99 else tnc }}</span>
+                                {% endif %}
+                            </span>
+                        </button>
+                        <div class="header-notifications-dropdown" id="headerNotifDropdown" hidden role="menu">
+                            <div class="header-notifications-dropdown__head">
+                                <span class="header-notifications-dropdown__title">Уведомления{% if tnc %} <span class="header-notifications-dropdown__counts" id="headerNotifCounts">({{ tnc }}{% if nuc %} · {{ nuc }} непрочит.{% endif %})</span>{% endif %}</span>
+                                <div class="header-notifications-dropdown__head-actions">
+                                    {% if nuc > 0 %}
+                                    <form id="headerNotifMarkAllForm" method="post" action="{{ url_for('notifications.mark_all_read') }}" class="header-notif-mark-all-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="header-notifications-mark-read" id="headerNotifMarkAllBtn">Прочитано</button>
+                                    </form>
+                                    {% endif %}
+                                    <a href="{{ url_for('notifications.index') }}" class="header-notifications-dropdown__all">Все</a>
+                                    <button type="button" class="header-notifications-dropdown__close" id="headerNotifClose" aria-label="Закрыть список уведомлений">
+                                        <span class="material-icons" aria-hidden="true">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="header-notifications-dropdown__list">
+                                {% if header_notifications %}
+                                {% for n in header_notifications %}
+                                <a href="{% if n.release_id %}{{ url_for('releases.view', id=n.release_id) }}{% elif n.ticket_id %}{{ url_for('tickets.view', id=n.ticket_id) }}{% else %}{{ url_for('notifications.index') }}{% endif %}" class="header-notif-item {% if not n.is_read %}is-unread{% endif %} header-notif-item--{{ n.kind }}">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">{{ n.title }}</span>
+                                        {% if n.message %}<span class="header-notif-item__msg">{{ n.message }}</span>{% endif %}
+                                        <span class="header-notif-item__time">{{ n.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                                    </span>
+                                </a>
+                                {% endfor %}
+                                {% else %}
+                                <div class="header-notifications-dropdown__empty">Нет уведомлений</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Пользователь -->
+                    <div class="user-menu">
+                        <a href="{{ url_for('profile.index') }}" class="user-info">
+                            <img src="{{ current_user.avatar_url }}" alt="Avatar" class="user-avatar">
+                            <span class="user-name">{{ current_user.display_name }}</span>
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm" title="Выйти">
+                            <span class="material-icons">logout</span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-sm">Вход</a>
+                    {% endif %}
+                </div>
+            </header>
+            
+            <!-- Flash сообщения -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <span class="material-icons">
+                            {% if category == 'success' %}check_circle
+                            {% elif category == 'error' %}error
+                            {% elif category == 'warning' %}warning
+                            {% else %}info{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                        <button class="flash-close" onclick="this.parentElement.remove()">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Контент страницы -->
+            <div class="content {% block content_class %}{% endblock %}">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    {% if user_popups %}
+    {% include '_user_popup_modal.html' %}
+    {% endif %}
+
+    <!-- Скрипты -->
+    <script src="{{ url_for('static', filename='js/app.js', v='20260902-mobile') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

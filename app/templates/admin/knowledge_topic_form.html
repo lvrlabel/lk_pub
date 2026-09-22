@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{% if topic %}Подраздел{% else %}Новый подраздел{% endif %} — база знаний{% endblock %}
+{% block page_title %}{% if topic %}Подраздел{% else %}Новый подраздел{% endif %}{% endblock %}
+{% block content %}
+<div class="uni-skin" style="max-width:640px;">
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+        <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost btn-sm">
+            <span class="material-icons" aria-hidden="true">arrow_back</span>
+            К обзору
+        </a>
+    </div>
+
+    <div style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:14px;padding:1.5rem;">
+        {# Информация о родительском разделе #}
+        <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 0.85rem;background:var(--bg-tertiary);border-radius:10px;margin-bottom:1.25rem;">
+            <span class="material-icons" style="font-size:1.15rem;color:var(--text-tertiary);" aria-hidden="true">folder</span>
+            <span style="font-size:0.875rem;color:var(--text-secondary);">Раздел:</span>
+            <strong style="font-size:0.9rem;">{{ section.title }}</strong>
+            <code style="font-size:0.78rem;color:var(--text-tertiary);margin-left:auto;">/knowledge/{{ section.slug }}</code>
+        </div>
+
+        <form method="POST" action="{% if topic %}{{ url_for('admin.knowledge_topic_edit', tid=topic.id) }}{% else %}{{ url_for('admin.knowledge_topic_new', sid=section.id) }}{% endif %}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            {# Адрес #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="kt-slug">Адрес вкладки (slug)</label>
+                <input type="text" name="slug" id="kt-slug" class="form-input" required value="{{ form_slug }}" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="otchety">
+                <p class="form-hint" style="margin-top:0.35rem;">В URL: <code>?topic=<span id="kt-slug-hint">{{ form_slug or '…' }}</span></code>. Нельзя использовать адрес <code>_other</code>.</p>
+            </div>
+
+            {# Название #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="kt-title">Название на вкладке</label>
+                <input type="text" name="title" id="kt-title" class="form-input" required maxlength="255" value="{{ form_title }}" placeholder="Например: Отчёты">
+            </div>
+
+            {# Сортировка #}
+            <div style="margin-bottom:1.25rem;">
+                <label class="form-label" for="kt-sort">Порядок вкладок</label>
+                <input type="number" name="sort_order" id="kt-sort" class="form-input" style="max-width:120px;" value="{{ form_sort_order }}" min="0">
+            </div>
+
+            {# Переключатель #}
+            <div style="padding:0.75rem 0;border-top:1px solid var(--border);margin-bottom:0.5rem;">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.9rem;">
+                    <input type="checkbox" name="is_published" value="on" {% if form_published %}checked{% endif %} style="width:1.1rem;height:1.1rem;accent-color:var(--primary);cursor:pointer;">
+                    <span>Подраздел опубликован (вкладка видна посетителям)</span>
+                </label>
+            </div>
+
+            {# Кнопки #}
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;padding-top:0.5rem;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons" aria-hidden="true">save</span>
+                    Сохранить
+                </button>
+                <a href="{{ url_for('admin.knowledge_list') }}" class="btn btn-ghost">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+(function() {
+    var s = document.getElementById('kt-slug');
+    var h = document.getElementById('kt-slug-hint');
+    if (s && h) s.addEventListener('input', function() { h.textContent = s.value || '…'; });
+})();
+</script>
+{% endblock %}

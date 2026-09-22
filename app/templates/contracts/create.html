@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Новый договор{% endblock %}
+{% block page_title %}Создание договора{% endblock %}
+{% block content %}
+<form method="POST" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Название *</label><input type="text" name="title" required class="form-control"></div>
+<div class="form-group"><label>Пользователь *</label><select name="user_id" required class="form-control">{% for u in users %}<option value="{{ u.id }}">{{ u.name }}</option>{% endfor %}</select></div>
+<div class="form-group"><label>Срок подписания</label><input type="date" name="sign_deadline" class="form-control"></div>
+<div class="form-group"><label>PDF файл *</label><input type="file" name="file" accept=".pdf" required class="form-control"></div>
+<div class="form-actions"><a href="{{ url_for('contracts.index') }}" class="btn btn-ghost">Отмена</a><button type="submit" class="btn btn-primary">Создать</button></div>
+</form>
+<form method="POST" action="{{ url_for('contracts.create_electronic') }}" style="margin-top:1rem;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="form-group"><label>Или создать электронный договор *</label><select name="user_id" required class="form-control">{% for u in users %}<option value="{{ u.id }}">{{ u.name }} — {{ u.email }}</option>{% endfor %}</select></div>
+<button type="submit" class="btn btn-primary"><span class="material-icons">auto_awesome</span> Создать автоматически</button>
+</form>
+{% endblock %}

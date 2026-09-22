@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark" data-accent="teal" data-cabinet-skin="refine" class="dark-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
+    <meta name="theme-color" content="#100f0d" id="metaThemeColor">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Сторис артистов | Toolls Music Distribution</title>
+    <script>
+    (function () {
+        try {
+            var t = localStorage.getItem('toolls-cabinet-theme');
+            if (t !== 'light' && t !== 'dark') {
+                t = localStorage.getItem('lvr-cabinet-theme');
+            }
+            if (t !== 'light' && t !== 'dark') t = 'dark';
+            document.documentElement.setAttribute('data-theme', t);
+            document.documentElement.classList.toggle('dark-theme', t === 'dark');
+            var meta = document.getElementById('metaThemeColor');
+            if (meta) meta.setAttribute('content', t === 'light' ? '#f2ede1' : '#100f0d');
+        } catch (e) {}
+    })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="http://127.0.0.1:5000/static/img/favicon.svg?v=20260818-redesign1">
+    <link rel="apple-touch-icon" href="http://127.0.0.1:5000/static/img/favicon.svg?v=20260818-redesign1">
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/style.css?v=20260726-toolls1">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/uni-skin.css?v=20260726-toolls1">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/cabinet-refine.css?v=20260726-toolls1">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/cabinet-theme.css?v=20260726-toolls1">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/cabinet-theme-parity.css?v=20260903-ambient-z">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/cabinet-responsive.css?v=20260902-mobile">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/tl-design-system.css?v=20260903-light">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/tl-sections.css?v=20260902-graphite">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/tl-burger.css?v=20260903-burger2">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/tl-shell.css?v=20260903-shell">
+    <link rel="stylesheet" href="http://127.0.0.1:5000/static/css/tl-light.css?v=20260903-light2">
+
+    
+<link rel="stylesheet" href="http://127.0.0.1:5000/static/css/community.css?v=20260914-community1">
+
+</head>
+<body class="">
+    <script>
+    (function () {
+        var t = document.documentElement.getAttribute('data-theme') || 'dark';
+        document.body.classList.toggle('dark-theme', t === 'dark');
+    })();
+    </script>
+    <div class="cabinet-ambient" aria-hidden="true">
+        <div class="cabinet-ambient__gradient"></div>
+        <div class="cabinet-ambient__noise"></div>
+    </div>
+    <div class="app-container">
+        <!-- Боковое меню -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="/dashboard" class="logo">
+                    <svg class="logo-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 52" fill="none" aria-label="Toolls Music Distribution">
+                        <defs>
+                            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--logo-text)"/>
+                                <stop offset="100%" style="stop-color:var(--logo-subtitle)"/>
+                            </linearGradient>
+                            <linearGradient id="logoAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:var(--logo-accent)"/>
+                                <stop offset="100%" style="stop-color:var(--logo-accent-end)"/>
+                            </linearGradient>
+                        </defs>
+                        <g transform="translate(0, 8)">
+                            <rect x="1" y="0" width="36" height="36" rx="10" fill="url(#logoAccent)"/>
+                            <polygon points="14,10.5 14,25.5 27,18" fill="#ffffff" stroke="rgba(0,0,0,0.10)" stroke-width="0.6" stroke-linejoin="round"/>
+                        </g>
+                        <text x="48" y="30" font-family="Unbounded, Manrope, sans-serif" font-size="20" font-weight="700" letter-spacing="0.5" fill="url(#logoGrad)">TOOLLS</text>
+                        <text x="48" y="46" font-family="Manrope, sans-serif" font-size="9.5" font-weight="600" letter-spacing="1.6" fill="var(--logo-subtitle)">MUSIC DISTRIBUTION</text>
+                    </svg>
+                </a>
+                <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="Закрыть меню">
+                    <span class="burger burger--close" aria-hidden="true"><span></span><span></span><span></span></span>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav sidebar-nav--grouped">
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+
+                <a href="/releases/create" class="btn btn-primary sidebar-btn">
+                    <span class="material-icons">add_box</span>
+                    <span>Новый релиз</span>
+                </a>
+
+                <a href="/dashboard" class="nav-item ">
+                    <span class="material-icons">dashboard</span>
+                    <span>Обзор</span>
+                </a>
+
+                
+                <a href="/workspace" class="nav-item ">
+                    <span class="material-icons">auto_awesome</span>
+                    <span>Моё пространство</span>
+                </a>
+                
+
+                <div class="nav-group" data-nav-group="music">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-music">
+                        <span class="material-icons">library_music</span>
+                        <span class="nav-group-label">Ваша музыка</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-music">
+                        <a href="/releases" class="nav-item nav-item--sub ">
+                            <span>Релизы</span>
+                        </a>
+                        <a href="/releases?status=approved" class="nav-item nav-item--sub ">
+                            <span>Одобрены</span>
+                        </a>
+                        <a href="/releases?status=rejected" class="nav-item nav-item--sub ">
+                            <span>Отклонены</span>
+                        </a>
+                        <a href="/releases?status=draft" class="nav-item nav-item--sub ">
+                            <span>Черновик</span>
+                        </a>
+                        <a href="/releases?status=deletion" class="nav-item nav-item--sub ">
+                            <span>На удалении</span>
+                        </a>
+                        <a href="/releases?status=deleted" class="nav-item nav-item--sub ">
+                            <span>Удалены</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="/stats" class="nav-item ">
+                    <span class="material-icons">show_chart</span>
+                    <span>Аналитика</span>
+                </a>
+
+                <div class="nav-group" data-nav-group="finance">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-finance">
+                        <span class="material-icons">account_balance_wallet</span>
+                        <span class="nav-group-label">Финансы</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-finance">
+                        <a href="/money" class="nav-item nav-item--sub ">
+                            <span>Отчётность</span>
+                        </a>
+                        <a href="/documents/invoices" class="nav-item nav-item--sub ">
+                            <span>Счета</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-group" data-nav-group="marketing">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-marketing">
+                        <span class="material-icons">local_fire_department</span>
+                        <span class="nav-group-label">Маркетинг</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-marketing">
+                        <a href="/smart-links" class="nav-item nav-item--sub ">
+                            <span>Смарт-ссылки</span>
+                        </a>
+                        <a href="/marketing/ringtones-video" class="nav-item nav-item--sub ">
+                            <span>Рингтоны и видео</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-group" data-nav-group="tools">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-tools">
+                        <span class="material-icons">build</span>
+                        <span class="nav-group-label">Инструменты</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-tools">
+                        <a href="/tools" class="nav-item nav-item--sub ">
+                            <span>Питчинг</span>
+                        </a>
+                        <a href="/tools/auto-form" class="nav-item nav-item--sub ">
+                            <span>Автоматическая форма</span>
+                        </a>
+                        <a href="/tools/cover-generator" class="nav-item nav-item--sub ">
+                            <span class="nav-item__label">Генератор обложек</span>
+                        </a>
+                        <a href="/tools/karaoke-ttml" class="nav-item nav-item--sub ">
+                            <span class="nav-item__label">Генератор караоке (TTML)</span>
+                            <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                        </a>
+                    </div>
+                </div>
+
+                
+                <div class="nav-group" data-nav-group="label">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-label">
+                        <span class="material-icons">business_center</span>
+                        <span class="nav-group-label">Лейбл</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-label">
+                        <a href="/labels" class="nav-item nav-item--sub ">
+                            <span>Лейблы</span>
+                        </a>
+                    </div>
+                </div>
+                
+
+                <a href="/community/stories" class="nav-item active">
+                    <span class="material-icons">auto_stories</span>
+                    <span class="nav-item__label">Сторис артистов</span>
+                    <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                </a>
+
+                <a href="/stories" class="nav-item active">
+                    <span class="material-icons">newspaper</span>
+                    <span>Новости</span>
+                </a>
+
+                <div class="nav-group is-expanded" data-nav-group="support">
+                    <button type="button" class="nav-group-toggle" aria-expanded="true" aria-controls="nav-group-support">
+                        <span class="material-icons">support_agent</span>
+                        <span class="nav-group-label">Поддержка</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-support">
+                        <a href="/tickets" class="nav-item nav-item--sub ">
+                            <span>Обращения</span>
+                        </a>
+                        
+                        
+                        <a href="/manager-chat" class="nav-item nav-item--sub " >
+                            <span class="nav-item__label">Чат с менеджером</span>
+                            
+                        </a>
+                        
+                        <a href="/community" class="nav-item nav-item--sub ">
+                            <span class="material-icons" style="font-size:17px;">groups</span>
+                            <span class="nav-item__label">Сообщество</span>
+                            <span class="nav-item-new-badge" aria-label="Новый раздел">New</span>
+                        </a>
+                        <a href="/tickets/tech-outage" class="nav-item nav-item--sub ">
+                            <span>Тех. накладки</span>
+                        </a>
+                    </div>
+                </div>
+
+                
+                <div class="nav-group nav-group--admin" data-nav-group="admin">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-admin">
+                        <span class="material-icons">admin_panel_settings</span>
+                        <span class="nav-group-label">Админ-функции</span>
+                        
+                        <span class="nav-item-count-badge" aria-label="На модерации: 1">1</span>
+                        
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-admin">
+                        <a href="/users" class="nav-item nav-item--sub ">
+                            <span>Пользователи</span>
+                        </a>
+                        <a href="/moderation" class="nav-item nav-item--sub ">
+                            <span>Модерация</span>
+                            
+                            <span class="nav-item-count-badge" aria-label="На модерации: 1">1</span>
+                            
+                        </a>
+                        <a href="/stats/add" class="nav-item nav-item--sub ">
+                            <span>Аналитики — добавить</span>
+                        </a>
+                        
+                        <a href="/stats/listens-daily" class="nav-item nav-item--sub ">
+                            <span>Прослушивания за день</span>
+                        </a>
+                        
+                        <a href="/management" class="nav-item nav-item--sub ">
+                            <span>Фирма</span>
+                        </a>
+                        <a href="/admin/user-activity" class="nav-item nav-item--sub ">
+                            <span>Журнал действий</span>
+                        </a>
+                        <a href="/finance_approvals" class="nav-item nav-item--sub ">
+                            <span>Согласование</span>
+                        </a>
+                        <a href="/documents/admin/invoices" class="nav-item nav-item--sub ">
+                            <span>Счета</span>
+                        </a>
+                        <a href="/bd" class="nav-item nav-item--sub ">
+                            <span>Управление SYS</span>
+                        </a>
+                        <a href="/admin/platforms" class="nav-item nav-item--sub ">
+                            <span>Платформы</span>
+                        </a>
+                        <a href="/admin/knowledge" class="nav-item nav-item--sub ">
+                            <span>База знаний</span>
+                        </a>
+                        <a href="/admin/telegram-news" class="nav-item nav-item--sub ">
+                            <span>TG бот · О ЧП</span>
+                        </a>
+                        <a href="/tools/admin" class="nav-item nav-item--sub ">
+                            <span>Питчинг</span>
+                        </a>
+                        <a href="/tools/admin/requests" class="nav-item nav-item--sub ">
+                            <span>Запросы автоформы</span>
+                        </a>
+                        <a href="/tools/admin/video-requests" class="nav-item nav-item--sub ">
+                            <span>Заявки видео</span>
+                        </a>
+                    </div>
+                </div>
+                
+
+                <div class="nav-group" data-nav-group="more">
+                    <button type="button" class="nav-group-toggle" aria-expanded="false" aria-controls="nav-group-more">
+                        <span class="material-icons">more_horiz</span>
+                        <span class="nav-group-label">Ещё</span>
+                        <span class="material-icons nav-group-chevron" aria-hidden="true">chevron_right</span>
+                    </button>
+                    <div class="nav-group-items" id="nav-group-more">
+                        <a href="/knowledge" class="nav-item nav-item--sub ">
+                            <span>База знаний</span>
+                        </a>
+                        
+                        <a href="/service-updates" class="nav-item nav-item--sub " title="Новых обновлений: 15">
+                            <span class="nav-item__label">Обновление сервиса</span>
+                            
+                            <span class="nav-item-count-badge" aria-label="Новых обновлений: 15">15</span>
+                            
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-footer__copy">© Toolls Music Distribution, 2022 - 2026</div>
+                <div class="sidebar-footer__legal">
+                    <a href="/legal/agreement">Соглашение</a>
+                    <span class="sidebar-footer__dot" aria-hidden="true">·</span>
+                    <a href="/legal/privacy">Политика конфиденциальности</a>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true" title="Закрыть меню"></div>
+        
+        <!-- Основной контент -->
+        <main class="main-content">
+            <!-- Шапка -->
+            <header class="header">
+                <div class="header-left">
+                    <button type="button" class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Открыть меню" aria-expanded="false" aria-controls="sidebar">
+                        <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+                    </button>
+                    <h1 class="page-title">Сторис артистов</h1>
+                </div>
+                
+                <div class="header-right">
+                    <button type="button" class="header-theme-toggle" id="themeToggle" aria-label="Переключить тему" title="Тема">
+                        <span class="material-icons" id="themeToggleIcon" aria-hidden="true">light_mode</span>
+                    </button>
+                    
+                    <!-- Затемнение под шапкой при открытых уведомлениях (мобилка) -->
+                    <div class="header-notifications-backdrop" id="headerNotifBackdrop" hidden aria-hidden="true"></div>
+                    <!-- Уведомления (выпадающий список) -->
+                    <div class="header-notifications-wrap" id="headerNotificationsWrap" data-unread-count="0" data-total-count="5">
+                        
+                        
+                        <button type="button" class="header-notifications" id="headerNotifToggle" aria-expanded="false" aria-haspopup="true" aria-controls="headerNotifDropdown" title="Уведомлений в архиве: 5" aria-label="Уведомления, всего 5, все прочитаны">
+                            <span class="header-notifications__inner">
+                                <span class="material-icons" aria-hidden="true">notifications</span>
+                                
+                                <span class="notification-badge notification-badge--archive" aria-hidden="true">5</span>
+                                
+                            </span>
+                        </button>
+                        <div class="header-notifications-dropdown" id="headerNotifDropdown" hidden role="menu">
+                            <div class="header-notifications-dropdown__head">
+                                <span class="header-notifications-dropdown__title">Уведомления <span class="header-notifications-dropdown__counts" id="headerNotifCounts">(5)</span></span>
+                                <div class="header-notifications-dropdown__head-actions">
+                                    
+                                    <a href="/notifications" class="header-notifications-dropdown__all">Все</a>
+                                    <button type="button" class="header-notifications-dropdown__close" id="headerNotifClose" aria-label="Закрыть список уведомлений">
+                                        <span class="material-icons" aria-hidden="true">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="header-notifications-dropdown__list">
+                                
+                                
+                                <a href="/tickets/16" class="header-notif-item  header-notif-item--ticket_closed">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">Тикет закрыт</span>
+                                        <span class="header-notif-item__msg">Тикет «ЛС 887729207» закрыт.</span>
+                                        <span class="header-notif-item__time">13.09.2026 22:09</span>
+                                    </span>
+                                </a>
+                                
+                                <a href="/tickets/16" class="header-notif-item  header-notif-item--ticket_created">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">Тикет создан</span>
+                                        <span class="header-notif-item__msg">Ваш тикет «ЛС 887729207» успешно создан.</span>
+                                        <span class="header-notif-item__time">13.09.2026 21:33</span>
+                                    </span>
+                                </a>
+                                
+                                <a href="/tickets/9" class="header-notif-item  header-notif-item--ticket_closed">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">Тикет закрыт</span>
+                                        <span class="header-notif-item__msg">Тикет «тест» закрыт.</span>
+                                        <span class="header-notif-item__time">10.08.2026 16:29</span>
+                                    </span>
+                                </a>
+                                
+                                <a href="/tickets/9" class="header-notif-item  header-notif-item--ticket_reply">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">Новый ответ в тикете</span>
+                                        <span class="header-notif-item__msg">В тикете «тест» новый ответ.</span>
+                                        <span class="header-notif-item__time">10.08.2026 16:27</span>
+                                    </span>
+                                </a>
+                                
+                                <a href="/tickets/9" class="header-notif-item  header-notif-item--ticket_created">
+                                    <span class="header-notif-item__dot" aria-hidden="true"></span>
+                                    <span class="header-notif-item__body">
+                                        <span class="header-notif-item__title">Тикет создан</span>
+                                        <span class="header-notif-item__msg">Ваш тикет «тест» успешно создан.</span>
+                                        <span class="header-notif-item__time">10.08.2026 16:26</span>
+                                    </span>
+                                </a>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Пользователь -->
+                    <div class="user-menu">
+                        <a href="/profile" class="user-info">
+                            <img src="http://127.0.0.1:5000/static/img/default-avatar.png" alt="Avatar" class="user-avatar">
+                            <span class="user-name">Администратор</span>
+                        </a>
+                        <a href="/logout" class="btn btn-ghost btn-sm" title="Выйти">
+                            <span class="material-icons">logout</span>
+                        </a>
+                    </div>
+                    
+                </div>
+            </header>
+            
+            <!-- Flash сообщения -->
+            
+                
+            
+            
+            <!-- Контент страницы -->
+            <div class="content ">
+                
+<div class="cm-page cm-stories-page uni-skin">
+    <header class="cm-hero">
+        <div class="cm-hero-content">
+            <h1 class="cm-hero-title">Сторис артистов</h1>
+            <p class="cm-hero-subtitle">Моменты из жизни артистов Toolls: за кулисами, новые релизы, превью треков. Сторис живёт 24 часа.</p>
+        </div>
+        <a href="/community" class="btn btn-ghost cm-hero-stories-btn">
+            <span class="material-icons">forum</span> Чат сообщества
+        </a>
+    </header>
+
+    <!-- Форма создания -->
+    <section class="cm-story-create">
+        <div class="cm-story-create__head">
+            <div class="cm-story-create__title">
+                <span class="material-icons">add_a_photo</span>
+                <div>
+                    <h2>Новая сторис</h2>
+                    <p>Осталось сегодня: 5 из 5</p>
+                </div>
+            </div>
+        </div>
+        <form method="post" action="/community/stories/create" enctype="multipart/form-data" class="cm-story-create__form">
+            <input type="hidden" name="csrf_token" value="Ijc1YTFiODcxODU2M2M2Y2Y0ODE0MmFlYTliYTAwZDZkZjliY2UwZDEi.aqdaAw.TAaFgsunMAAhEZkPCE3Ckpd6OdQ">
+            <label class="cm-story-create__upload">
+                <span class="material-icons">image</span>
+                <span>Выбрать изображение</span>
+                <input type="file" name="media" accept="image/jpeg,image/png,image/gif,image/webp" required>
+            </label>
+            <input type="text" name="caption" maxlength="500" placeholder="Подпись к сторис (необязательно)" class="cm-story-create__caption">
+            <button type="submit" class="btn btn-primary">
+                <span class="material-icons">publish</span> Опубликовать
+            </button>
+        </form>
+    </section>
+
+    <!-- Лента -->
+    
+    <div class="cm-stories-empty">
+        <div class="cm-stories-empty__icon"><span class="material-icons">auto_stories</span></div>
+        <h3>Сторис пока нет</h3>
+        <p>Опубликуйте первую сторис — её увидят все артисты сообщества!</p>
+    </div>
+    
+</div>
+
+<!-- Модалка просмотра сторис -->
+<div class="cm-story-modal" id="cmStoryModal" hidden>
+    <div class="cm-story-modal__backdrop" data-close-story></div>
+    <div class="cm-story-modal__dialog" role="dialog" aria-modal="true">
+        <button type="button" class="cm-story-modal__close" data-close-story aria-label="Закрыть"><span class="material-icons">close</span></button>
+        <div class="cm-story-modal__body" id="cmStoryModalBody"></div>
+    </div>
+</div>
+
+            </div>
+        </main>
+    </div>
+    
+    
+
+    <!-- Скрипты -->
+    <script src="http://127.0.0.1:5000/static/js/app.js?v=20260902-mobile"></script>
+    
+<script src="http://127.0.0.1:5000/static/js/community-stories.js?v=20260914-community1"></script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Документооборот — счета{% endblock %}
+{% block page_title %}Документооборот{% endblock %}
+{% block body_class %}documents-page{% endblock %}
+{% block content %}
+<div class="tl-page tl-documents documents-hub uni-skin">
+    {% include "documents/_hub_hero.html" %}
+    <section class="documents-hub__sheet">
+        {% include "documents/_tabs.html" %}
+        <div class="documents-hub__section-head">
+            <h3 class="documents-hub__h3">Счета на оплату</h3>
+        </div>
+        <div class="documents-hub__filters tickets-filters">
+            <a href="{{ url_for('documents.hub_invoices', bucket='active') }}" class="filter-tab {% if bucket == 'active' %}active{% endif %}">Активные ({{ counts.active }})</a>
+            <a href="{{ url_for('documents.hub_invoices', bucket='paid') }}" class="filter-tab {% if bucket == 'paid' %}active{% endif %}">Оплаченные ({{ counts.paid }})</a>
+            <a href="{{ url_for('documents.hub_invoices', bucket='cancelled') }}" class="filter-tab {% if bucket == 'cancelled' %}active{% endif %}">Отменённые ({{ counts.cancelled }})</a>
+            <a href="{{ url_for('documents.hub_invoices', bucket='all') }}" class="filter-tab {% if bucket == 'all' %}active{% endif %}">Все ({{ counts.all }})</a>
+        </div>
+        {% if invoices %}
+        <div class="documents-hub__table-wrap table-wrap">
+            <table class="data-table documents-hub__table">
+                <thead>
+                    <tr>
+                        <th>Номер</th>
+                        <th>Тема</th>
+                        <th class="documents-hub__th-num">Сумма</th>
+                        <th>Статус</th>
+                        <th>Срок</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in invoices %}
+                    <tr>
+                        <td><strong>{{ inv.invoice_number }}</strong></td>
+                        <td>{{ inv.subject }}</td>
+                        <td class="documents-hub__td-num">{{ inv.amount }} {{ inv.currency }}</td>
+                        <td>{{ inv.status_label }}</td>
+                        <td>{% if inv.due_date %}{{ inv.due_date.strftime('%d.%m.%Y') }}{% else %}—{% endif %}</td>
+                        <td>
+                            {% if inv.is_active_unpaid %}
+                            {% if inv.payment_link %}
+                            <a href="{{ inv.payment_link }}" class="btn btn-primary btn-sm" target="_blank" rel="noopener noreferrer">Оплатить</a>
+                            {% else %}
+                            <a href="{{ url_for('documents.invoice_payment', id=inv.id) }}" class="btn btn-primary btn-sm">Оплатить</a>
+                            {% endif %}
+                            <details class="documents-hub__upload">
+                                <summary class="btn btn-ghost btn-sm">Загрузить чек</summary>
+                                <form method="POST" action="{{ url_for('documents.upload_confirmation', id=inv.id) }}" enctype="multipart/form-data" class="documents-hub__upload-form">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <label class="documents-hub__upload-label">PDF подтверждения *</label>
+                                    <input type="file" name="document_file" accept="application/pdf,.pdf" required class="form-control">
+                                    <input type="text" name="confirmation_number" placeholder="Номер платежа" class="form-control">
+                                    <input type="date" name="payment_date" class="form-control">
+                                    <input type="text" name="amount" placeholder="Сумма" class="form-control" value="{{ inv.amount }}">
+                                    <textarea name="comment" rows="2" placeholder="Комментарий" class="form-control"></textarea>
+                                    <button type="submit" class="btn btn-primary btn-sm">Отправить</button>
+                                </form>
+                            </details>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if inv.description %}
+                    <tr class="documents-hub__row-desc">
+                        <td colspan="6">{{ inv.description }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="documents-hub__empty empty-state small"><p>В этом разделе нет счетов.</p></div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

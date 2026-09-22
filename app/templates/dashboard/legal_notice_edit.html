@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Уведомления на главной{% endblock %}
+{% block page_title %}Уведомления на главной{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 52rem; margin: 0 auto;">
+    <div class="card-content">
+        <p class="text-secondary" style="margin-bottom: 1rem;">
+            Можно включить несколько блоков: каждый показывается на главной у всех авторизованных, если включён переключатель и заполнен хотя бы один фрагмент текста.
+            Для каждого блока выберите цвет: <strong>красный</strong> или <strong>оранжевый</strong>.
+            Файл на сервере: <code>instance/dashboard_legal_notice.json</code>
+        </p>
+        <p style="margin-bottom: 1rem;">
+            <a href="{{ url_for('dashboard.index') }}" class="btn btn-ghost btn-sm">← На главную</a>
+        </p>
+        <form method="POST" id="legalNoticeForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div id="legal-notice-blocks">
+                {% for row in notice_rows %}
+                {% set n = row.notice %}
+                {% set i = loop.index0 %}
+                <fieldset class="legal-notice-block card" style="margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: 12px;" data-index="{{ i }}">
+                    <legend class="legal-notice-block__legend" style="padding: 0 0.5rem; font-weight: 600;">Уведомление {{ loop.index }}</legend>
+                    <div class="card-content" style="padding-top: 0.5rem;">
+                        <div class="form-group">
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" name="notice_{{ i }}_enabled" value="1" {% if n.enabled %}checked{% endif %}>
+                                Показывать этот блок на главной
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <span class="form-label">Цвет блока</span>
+                            <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+                                <label style="display:inline-flex; align-items:center; gap:0.45rem; cursor:pointer;">
+                                    <input type="radio" name="notice_{{ i }}_tone" value="red" {% if (n.tone or 'red') != 'orange' %}checked{% endif %}>
+                                    Красный
+                                </label>
+                                <label style="display:inline-flex; align-items:center; gap:0.45rem; cursor:pointer;">
+                                    <input type="radio" name="notice_{{ i }}_tone" value="orange" {% if (n.tone or 'red') == 'orange' %}checked{% endif %}>
+                                    Оранжевый
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="notice_{{ i }}_badge">Подпись в бейдже</label>
+                            <input type="text" id="notice_{{ i }}_badge" name="notice_{{ i }}_badge" class="form-control" value="{{ n.badge }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="notice_{{ i }}_title">Заголовок</label>
+                            <input type="text" id="notice_{{ i }}_title" name="notice_{{ i }}_title" class="form-control" value="{{ n.title }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="notice_{{ i }}_lead">Вводный абзац</label>
+                            <textarea id="notice_{{ i }}_lead" name="notice_{{ i }}_lead" class="form-control" rows="3">{{ n.lead }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="notice_{{ i }}_points">Список (каждая строка — отдельный пункт)</label>
+                            <textarea id="notice_{{ i }}_points" name="notice_{{ i }}_points" class="form-control" rows="5" placeholder="Первая строка&#10;Вторая строка">{{ row.points_text }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="notice_{{ i }}_callout">Блок с иконкой внизу</label>
+                            <textarea id="notice_{{ i }}_callout" name="notice_{{ i }}_callout" class="form-control" rows="3">{{ n.callout }}</textarea>
+                        </div>
+                        <p style="margin:0;">
+                            <button type="button" class="btn btn-ghost btn-sm js-remove-notice-block" {% if notice_rows|length < 2 %}style="display:none"{% endif %}>Удалить этот блок</button>
+                        </p>
+                    </div>
+                </fieldset>
+                {% endfor %}
+            </div>
+            <p style="margin-bottom: 1rem;">
+                <button type="button" class="btn btn-ghost btn-sm" id="legalNoticeAddBlock">+ Добавить уведомление</button>
+            </p>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить все</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<template id="legal-notice-block-template">
+    <fieldset class="legal-notice-block card" style="margin-bottom: 1.25rem; border: 1px solid var(--border); border-radius: 12px;" data-index="__IX__">
+        <legend class="legal-notice-block__legend" style="padding: 0 0.5rem; font-weight: 600;">Уведомление __NUM__</legend>
+        <div class="card-content" style="padding-top: 0.5rem;">
+            <div class="form-group">
+                <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                    <input type="checkbox" name="notice___IX___enabled" value="1">
+                    Показывать этот блок на главной
+                </label>
+            </div>
+            <div class="form-group">
+                <span class="form-label">Цвет блока</span>
+                <div style="display:flex; flex-wrap:wrap; gap:1rem;">
+                    <label style="display:inline-flex; align-items:center; gap:0.45rem; cursor:pointer;">
+                        <input type="radio" name="notice___IX___tone" value="red" checked>
+                        Красный
+                    </label>
+                    <label style="display:inline-flex; align-items:center; gap:0.45rem; cursor:pointer;">
+                        <input type="radio" name="notice___IX___tone" value="orange">
+                        Оранжевый
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="notice___IX___badge">Подпись в бейдже</label>
+                <input type="text" id="notice___IX___badge" name="notice___IX___badge" class="form-control" value="Обязательно к сведению">
+            </div>
+            <div class="form-group">
+                <label for="notice___IX___title">Заголовок</label>
+                <input type="text" id="notice___IX___title" name="notice___IX___title" class="form-control" value="Важно">
+            </div>
+            <div class="form-group">
+                <label for="notice___IX___lead">Вводный абзац</label>
+                <textarea id="notice___IX___lead" name="notice___IX___lead" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="notice___IX___points">Список (каждая строка — отдельный пункт)</label>
+                <textarea id="notice___IX___points" name="notice___IX___points" class="form-control" rows="5" placeholder="Первая строка&#10;Вторая строка"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="notice___IX___callout">Блок с иконкой внизу</label>
+                <textarea id="notice___IX___callout" name="notice___IX___callout" class="form-control" rows="3"></textarea>
+            </div>
+            <p style="margin:0;">
+                <button type="button" class="btn btn-ghost btn-sm js-remove-notice-block">Удалить этот блок</button>
+            </p>
+        </div>
+    </fieldset>
+</template>
+<script>
+(function () {
+    var container = document.getElementById('legal-notice-blocks');
+    var tpl = document.getElementById('legal-notice-block-template');
+    var addBtn = document.getElementById('legalNoticeAddBlock');
+    if (!container || !tpl || !addBtn) return;
+
+    function maxIndex() {
+        var max = -1;
+        container.querySelectorAll('.legal-notice-block[data-index]').forEach(function (el) {
+            var n = parseInt(el.getAttribute('data-index'), 10);
+            if (!isNaN(n) && n > max) max = n;
+        });
+        return max;
+    }
+
+    function renumberLegends() {
+        var blocks = container.querySelectorAll('.legal-notice-block');
+        blocks.forEach(function (el, idx) {
+            var leg = el.querySelector('.legal-notice-block__legend');
+            if (leg) leg.textContent = 'Уведомление ' + (idx + 1);
+        });
+        var showRemove = blocks.length > 1;
+        blocks.forEach(function (el) {
+            var b = el.querySelector('.js-remove-notice-block');
+            if (b) {
+                b.style.display = showRemove ? '' : 'none';
+            }
+        });
+    }
+
+    function wireRemove(btn) {
+        btn.addEventListener('click', function () {
+            var block = btn.closest('.legal-notice-block');
+            if (!block || container.querySelectorAll('.legal-notice-block').length < 2) return;
+            block.remove();
+            renumberLegends();
+        });
+    }
+
+    container.querySelectorAll('.js-remove-notice-block').forEach(wireRemove);
+
+    addBtn.addEventListener('click', function () {
+        var ix = maxIndex() + 1;
+        var html = tpl.innerHTML.replace(/__IX__/g, String(ix)).replace(/__NUM__/g, String(container.querySelectorAll('.legal-notice-block').length + 1));
+        var wrap = document.createElement('div');
+        wrap.innerHTML = html.trim();
+        var node = wrap.firstElementChild;
+        if (!node) return;
+        container.appendChild(node);
+        var rm = node.querySelector('.js-remove-notice-block');
+        if (rm) wireRemove(rm);
+        renumberLegends();
+    });
+
+    renumberLegends();
+})();
+</script>
+{% endblock %}

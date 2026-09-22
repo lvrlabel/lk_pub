@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Код подтверждения | Toolls Music Distribution</title>
+    {% include 'auth/partials/head.html' %}
+</head>
+<body class="auth-flow auth-flow--verify">
+    <div class="auth-flow__ambient" aria-hidden="true">
+        <div class="auth-flow__grid-bg"></div>
+        <div class="auth-flow__orb auth-flow__orb--1"></div>
+        <div class="auth-flow__orb auth-flow__orb--2"></div>
+        <div class="auth-flow__orb auth-flow__orb--3"></div>
+    </div>
+
+    <div class="auth-flow__page">
+        <header class="auth-flow__top">
+            {% with extra_class='auth-brand--header' %}{% include 'auth/partials/brand.html' %}{% endwith %}
+            {% with active=2 %}{% include 'auth/partials/steps.html' %}{% endwith %}
+        </header>
+
+        <div class="auth-flow__layout auth-flow__layout--narrow">
+            <aside class="auth-flow__hero">
+                <p class="auth-flow__eyebrow">Двухэтапная проверка</p>
+                <h1 class="auth-flow__hero-title">Код отправлен</h1>
+                <p class="auth-flow__hero-text">
+                    Мы отправили 5-значный код на вашу почту{% if telegram_connected %} и в Telegram{% endif %}.
+                    Введите его для завершения входа.
+                </p>
+                <ul class="auth-flow__features">
+                    <li><span class="material-icons">mail</span> Проверьте почту</li>
+                    {% if telegram_connected %}
+                    <li><span class="material-icons">send</span> И Telegram{% if user.telegram_display %} {{ user.telegram_display }}{% endif %}</li>
+                    {% endif %}
+                    <li><span class="material-icons">schedule</span> Код действует 10 минут</li>
+                    <li><span class="material-icons">verified_user</span> Защита аккаунта</li>
+                </ul>
+            </aside>
+
+            <main class="auth-flow__card">
+                <div class="auth-flow__card-head">
+                    <div class="auth-flow__icon-badge auth-flow__icon-badge--mail" aria-hidden="true">
+                        <span class="material-icons">mark_email_read</span>
+                    </div>
+                    <h2 class="auth-flow__card-title">Введите код</h2>
+                    <p class="auth-flow__card-sub">
+                        Код отправлен на <strong>{% if display_email %}{{ display_email }}{% else %}вашу почту{% endif %}</strong>
+                        {% if telegram_connected %}<br>Также проверьте Telegram.{% endif %}
+                    </p>
+                </div>
+
+                {% include 'auth/partials/flashes.html' %}
+
+                <form method="POST" action="{{ url_for('auth.login_verify') }}" class="auth-form auth-form--verify js-auth-submit" id="verifyForm">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="code" id="codeHidden" value="" required>
+
+                    <div class="auth-code" role="group" aria-label="5-значный код">
+                        <input type="text" id="code0" class="auth-code__box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code" aria-label="Цифра 1">
+                        <input type="text" id="code1" class="auth-code__box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 2">
+                        <input type="text" id="code2" class="auth-code__box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 3">
+                        <input type="text" id="code3" class="auth-code__box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 4">
+                        <input type="text" id="code4" class="auth-code__box" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Цифра 5">
+                    </div>
+
+                    <button type="submit" class="auth-btn auth-btn--primary js-auth-btn" id="verifySubmit" disabled>
+                        <span class="auth-btn__idle">Подтвердить <span class="material-icons">arrow_forward</span></span>
+                        <span class="auth-btn__busy" aria-hidden="true"><span class="auth-btn__spinner"></span> Проверяем…</span>
+                    </button>
+                </form>
+
+                <footer class="auth-flow__footer auth-flow__footer--actions">
+                    <form method="POST" action="{{ url_for('auth.login_verify_resend') }}" class="auth-inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="auth-link auth-link--button">Отправить код повторно</button>
+                    </form>
+                    <span class="auth-flow__footer-sep">·</span>
+                    <a href="{{ url_for('auth.login') }}" class="auth-link">← К входу</a>
+                </footer>
+            </main>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/auth-flow.js') }}"></script>
+    <script>
+    (function() {
+        var digits = document.querySelectorAll('.auth-code__box');
+        var hidden = document.getElementById('codeHidden');
+        var form = document.getElementById('verifyForm');
+        var submitBtn = document.getElementById('verifySubmit');
+        if (!digits.length || !hidden || !form || !submitBtn) return;
+
+        function updateCode() {
+            var code = Array.from(digits).map(function(d) { return d.value; }).join('');
+            hidden.value = code;
+            submitBtn.disabled = code.length !== 5;
+        }
+
+        digits.forEach(function(input, i) {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/\D/g, '').slice(0, 1);
+                if (this.value && i < digits.length - 1) digits[i + 1].focus();
+                updateCode();
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && i > 0) digits[i - 1].focus();
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                var paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 5);
+                for (var j = 0; j < paste.length && j < digits.length; j++) digits[j].value = paste[j];
+                if (paste.length > 0) digits[Math.min(paste.length, digits.length) - 1].focus();
+                updateCode();
+            });
+        });
+
+        digits[0].focus();
+    })();
+    </script>
+</body>
+</html>

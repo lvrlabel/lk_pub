@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}Инструменты{% endblock %}
+{% block page_title %}Инструменты{% endblock %}
+{% block content %}
+<div class="tools-page--pro uni-skin">
+    <header class="tools-hero">
+        <div class="tools-hero-content">
+            <h1 class="tools-hero-title">Питчинг релиза</h1>
+            <p class="tools-hero-subtitle">Отправьте заявку на питчинг вашего релиза и отслеживайте статус рассмотрения.</p>
+            <div class="tools-hero-actions">
+                <a href="{{ url_for('tools.auto_form') }}" class="btn">
+                    <span class="material-icons">description</span>
+                    Автоматическая форма
+                </a>
+                <a href="{{ url_for('tools.cover_generator') }}" class="btn">
+                    <span class="material-icons">album</span>
+                    Генератор обложек
+                </a>
+                <a href="{{ url_for('tools.karaoke_ttml') }}" class="btn">
+                    <span class="material-icons">mic</span>
+                    Генератор караоке (TTML)
+                </a>
+                <a href="#form" class="btn">
+                    <span class="material-icons">send</span>
+                    Новая заявка
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section class="tools-form-section" id="form">
+        <h2 class="tools-form-section-title">
+            <span class="material-icons">send</span>
+            Новая заявка на питчинг
+        </h2>
+        <form method="POST" action="{{ url_for('tools.create_pitch') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="tools-form-grid">
+                {% if releases %}
+                <div class="tools-form-field-pro">
+                    <label>Выбрать из релизов (опционально)</label>
+                    <select name="release_id" id="releaseSelect" class="tools-form-field-pro">
+                        <option value="">— Указать вручную —</option>
+                        {% for r in releases %}
+                        <option value="{{ r.id }}" data-title="{{ r.title|e }}" data-artists="{{ r.artists|e }}" data-genre="{{ r.genre|e }}">{{ r.title }} — {{ r.artists }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                <div class="tools-form-field-pro">
+                    <label>Название <span class="req">*</span></label>
+                    <input type="text" name="title" id="pitchTitle" required placeholder="Название релиза">
+                </div>
+                <div class="tools-form-field-pro">
+                    <label>Артисты <span class="req">*</span></label>
+                    <input type="text" name="artists" id="pitchArtists" required placeholder="Артисты" value="{{ current_user.display_name }}">
+                </div>
+                <div class="tools-form-field-pro">
+                    <label>Жанр</label>
+                    <input type="text" name="genre" id="pitchGenre" placeholder="Pop, Hip-Hop, Rock...">
+                </div>
+                <div class="tools-form-field-pro" style="grid-column: span 2;">
+                    <label>Комментарий</label>
+                    <textarea name="comment" rows="4" placeholder="Дополнительная информация для питчинга"></textarea>
+                </div>
+            </div>
+            <div class="tools-form-actions-pro">
+                <button type="submit" class="tools-form-btn-pro">
+                    <span class="material-icons">send</span>
+                    Отправить заявку
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="tools-list-section-pro">
+        <div class="tools-list-header">
+            <h2 class="tools-list-title-pro">
+                <span class="material-icons">history</span>
+                Мои заявки ({{ pitches|length }})
+            </h2>
+            <div class="tools-list-filters">
+                <button class="tools-list-filter-btn active">Все</button>
+                <button class="tools-list-filter-btn">На рассмотрении</button>
+                <button class="tools-list-filter-btn">Одобрено</button>
+                <button class="tools-list-filter-btn">Отклонено</button>
+            </div>
+        </div>
+
+        {% if pitches %}
+        <div class="tools-pitches-grid">
+            {% for pitch in pitches %}
+            <div class="tools-pitch-card-pro">
+                <div class="tools-pitch-header-pro">
+                    <span class="tools-pitch-status-pro {{ pitch.status_class }}">{{ pitch.status_display }}</span>
+                    <span class="tools-pitch-date-pro">{{ pitch.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+                <h3 class="tools-pitch-title-pro">{{ pitch.title }}</h3>
+                <p class="tools-pitch-artists-pro">{{ pitch.artists }}{% if pitch.genre %} · {{ pitch.genre }}{% endif %}</p>
+                {% if pitch.comment %}
+                <p class="tools-pitch-comment-pro">{{ pitch.comment[:200] }}{% if pitch.comment|length > 200 %}...{% endif %}</p>
+                {% endif %}
+                <div class="tools-pitch-actions-pro">
+                    <a href="#" class="btn btn-ghost btn-sm">Подробнее</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="tools-empty-pro">
+            <div class="tools-empty-icon-pro">
+                <span class="material-icons">inbox</span>
+            </div>
+            <h3 class="tools-empty-title-pro">Заявок пока нет</h3>
+            <p class="tools-empty-text-pro">Заполните форму выше, чтобы отправить заявку на питчинг</p>
+            <a href="#form" class="btn btn-primary">Создать первую заявку</a>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('releaseSelect')?.addEventListener('change', function() {
+    var opt = this.options[this.selectedIndex];
+    if (opt.value && opt.dataset.title) {
+        document.getElementById('pitchTitle').value = opt.dataset.title || '';
+        document.getElementById('pitchArtists').value = opt.dataset.artists || '';
+        document.getElementById('pitchGenre').value = opt.dataset.genre || '';
+    }
+});
+// Простые фильтры (заглушка)
+document.querySelectorAll('.tools-list-filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tools-list-filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        // Здесь можно добавить фильтрацию списка
+    });
+});
+</script>
+{% endblock %}

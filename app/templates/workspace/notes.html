@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Заметки — Моё пространство{% endblock %}
+{% block page_title %}Заметки{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Личные заметки</h1>
+            <p class="ws-sub">Только для вас — черновики мыслей, тексты, напоминания</p>
+        </div>
+    </header>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-compose">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" class="form-control" placeholder="Заголовок" maxlength="200">
+        <textarea name="body" class="form-control" rows="4" placeholder="Текст заметки…"></textarea>
+        <label class="ws-check-label"><input type="checkbox" name="is_pinned" value="1"> Закрепить</label>
+        <div class="ws-form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить заметку</button>
+        </div>
+    </form>
+
+    {% if notes %}
+    <div class="ws-notes">
+        {% for n in notes %}
+        <article class="ws-note {% if n.is_pinned %}is-pinned{% endif %}">
+            <header>
+                <h3>{{ n.title }}{% if n.is_pinned %} <span class="material-icons" aria-hidden="true">push_pin</span>{% endif %}</h3>
+                <small>{{ n.updated_display }}</small>
+            </header>
+            {% if n.body %}<pre class="ws-note__body">{{ n.body }}</pre>{% endif %}
+            <form method="POST" action="{{ url_for('workspace.note_delete', note_id=n.id) }}" onsubmit="return confirm('Удалить заметку?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm">Удалить</button>
+            </form>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="ws-empty">Заметок пока нет.</p>
+    {% endif %}
+</div>
+{% endblock %}

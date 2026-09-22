@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Редактирование: {{ link.display_name }}{% endblock %}
+{% block page_title %}Редактирование смарт-ссылки{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/smart-links-v2.css', v='20260721-sl2') }}">
+{% endblock %}
+{% block content %}
+<div class="sl2">
+    <header class="sl2__head">
+        <div class="sl2__head-main">
+            <a href="{{ url_for('smart_link.view', id=link.id) }}" class="sl2__back" aria-label="Назад">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+            </a>
+            <div>
+                <h1 class="sl2__title">{{ link.display_name }}</h1>
+                <p class="sl2__lead">Обновите подпись, тему или URL площадок. Публичный адрес ссылки не меняется.</p>
+            </div>
+        </div>
+        <div class="sl2__actions">
+            <a href="{{ url_for('smart_link.public_view', link_code=link.link_code) }}" class="sl2-btn" target="_blank" rel="noopener">
+                <span class="material-icons" aria-hidden="true">open_in_new</span>
+                Страница
+            </a>
+        </div>
+    </header>
+
+    <form method="POST" class="sl2-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <h2 class="sl2-section-title">Основное</h2>
+        <div class="sl2-grid">
+            <div class="sl2-field">
+                <label for="custom_name">Название в кабинете</label>
+                <input type="text" id="custom_name" name="custom_name" value="{{ link.custom_name or '' }}" placeholder="Необязательно">
+            </div>
+            <div class="sl2-field">
+                <label for="theme">Тема страницы</label>
+                <select id="theme" name="theme">
+                    <option value="dark" {% if link.theme == 'dark' %}selected{% endif %}>Тёмная</option>
+                    <option value="light" {% if link.theme == 'light' %}selected{% endif %}>Светлая</option>
+                </select>
+            </div>
+        </div>
+
+        <h2 class="sl2-section-title sl2-section-title--spaced">Площадки</h2>
+        <div class="sl2-platforms">
+            {% for key, name in [('spotify','Spotify'),('apple_music','Apple Music'),('yandex_music','Яндекс Музыка'),('vk_music','VK Музыка'),('youtube_music','YouTube Music'),('deezer','Deezer'),('zvooq','Zvooq'),('wink','Wink')] %}
+            <div class="sl2-field">
+                <label for="link_{{ key }}">{{ name }}</label>
+                <input type="url" id="link_{{ key }}" name="link_{{ key }}" value="{{ link.platform_links.get(key, '') if link.platform_links else '' }}" placeholder="https://…">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="sl2-form__footer">
+            <a href="{{ url_for('smart_link.view', id=link.id) }}" class="sl2-btn">Отмена</a>
+            <button type="submit" class="sl2-btn sl2-btn--primary">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

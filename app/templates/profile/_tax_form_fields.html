@@ -1,0 +1,33 @@
+{# Ожидает: user, tax_choices (список кортежей value, label) #}
+<div class="profile-tax-form-fields">
+    <div class="form-group">
+        <label for="tax_status">Налоговый статус</label>
+        <select name="tax_status" id="tax_status" class="form-control">
+            {% for val, label in tax_choices %}
+            <option value="{{ val }}" {% if (user.tax_status or '') == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="tax_legal_name">Наименование юр. лица / ИП</label>
+        <input type="text" name="tax_legal_name" id="tax_legal_name" class="form-control" value="{{ user.tax_legal_name or '' }}" placeholder="Например, ООО …" maxlength="512" autocomplete="organization">
+    </div>
+    <div class="form-group">
+        <label for="tax_inn">ИНН</label>
+        <input type="text" name="tax_inn" id="tax_inn" class="form-control" value="{{ user.tax_inn or '' }}" placeholder="10 или 12 цифр" inputmode="numeric" maxlength="12" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label for="tax_bank_account">Расчётный счёт</label>
+        <input type="text" name="tax_bank_account" id="tax_bank_account" class="form-control" value="{{ user.tax_bank_account or '' }}" placeholder="20 цифр" inputmode="numeric" maxlength="22" autocomplete="off">
+    </div>
+    <div class="form-row profile-tax-form-row">
+        <div class="form-group">
+            <label for="tax_bank_name">Наименование банка</label>
+            <input type="text" name="tax_bank_name" id="tax_bank_name" class="form-control" value="{{ user.tax_bank_name or '' }}" placeholder="ПАО Сбербанк" maxlength="256" autocomplete="off">
+        </div>
+        <div class="form-group">
+            <label for="tax_bank_bik">БИК банка</label>
+            <input type="text" name="tax_bank_bik" id="tax_bank_bik" class="form-control" value="{{ user.tax_bank_bik or '' }}" placeholder="9 цифр" inputmode="numeric" maxlength="9" autocomplete="off">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Трек: {{ track.display_title }} — {{ release.title }}{% endblock %}
+{% block page_title %}Редактирование трека{% endblock %}
+
+{% block content_class %}content--release-edit{% endblock %}
+
+{% block content %}
+<div class="re-wizard release-edit-page track-edit-page">
+    <nav class="re-tabs re-tabs--links" aria-label="Разделы редактора">
+        <a href="{{ url_for('releases.edit', id=release.id) }}#release" class="re-tab">Релиз</a>
+        <a href="{{ url_for('releases.edit', id=release.id) }}#tracks" class="re-tab is-active" aria-current="page">Трек-лист</a>
+        <a href="{{ url_for('releases.edit', id=release.id) }}#platforms" class="re-tab">Площадки</a>
+        <a href="{{ url_for('releases.edit', id=release.id) }}#review" class="re-tab">Проверка</a>
+    </nav>
+
+    <header class="track-edit-page-header">
+        <h1>Редактирование трека</h1>
+        <p class="track-edit-page-meta">{{ track.display_title }} · {{ release.title }}</p>
+    </header>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('releases.edit_track', release_id=release.id, track_id=track.id) }}" class="track-edit-form js-submit-loading">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="release-edit-card">
+            <h3 class="release-edit-card-title">Аудио (WAV)</h3>
+            <p class="track-edit-wav-note">Сейчас загружен файл: <strong>{{ track.wav_file }}</strong>. Новый файл указывайте только если нужно заменить дорожку.</p>
+            <div class="wav-card page-track-wav-card show-mobile-hint" id="pageTrackWavCard">
+                <input type="file" name="wav_file" id="pageTrackWavInput" accept=".wav" hidden>
+                <div class="wav-drop-area" id="pageTrackWavZone" onclick="document.getElementById('pageTrackWavInput').click()" role="button" tabindex="0" aria-label="Выберите WAV файл">
+                    <span class="material-icons wav-drop-icon">audio_file</span>
+                    <span class="wav-drop-title">Новый WAV (необязательно)</span>
+                    <span class="wav-drop-desc" id="pageTrackWavDesc">Перетащите файл сюда или нажмите для выбора</span>
+                    <span class="wav-drop-mobile-hint" aria-hidden="true">Нажмите для выбора файла</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="release-edit-card">
+            <h3 class="release-edit-card-title">Текст песни</h3>
+            <textarea name="lyrics" id="pageTrackLyrics" class="track-submit-lyrics" rows="8" placeholder="Текст или вставьте из файла ниже">{{ track.lyrics or '' }}</textarea>
+            <div class="lyrics-actions">
+                <input type="file" id="pageTrackLyricsFile" accept=".txt,.lrc" hidden>
+                <label for="pageTrackLyricsFile" class="lyrics-upload-btn">
+                    <span class="material-icons">upload</span>
+                    Загрузить .txt / .lrc
+                </label>
+                <span class="lyrics-file-name" id="pageTrackLyricsFileName"></span>
+            </div>
+        </div>
+
+        <div class="release-edit-card">
+            <h3 class="release-edit-card-title">Метаданные</h3>
+            <div class="release-edit-fields track-edit-fields">
+                <div class="release-edit-field">
+                    <label for="pageTrackTitle">Название</label>
+                    <input type="text" id="pageTrackTitle" name="title" required value="{{ track.title }}" placeholder="Название трека">
+                </div>
+                <div class="release-edit-field">
+                    <label for="pageTrackArtists">Артисты</label>
+                    <input type="text" id="pageTrackArtists" name="artists" required value="{{ track.artists }}" placeholder="Артисты">
+                </div>
+                <div class="release-edit-field">
+                    <label for="pageTrackVersion">Версия</label>
+                    <input type="text" id="pageTrackVersion" name="version" value="{{ track.version or '' }}" placeholder="Radio, Extended">
+                </div>
+                <div class="release-edit-field">
+                    <label for="pageTrackComposers">Композиторы</label>
+                    <input type="text" id="pageTrackComposers" name="composers" value="{{ track.composers or '' }}" placeholder="">
+                </div>
+                <div class="release-edit-field">
+                    <label for="pageTrackIsrc">ISRC</label>
+                    <input type="text" id="pageTrackIsrc" name="isrc" value="{{ track.isrc or '' }}" placeholder="Необязательно" maxlength="128" autocomplete="off">
+                </div>
+                <div class="release-edit-field">
+                    <label for="pageTrackAuthors">Авторы текста</label>
+                    <input type="text" id="pageTrackAuthors" name="authors" value="{{ track.authors or '' }}" placeholder="">
+                    <div class="authors-hint" style="color: #dc3545; font-size: 0.875rem; margin-top: 0.5rem; line-height: 1.5;">
+                        <strong>Важно:</strong> указывайте полные имена в формате <strong>Имя Отчество Фамилия</strong> или <strong>Имя Фамилия</strong>, без псевдонимов — иначе модерация отклонит релиз.
+                    </div>
+                </div>
+                <label class="release-edit-checkbox">
+                    <input type="checkbox" name="explicit" {% if track.explicit %}checked{% endif %}>
+                    <span>Explicit контент</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="release-edit-actions">
+            <a href="{{ url_for('releases.edit', id=release.id) }}#tracks" class="release-edit-btn release-edit-btn-ghost">
+                <span class="material-icons">arrow_back</span>
+                К релизу
+            </a>
+            <button type="submit" class="release-edit-btn release-edit-btn-save" data-loading-text="Сохраняем...">
+                <span class="material-icons">save</span>
+                Сохранить трек
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+    var input = document.getElementById('pageTrackWavInput');
+    var card = document.getElementById('pageTrackWavCard');
+    var zone = document.getElementById('pageTrackWavZone');
+    var desc = document.getElementById('pageTrackWavDesc');
+    if (!input || !card || !zone || !desc) return;
+    function updateState() {
+        if (input.files.length) {
+            card.classList.add('has-file');
+            card.classList.remove('show-mobile-hint');
+            desc.textContent = input.files[0].name;
+        } else {
+            card.classList.remove('has-file');
+            card.classList.add('show-mobile-hint');
+            desc.textContent = 'Перетащите файл сюда или нажмите для выбора';
+        }
+    }
+    input.addEventListener('change', updateState);
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('dragover'); });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length && e.dataTransfer.files[0].name.toLowerCase().endsWith('.wav')) {
+            input.files = e.dataTransfer.files;
+            updateState();
+        }
+    });
+    zone.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            input.click();
+        }
+    });
+})();
+document.getElementById('pageTrackLyricsFile').addEventListener('change', function() {
+    var file = this.files[0];
+    var ta = document.getElementById('pageTrackLyrics');
+    var fn = document.getElementById('pageTrackLyricsFileName');
+    if (!file) {
+        fn.textContent = '';
+        return;
+    }
+    fn.textContent = file.name;
+    var reader = new FileReader();
+    reader.onload = function() { ta.value = reader.result; };
+    reader.readAsText(file, 'UTF-8');
+});
+</script>
+{% endblock %}

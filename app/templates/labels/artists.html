@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Артисты{% endblock %}
+{% block page_title %}Артисты{% endblock %}
+{% block content %}
+<a href="{{ url_for('labels.create_artist') }}" class="btn btn-primary" style="margin-bottom:1rem;"><span class="material-icons">add</span> Добавить артиста</a>
+<div class="card"><div class="card-content">
+{% for artist in artists %}
+<div style="padding:1rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+<div><strong>{{ artist.name }}</strong> — {{ artist.role }}</div>
+<div><a href="{{ url_for('labels.edit_artist', id=artist.id) }}" class="btn btn-ghost btn-sm">Редактировать</a> <form method="POST" action="{{ url_for('labels.delete_artist', id=artist.id) }}" style="display:inline;" onsubmit="return confirm('Удалить?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" class="btn btn-danger btn-ghost btn-sm">Удалить</button></form></div>
+</div>
+{% endfor %}
+{% if not artists %}<div class="empty-state small"><p>Артистов нет</p></div>{% endif %}
+</div></div>
+<a href="{{ url_for('labels.index') }}" class="btn btn-ghost" style="margin-top:1rem;">Назад к лейблам</a>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Календарь — Моё пространство{% endblock %}
+{% block page_title %}Календарь{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Календарь</h1>
+            <p class="ws-sub">Релизы, съёмки, дедлайны — ваши личные даты</p>
+        </div>
+    </header>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-compose">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" class="form-control" placeholder="Событие" required maxlength="200">
+        <div class="ws-compose__row">
+            <input type="date" name="starts_at" class="form-control" required>
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+        <textarea name="notes" class="form-control" rows="2" placeholder="Комментарий"></textarea>
+    </form>
+
+    {% if events %}
+    <ul class="ws-cards">
+        {% for e in events %}
+        <li class="ws-card">
+            <div>
+                <strong>{{ e.title }}</strong>
+                <span class="ws-task__meta">{{ e.starts_display }}</span>
+                {% if e.notes %}<p>{{ e.notes }}</p>{% endif %}
+            </div>
+            <form method="POST" action="{{ url_for('workspace.calendar_delete', event_id=e.id) }}" onsubmit="return confirm('Удалить событие?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm"><span class="material-icons">delete</span></button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ws-empty">Событий пока нет.</p>
+    {% endif %}
+</div>
+{% endblock %}

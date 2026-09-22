@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Журнал действий пользователей{% endblock %}
+{% block page_title %}Журнал действий пользователей{% endblock %}
+{% block content %}
+<div class="uni-skin user-activity-page">
+    <p class="user-activity-intro text-secondary" style="margin-bottom:1.25rem;">
+        Записываются успешные действия пользователей с ролями артист и лейбл: отправка форм (POST/PUT/PATCH/DELETE) и выход из аккаунта.
+        Действия администраторов в журнал не попадают.
+    </p>
+
+    <div class="dashboard-card user-activity-filters" style="margin-bottom:1rem;">
+        <div class="card-content">
+            <form method="get" action="{{ url_for('admin.user_activity') }}" class="user-activity-filter-form">
+                <label for="uaUserFilter">Пользователь</label>
+                <div class="user-activity-filter-row">
+                    <select id="uaUserFilter" name="user_id" class="form-control">
+                        <option value="">Все пользователи</option>
+                        {% for u in users_for_filter %}
+                        <option value="{{ u.id }}" {% if filter_user_id == u.id %}selected{% endif %}>{{ u.display_name }} · {{ u.login }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Показать</button>
+                    {% if filter_user_id %}
+                    <a href="{{ url_for('admin.user_activity') }}" class="btn btn-ghost">Сбросить</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if pagination.total %}
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h3 class="card-header__title"><span class="material-icons">history</span> События ({{ pagination.total }})</h3>
+        </div>
+        <div class="card-content" style="overflow-x:auto;">
+            <table class="support-table user-activity-table">
+                <thead>
+                    <tr>
+                        <th>Время (МСК)</th>
+                        <th>Пользователь</th>
+                        <th>Действие</th>
+                        <th>Метод</th>
+                        <th>Код</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in pagination.items %}
+                    <tr>
+                        <td>{{ row.created_display }}</td>
+                        <td>
+                            {% if row.user %}
+                            <a href="{{ url_for('users.view', id=row.user_id) }}">{{ row.user.display_name }}</a>
+                            <span class="text-secondary" style="font-size:0.85rem;"> · {{ row.user.login }}</span>
+                            {% else %}
+                            user #{{ row.user_id }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="user-activity-summary">{{ row.summary or row.endpoint or '—' }}</span>
+                            {% if row.endpoint %}
+                            <span class="user-activity-endpoint text-secondary" style="font-size:0.75rem;display:block;">{{ row.endpoint }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.method }}</td>
+                        <td>{{ row.status_code or '—' }}</td>
+                        <td>{{ row.ip_address or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if pagination.pages > 1 %}
+        <div class="card-content user-activity-pagination">
+            {% if pagination.has_prev %}
+            <a href="{% if filter_user_id %}{{ url_for('admin.user_activity', page=pagination.prev_num, user_id=filter_user_id) }}{% else %}{{ url_for('admin.user_activity', page=pagination.prev_num) }}{% endif %}" class="btn btn-ghost btn-sm">← Назад</a>
+            {% endif %}
+            <span class="text-secondary">Стр. {{ pagination.page }} из {{ pagination.pages }}</span>
+            {% if pagination.has_next %}
+            <a href="{% if filter_user_id %}{{ url_for('admin.user_activity', page=pagination.next_num, user_id=filter_user_id) }}{% else %}{{ url_for('admin.user_activity', page=pagination.next_num) }}{% endif %}" class="btn btn-ghost btn-sm">Вперёд →</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="dashboard-card">
+        <div class="card-content">
+            <p class="text-secondary">Записей пока нет{% if filter_user_id %} для выбранного пользователя{% endif %}.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,408 @@
+/**
+ * Toolls Graphite Light — светлая оболочка кабинета.
+ * Подключать после tl-shell.css.
+ */
+
+html[data-theme="light"]:has(.app-container) {
+    --tl-burger-bg: #ffffff;
+    --tl-burger-surface: #f7f5f0;
+    --tl-burger-border: rgba(16, 15, 13, 0.12);
+    --tl-burger-text: #171512;
+    --tl-burger-muted: rgba(23, 21, 18, 0.55);
+    --tl-burger-accent: #a8d100;
+    --tl-burger-accent-muted: rgba(168, 209, 0, 0.16);
+    --tl-burger-accent-ring: rgba(168, 209, 0, 0.35);
+}
+
+html[data-theme="light"]:has(.app-container) body {
+    background: var(--tl-bg, #f3f1ec) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .cabinet-ambient {
+    display: block;
+    z-index: 0;
+}
+
+html[data-theme="light"]:has(.app-container) .cabinet-ambient__gradient {
+    background:
+        linear-gradient(115deg, transparent 0%, transparent 62%, rgba(168, 209, 0, 0.08) 62%, rgba(168, 209, 0, 0.08) 63%, transparent 63%),
+        #f3f1ec;
+}
+
+html[data-theme="light"]:has(.app-container) .cabinet-ambient__noise {
+    opacity: 0.35;
+    background-image: radial-gradient(circle at 1px 1px, rgba(23, 21, 18, 0.05) 1px, transparent 0);
+    background-size: 22px 22px;
+}
+
+html[data-theme="light"]:has(.app-container) .main-content,
+html[data-theme="light"]:has(.app-container) .content {
+    background: transparent !important;
+}
+
+/* Sidebar */
+html[data-theme="light"]:has(.app-container) .sidebar {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border-right: 1px solid var(--tl-border) !important;
+    box-shadow: 8px 0 32px rgba(23, 21, 18, 0.06) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-header {
+    border-bottom-color: var(--tl-border) !important;
+    background: transparent;
+    padding: 1rem 1.1rem;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-nav {
+    padding: 0.85rem 0.75rem 1rem;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-btn.btn-primary,
+html[data-theme="light"]:has(.app-container) .app-container .sidebar-btn.btn-primary {
+    background: var(--tl-accent) !important;
+    border: none !important;
+    color: #100f0d !important;
+    border-radius: 12px !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+    min-height: 46px;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-btn.btn-primary:hover {
+    background: var(--tl-accent-hover) !important;
+    color: #100f0d !important;
+    filter: none !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item {
+    color: var(--tl-text-muted) !important;
+    border-left: none !important;
+    border-radius: 10px !important;
+    padding: 0.65rem 0.8rem !important;
+    margin-bottom: 0.1rem;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item:hover {
+    background: rgba(23, 21, 18, 0.04) !important;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item.active {
+    background: var(--tl-accent-muted) !important;
+    color: #5a7000 !important;
+    box-shadow: inset 3px 0 0 var(--tl-accent) !important;
+    font-weight: 700;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item.active .material-icons {
+    color: #6a8200 !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item--sub {
+    padding-left: 1.1rem !important;
+    font-size: 0.9rem;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-group-toggle {
+    color: var(--tl-text-muted) !important;
+    border-radius: 10px !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-group-toggle:hover {
+    background: rgba(23, 21, 18, 0.04) !important;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-group.is-expanded > .nav-group-toggle,
+html[data-theme="light"]:has(.app-container) .nav-group:has(.nav-item--sub.active) > .nav-group-toggle {
+    color: var(--tl-text) !important;
+    background: rgba(23, 21, 18, 0.03) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-group:has(.nav-item--sub.active) > .nav-group-toggle .material-icons:first-child {
+    color: #6a8200 !important;
+}
+
+html[data-theme="light"]:has(.app-container) .nav-item-new-badge {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-footer {
+    border-top-color: var(--tl-border) !important;
+    color: var(--tl-text-faint);
+    background: transparent;
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-footer__legal a {
+    color: var(--tl-text-muted);
+}
+
+html[data-theme="light"]:has(.app-container) .sidebar-footer__legal a:hover {
+    color: #6a8200 !important;
+}
+
+/* Header */
+html[data-theme="light"]:has(.app-container) .header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid var(--tl-border) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+html[data-theme="light"]:has(.app-container) .page-title {
+    font-family: var(--tl-display) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .header-theme-toggle,
+html[data-theme="light"]:has(.app-container) .header-notifications,
+html[data-theme="light"]:has(.app-container) .header-user,
+html[data-theme="light"]:has(.app-container) .btn-ghost {
+    border-radius: 10px;
+    color: var(--tl-text-muted);
+}
+
+html[data-theme="light"]:has(.app-container) .header-theme-toggle:hover,
+html[data-theme="light"]:has(.app-container) .header-notifications:hover,
+html[data-theme="light"]:has(.app-container) .btn-ghost:hover {
+    background: var(--tl-accent-muted) !important;
+    color: #5a7000 !important;
+    border-color: transparent !important;
+}
+
+html[data-theme="light"]:has(.app-container) .notification-badge {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    font-weight: 800;
+}
+
+html[data-theme="light"]:has(.app-container) .header-notifications-dropdown {
+    background: var(--tl-surface) !important;
+    border: 1px solid var(--tl-border-strong) !important;
+    border-radius: var(--tl-radius) !important;
+    box-shadow: 0 18px 40px rgba(23, 21, 18, 0.12) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .header-notifications-dropdown__title {
+    color: var(--tl-text);
+}
+
+html[data-theme="light"]:has(.app-container) .header-notif-item {
+    border-bottom-color: var(--tl-border) !important;
+    color: var(--tl-text-muted);
+}
+
+html[data-theme="light"]:has(.app-container) .header-notif-item:hover {
+    background: var(--tl-surface-2) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .header-notif-item.is-unread {
+    background: var(--tl-accent-muted);
+}
+
+/* Buttons / forms / cards */
+html[data-theme="light"]:has(.app-container) .btn-primary,
+html[data-theme="light"]:has(.app-container) .db-hero__cta {
+    background: var(--tl-accent) !important;
+    border: none !important;
+    color: #100f0d !important;
+    font-weight: 800 !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="light"]:has(.app-container) .btn-primary:hover,
+html[data-theme="light"]:has(.app-container) .db-refine__cta,
+html[data-theme="light"]:has(.app-container) .db-hero__cta,
+html[data-theme="light"]:has(.app-container) .btn-primary {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+html[data-theme="light"]:has(.app-container) .db-refine__cta:hover,
+html[data-theme="light"]:has(.app-container) .db-hero__cta:hover {
+    background: var(--tl-accent-hover) !important;
+    color: #100f0d !important;
+    filter: none !important;
+}
+
+html[data-theme="light"]:has(.app-container) .btn-ghost {
+    border: 1px solid var(--tl-border-strong) !important;
+    background: transparent !important;
+    color: var(--tl-text-muted) !important;
+    border-radius: 10px !important;
+}
+
+html[data-theme="light"]:has(.app-container) .card,
+html[data-theme="light"]:has(.app-container) .dashboard-card,
+html[data-theme="light"]:has(.app-container) .db-panel,
+html[data-theme="light"]:has(.app-container) .support-table-card,
+html[data-theme="light"]:has(.app-container) .ticket-list-item {
+    background: var(--tl-surface) !important;
+    border-color: var(--tl-border) !important;
+    border-radius: var(--tl-radius) !important;
+    box-shadow: 0 1px 2px rgba(23, 21, 18, 0.04), 0 8px 24px rgba(23, 21, 18, 0.04) !important;
+    color: var(--tl-text);
+}
+
+html[data-theme="light"]:has(.app-container) .card-header,
+html[data-theme="light"]:has(.app-container) .db-panel__head {
+    border-bottom-color: var(--tl-border) !important;
+    background: transparent !important;
+}
+
+html[data-theme="light"]:has(.app-container) .form-control,
+html[data-theme="light"]:has(.app-container) select.form-control,
+html[data-theme="light"]:has(.app-container) textarea.form-control,
+html[data-theme="light"]:has(.app-container) .content :is(input, select, textarea, .form-control) {
+    background: var(--tl-surface-2) !important;
+    border: 1px solid var(--tl-border) !important;
+    color: var(--tl-text) !important;
+    border-radius: var(--tl-radius-sm) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .form-control:focus,
+html[data-theme="light"]:has(.app-container) .content :is(input, select, textarea, .form-control):focus {
+    border-color: var(--tl-accent-ring) !important;
+    box-shadow: 0 0 0 3px var(--tl-accent-muted) !important;
+    outline: none !important;
+}
+
+html[data-theme="light"]:has(.app-container) .flash-success {
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+    color: var(--tl-text);
+}
+
+html[data-theme="light"]:has(.app-container) a:not(.btn):not(.nav-item):not(.tl-btn):hover {
+    color: #5a7000;
+}
+
+html[data-theme="light"]:has(.app-container) .support-hub-nav {
+    background: var(--tl-surface) !important;
+    border: 1px solid var(--tl-border) !important;
+    border-radius: var(--tl-radius) !important;
+    gap: 0.5rem !important;
+}
+
+html[data-theme="light"]:has(.app-container) .support-hub-nav__item.is-active {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    box-shadow: none !important;
+    font-weight: 700;
+}
+
+html[data-theme="light"]:has(.app-container) .support-hub-nav__item:not(.is-active) {
+    color: var(--tl-text-muted) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .support-hub-nav__badge {
+    background: #100f0d;
+    color: var(--tl-accent);
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table,
+html[data-theme="light"]:has(.app-container) .support-appeals-table-wrap {
+    background: var(--tl-surface) !important;
+    border-color: var(--tl-border) !important;
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table th {
+    background: var(--tl-surface-2) !important;
+    color: var(--tl-text-muted) !important;
+    border-bottom-color: var(--tl-border) !important;
+}
+
+html[data-theme="light"]:has(.app-container) table.data-table td {
+    border-bottom-color: var(--tl-border) !important;
+    color: var(--tl-text) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .db-quarter.is-current {
+    border-color: var(--tl-accent-ring) !important;
+    background: var(--tl-accent-muted) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .filter-tab.active,
+html[data-theme="light"]:has(.app-container) .tickets-page .filter-tab.active {
+    background: var(--tl-accent) !important;
+    color: #100f0d !important;
+    border-color: var(--tl-accent) !important;
+}
+
+/* Burger / drawer light */
+html[data-theme="light"]:has(.app-container) .mobile-menu-toggle {
+    background: var(--tl-burger-surface) !important;
+    border-color: var(--tl-burger-border) !important;
+    color: var(--tl-burger-text) !important;
+}
+
+html[data-theme="light"]:has(.app-container) .mobile-menu-toggle:hover {
+    background: var(--tl-burger-accent-muted) !important;
+    border-color: var(--tl-burger-accent-ring) !important;
+    color: #5a7000 !important;
+}
+
+html[data-theme="light"] body.nav-drawer-open .mobile-menu-toggle {
+    background: var(--tl-accent) !important;
+    border-color: var(--tl-accent) !important;
+    color: #100f0d !important;
+}
+
+@media (max-width: 768px) {
+    html[data-theme="light"]:has(.app-container) .sidebar {
+        background: #ffffff !important;
+    }
+
+    html[data-theme="light"]:has(.app-container) .sidebar.open {
+        box-shadow:
+            16px 0 48px rgba(23, 21, 18, 0.14),
+            0 0 0 1px rgba(168, 209, 0, 0.12) !important;
+    }
+
+    html[data-theme="light"]:has(.app-container) .sidebar.open + .sidebar-overlay {
+        background: rgba(23, 21, 18, 0.35) !important;
+    }
+
+    html[data-theme="light"]:has(.app-container) .sidebar-header {
+        background: #f7f5f0 !important;
+    }
+
+    html[data-theme="light"]:has(.app-container) .sidebar-nav {
+        background: #ffffff !important;
+    }
+
+    html[data-theme="light"]:has(.app-container) .sidebar-footer {
+        background: #f7f5f0 !important;
+    }
+}
+
+/* Page-level Graphite components in light mode */
+html[data-theme="light"] .tl-page {
+    color: var(--tl-text);
+}
+
+html[data-theme="light"] .tl-btn--primary {
+    background: var(--tl-accent);
+    color: #100f0d;
+    border-color: var(--tl-accent);
+}
+
+html[data-theme="light"] .tl-btn--primary:hover {
+    background: var(--tl-accent-hover);
+    color: #100f0d;
+}
+
+html[data-theme="light"] .tl-btn--ghost {
+    color: var(--tl-text);
+    border-color: var(--tl-border-strong);
+}

@@ -1,0 +1,34 @@
+{% extends "emails/base.html" %}
+{% block email_title %}Релиз на модерации · Toolls Music Distribution{% endblock %}
+{% block preheader %}Релиз «{{ release_title }}» отправлен на проверку{% endblock %}
+{% block content %}
+<p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Релизы
+</p>
+<p style="margin: 0 0 18px; font-size: 20px; font-weight: 800; line-height: 1.25; color: #f3efe6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Отправлено на модерацию
+</p>
+<p style="margin: 0 0 18px; font-size: 15px; line-height: 1.6; color: rgba(243, 239, 230, 0.62); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Здравствуйте{% if artist_name %}, {{ artist_name }}{% endif %}! Релиз <strong style="color: #f3efe6;">«{{ release_title }}»</strong> на проверке.
+</p>
+{% if track_titles %}
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 0 0 18px; background: #1e1b17; border-radius: 12px; border: 1px solid rgba(243, 239, 230, 0.08);">
+    <tr>
+        <td style="padding: 16px 18px;">
+            <p style="margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(243, 239, 230, 0.42); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Состав</p>
+            <ul style="margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.7; color: rgba(243, 239, 230, 0.78); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                {% for title in track_titles %}
+                <li style="margin-bottom: 4px;">{{ title }}</li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+</table>
+{% endif %}
+<p style="margin: 0 0 24px; padding: 14px 16px; background: rgba(195, 240, 0, 0.08); border-radius: 10px; border: 1px solid rgba(195, 240, 0, 0.22); font-size: 14px; line-height: 1.55; color: #c3f000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    Ориентировочный срок проверки — 2–3 дня. Результат придёт на эту почту.
+</p>
+<p style="margin: 0;">
+    <a href="{{ release_url }}" style="display: inline-block; padding: 13px 26px; background: #c3f000; color: #100f0d !important; text-decoration: none; font-size: 14px; font-weight: 800; border-radius: 10px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Открыть релиз</a>
+</p>
+{% endblock %}

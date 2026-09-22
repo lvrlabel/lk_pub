@@ -1,0 +1,59 @@
+{# Карточка релиза — горизонтальная панель #}
+{% if release.status == 'approved' %}
+  {% set card_status = 'Одобрен' %}
+  {% set card_mod = 'is-approved' %}
+  {% set card_icon = 'check_circle' %}
+{% elif release.status == 'moderation' %}
+  {% set card_status = 'На модерации' %}
+  {% set card_mod = 'is-moderation' %}
+  {% set card_icon = 'hourglass_top' %}
+{% elif release.status == 'rejected' %}
+  {% set card_status = 'Отклонён' %}
+  {% set card_mod = 'is-rejected' %}
+  {% set card_icon = 'cancel' %}
+{% elif release.status == 'revoked' %}
+  {% set card_status = 'Отозван' %}
+  {% set card_mod = 'is-revoked' %}
+  {% set card_icon = 'undo' %}
+{% elif release.status == 'deletion' %}
+  {% set card_status = 'Снятие' %}
+  {% set card_mod = 'is-revoked' %}
+  {% set card_icon = 'delete_forever' %}
+{% else %}
+  {% set card_status = 'Черновик' %}
+  {% set card_mod = 'is-draft' %}
+  {% set card_icon = 'edit_note' %}
+{% endif %}
+
+<a href="{{ detail_url }}" class="rel-tile {{ card_mod }}">
+    <span class="rel-tile__rail" aria-hidden="true"></span>
+    <div class="rel-tile__cover">
+        <img src="{{ release.cover_url }}" alt="" loading="lazy" width="120" height="120" decoding="async">
+    </div>
+    <div class="rel-tile__main">
+        <div class="rel-tile__top">
+            <span class="rel-tile__status">
+                <span class="material-icons" aria-hidden="true">{{ card_icon }}</span>
+                {{ card_status }}
+            </span>
+            <span class="rel-tile__type">{{ release.type_display }}</span>
+        </div>
+        <h2 class="rel-tile__title">{{ release.title }}{% if release.version %} <span class="rel-tile__version">{{ release.version }}</span>{% endif %}</h2>
+        <p class="rel-tile__artists">{{ release.artists }}</p>
+        <div class="rel-tile__foot">
+            <span class="rel-tile__foot-item">
+                <span class="material-icons" aria-hidden="true">music_note</span>
+                {{ release.tracks_count }} тр.
+            </span>
+            {% if release.genre %}
+            <span class="rel-tile__foot-dot" aria-hidden="true">·</span>
+            <span class="rel-tile__foot-item">{{ release.genre }}</span>
+            {% endif %}
+            {% if release.release_date %}
+            <span class="rel-tile__foot-dot" aria-hidden="true">·</span>
+            <span class="rel-tile__foot-item">{{ release.release_date.strftime('%d.%m.%Y') }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <span class="rel-tile__chevron material-icons" aria-hidden="true">chevron_right</span>
+</a>

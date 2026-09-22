@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Проверка почты{% endblock %}
+{% block page_title %}Проверка SMTP{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-content">
+        <p>Отправьте тестовое письмо, чтобы проверить настройку почты для уведомлений о тикетах.</p>
+        {% if not configured %}
+        <p class="text-secondary" style="margin-top:0.5rem;">MAIL_SERVER не задан в .env — почта не настроена.</p>
+        {% endif %}
+        <form method="POST" style="margin-top:1rem;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label for="email">Email получателя</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="{{ current_user.email or '' }}" value="{{ request.form.get('email', '') }}">
+            </div>
+            <button type="submit" class="btn btn-primary" {% if not configured %}disabled{% endif %}>
+                <span class="material-icons">send</span> Отправить тест
+            </button>
+        </form>
+        {% if result %}
+        <div style="margin-top:1rem; padding:0.75rem; border-radius:8px; background:{% if result.ok %}var(--primary-light){% else %}rgba(239,68,68,0.15){% endif %};">
+            {% if result.ok %}
+            <span class="material-icons" style="color:var(--success); vertical-align:middle;">check_circle</span>
+            {{ result.message }}
+            {% else %}
+            <span class="material-icons" style="color:var(--danger); vertical-align:middle;">error</span>
+            {{ result.message }}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+<div class="card" style="margin-top:1rem;">
+    <div class="card-content">
+        <h3>Настройки в .env</h3>
+        <p>MAIL_SERVER: <code id="mail-server-display">{{ mail_server or '(не задан)' }}</code></p>
+        <p class="text-secondary">Reg.ru: mail.hosting.reg.ru, порт 465 (SSL). Логин — полный email ящика.</p>
+    </div>
+</div>
+{% endblock %}

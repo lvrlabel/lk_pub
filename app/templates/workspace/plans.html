@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "workspace/_nav.html" import workspace_nav, workspace_shell_attrs %}
+
+{% block title %}Планы — Моё пространство{% endblock %}
+{% block page_title %}Планы по релизам{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/x-ui.css', v='20260721-xui3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css', v='20260721-ws5') }}">
+{% endblock %}
+
+{% block content %}
+<div {{ workspace_shell_attrs(theme) }}>
+    <header class="ws-head">
+        <div>
+            <h1 class="ws-title">Планы по релизам</h1>
+            <p class="ws-sub">Целевые даты и этапы — отдельно от модерации дистрибьюции</p>
+        </div>
+    </header>
+    {{ workspace_nav(section) }}
+
+    <form method="POST" class="ws-compose">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="text" name="title" class="form-control" placeholder="Например: Сингл к осени" required maxlength="200">
+        <div class="ws-compose__row">
+            <input type="date" name="target_date" class="form-control" title="Целевая дата">
+            <select name="release_id" class="form-control">
+                <option value="">Без привязки к релизу</option>
+                {% for r in releases %}
+                <option value="{{ r.id }}">{{ r.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <textarea name="notes" class="form-control" rows="2" placeholder="Заметки к плану"></textarea>
+        <div class="ws-form-actions">
+            <button type="submit" class="btn btn-primary">Добавить план</button>
+        </div>
+    </form>
+
+    {% if plans %}
+    <ul class="ws-cards">
+        {% for p in plans %}
+        <li class="ws-card">
+            <div>
+                <strong>{{ p.title }}</strong>
+                <span class="ws-badge">{{ p.status_label }}</span>
+                <span class="ws-task__meta">
+                    {% if p.target_display %}цель {{ p.target_display }}{% endif %}
+                    {% if p.release %} · релиз «{{ p.release.title }}»{% endif %}
+                </span>
+                {% if p.notes %}<p>{{ p.notes }}</p>{% endif %}
+            </div>
+            <div class="ws-card__actions">
+                <form method="POST" action="{{ url_for('workspace.plan_status', plan_id=p.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <select name="status" onchange="this.form.submit()">
+                        <option value="planned" {% if p.status == 'planned' %}selected{% endif %}>План</option>
+                        <option value="in_progress" {% if p.status == 'in_progress' %}selected{% endif %}>В работе</option>
+                        <option value="done" {% if p.status == 'done' %}selected{% endif %}>Готово</option>
+                    </select>
+                </form>
+                <form method="POST" action="{{ url_for('workspace.plan_delete', plan_id=p.id) }}" onsubmit="return confirm('Удалить план?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost btn-sm"><span class="material-icons">delete</span></button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ws-empty">Планов пока нет.</p>
+    {% endif %}
+</div>
+{% endblock %}

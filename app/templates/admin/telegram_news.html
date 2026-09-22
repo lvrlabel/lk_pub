@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Новость в TG бот{% endblock %}
+{% block page_title %}Новость в TG бот{% endblock %}
+{% block content %}
+<div class="svc-updates-refine uni-skin">
+    <header class="svc-updates-refine__head">
+        <div class="svc-updates-refine__head-main">
+            <h1 class="svc-updates-refine__title">Новость в Telegram-бот</h1>
+            <p class="svc-updates-refine__subtitle">
+                Текстовая рассылка только пользователям, которые привязали Telegram в профиле через
+                <a href="https://t.me/{{ bot_username }}" target="_blank" rel="noopener">@{{ bot_username }}</a>.
+                Тип «О ЧП» — срочные сообщения о происшествиях и сбоях. Без картинок.
+            </p>
+        </div>
+    </header>
+
+    <div class="svc-updates-refine__form-card" style="margin-bottom: 1.25rem;">
+        <div class="svc-updates-refine__article" style="padding: 1rem 1.15rem;">
+            <p style="margin: 0 0 0.35rem;">
+                <strong>Получателей (привязан Telegram):</strong> {{ subscribers }}
+            </p>
+            <p class="text-secondary" style="margin: 0; font-size: 0.875rem;">
+                Учитываются только пользователи с привязкой в профиле (кнопка «Привязать» + Start в боте).
+                Один username без привязки не получит сообщение.
+            </p>
+            {% if not configured %}
+            <p class="text-secondary" style="margin: 0;">
+                Добавьте <code>TELEGRAM_BOT_TOKEN</code> в файл <code>.env</code> на сервере.
+            </p>
+            {% elif webhook_url %}
+            <p class="text-secondary" style="margin: 0.35rem 0 0; font-size: 0.875rem; word-break: break-all;">
+                Webhook: <code>{{ webhook_url }}</code>
+            </p>
+            <form method="POST" action="{{ url_for('telegram_news.set_webhook_route') }}" style="margin-top: 0.75rem;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-ghost btn-sm">
+                    <span class="material-icons" aria-hidden="true">link</span>
+                    Привязать webhook в Telegram
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="svc-updates-refine__form-card">
+        <form method="POST" class="svc-updates-refine__form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="kind">Тип сообщения</label>
+                <select id="kind" name="kind" class="form-control" {% if not configured %}disabled{% endif %}>
+                    <option value="outage">🚨 О ЧП (срочные технические накладки / сбои)</option>
+                    <option value="update" selected>📢 Обновление сервиса</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Заголовок <span class="text-tertiary">(необязательно)</span></label>
+                <input type="text" id="title" name="title" class="form-control" maxlength="256"
+                       placeholder="Если пусто — подставится из типа сообщения"
+                       {% if not configured %}disabled{% endif %}>
+            </div>
+
+            <div class="form-group">
+                <label for="text">Текст</label>
+                <textarea id="text" name="text" class="form-control" rows="8" required
+                          placeholder="Опишите суть: что произошло, сроки, что делать пользователям…"
+                          {% if not configured %}disabled{% endif %}></textarea>
+            </div>
+
+            <div class="svc-updates-refine__form-actions">
+                <button type="submit" class="btn btn-primary" {% if not configured %}disabled{% endif %}>
+                    <span class="material-icons" aria-hidden="true">send</span>
+                    Отправить в Telegram
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if broadcasts %}
+    <section class="svc-updates-refine__list" style="margin-top: 1.5rem;">
+        <h2 class="svc-updates-refine__section-title">Журнал рассылок</h2>
+        {% for item in broadcasts %}
+        <article class="svc-updates-refine__item">
+            <div class="svc-updates-refine__item-main">
+                <span class="svc-updates-badge{% if item.kind == 'outage' %} svc-updates-badge--urgent{% endif %}">
+                    {{ item.kind_display }}
+                </span>
+                <h3 class="svc-updates-refine__item-title">{{ item.title }}</h3>
+                <p class="svc-updates-refine__item-excerpt">{{ item.short_text }}</p>
+                <p class="svc-updates-refine__item-meta text-tertiary">
+                    {{ item.date_display }}
+                    · доставлено: {{ item.recipients_ok }}
+                    {% if item.recipients_failed %} · ошибок: {{ item.recipients_failed }}{% endif %}
+                </p>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

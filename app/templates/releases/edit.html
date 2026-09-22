@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование — {{ release.title }}{% endblock %}
+{% block page_title %}Редактирование релиза{% endblock %}
+{% block content_class %}content--release-edit{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/release-dmb.css', v='20260902-mobile') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-rdmb.css', v='20260902-graphite') }}">
+{% endblock %}
+
+{% block content %}
+{% set selected_ids = selected_platform_ids or [] %}
+<div class="tl-page tl-rdmb rdmb" id="rdmbEdit">
+    <form method="POST" enctype="multipart/form-data" class="rdmb__form js-submit-loading" id="releaseEditForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="rdmb__frame">
+            <nav class="rdmb__nav" aria-label="Разделы релиза">
+                <button type="button" class="rdmb__nav-item is-active" data-rdmb-section="data">
+                    <span class="material-icons" aria-hidden="true">album</span>
+                    <span>Данные релиза</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="media">
+                    <span class="material-icons" aria-hidden="true">image</span>
+                    <span>Медиафайлы</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="tracks">
+                    <span class="material-icons" aria-hidden="true">queue_music</span>
+                    <span>Треки</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="extra">
+                    <span class="material-icons" aria-hidden="true">notes</span>
+                    <span>Дополнительно</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="countries">
+                    <span class="material-icons" aria-hidden="true">public</span>
+                    <span>Страны</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="distribution">
+                    <span class="material-icons" aria-hidden="true">storefront</span>
+                    <span>Дистрибуция</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="dates">
+                    <span class="material-icons" aria-hidden="true">event</span>
+                    <span>Даты и цены</span>
+                </button>
+                <button type="button" class="rdmb__nav-item" data-rdmb-section="events">
+                    <span class="material-icons" aria-hidden="true">history</span>
+                    <span>События по релизу</span>
+                </button>
+                <button type="button" class="rdmb__nav-item rdmb__nav-item--apply" data-rdmb-section="apply">
+                    <span class="material-icons" aria-hidden="true">done</span>
+                    <span>Применить</span>
+                </button>
+            </nav>
+
+            <div class="rdmb__workspace">
+                <header class="rdmb__top">
+                    <div>
+                        <h1 class="rdmb__title" id="rdmbSectionTitle">Изменение релиза «{{ release.title }}» — Данные релиза</h1>
+                        <p class="rdmb__subtitle">Те же разделы, что при создании. Сохраните изменения перед отправкой на модерацию.</p>
+                    </div>
+                    <a href="{{ url_for('releases.view', id=release.id) }}" class="rdmb__close" aria-label="Закрыть">
+                        <span class="material-icons" aria-hidden="true">close</span>
+                    </a>
+                </header>
+
+                <div class="rdmb__body">
+                    <div class="rdmb__main">
+                        <section class="rdmb__panel" data-rdmb-panel="data">
+                            <div class="rdmb__row">
+                                <div class="rdmb__label">Статус</div>
+                                <div class="rdmb__control">
+                                    <div class="rdmb__status">{{ release.status_display }}</div>
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="title">Название релиза <span class="req">*</span></label></div>
+                                <div class="rdmb__control">
+                                    <input class="rdmb__input" type="text" id="title" name="title" required maxlength="256"
+                                           value="{{ release.title }}" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="version">Версия</label></div>
+                                <div class="rdmb__control">
+                                    <input class="rdmb__input" type="text" id="version" name="version" maxlength="100"
+                                           value="{{ release.version or '' }}">
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="upc">Баркод EAN / UPC</label></div>
+                                <div class="rdmb__control">
+                                    <input class="rdmb__input" type="text" id="upc" name="upc" maxlength="20"
+                                           value="{{ release.upc or '' }}">
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="type">Тип релиза</label></div>
+                                <div class="rdmb__control">
+                                    <select class="rdmb__select" id="type" name="type">
+                                        {% for t in ['Single', 'EP', 'Album'] %}
+                                        <option value="{{ t }}" {% if release.type == t %}selected{% endif %}>{{ t }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="genre">Жанр <span class="req">*</span></label></div>
+                                <div class="rdmb__control">
+                                    <select class="rdmb__select" id="genre" name="genre" required>
+                                        {% for g in genres %}
+                                        <option value="{{ g }}" {% if release.genre == g %}selected{% endif %}>{{ g }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="artists">Отображаемый артист <span class="req">*</span></label></div>
+                                <div class="rdmb__control">
+                                    <input class="rdmb__input" type="text" id="artists" name="artists" required maxlength="512"
+                                           value="{{ release.artists }}" autocomplete="off">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="media" hidden>
+                            <input type="file" name="cover" id="coverInput" class="rdmb__file-input" accept=".jpg,.jpeg,.png">
+                            <p class="rdmb__lede">Замените обложку при необходимости. Текущая обложка показана справа.</p>
+                            <label for="coverInput" class="rdmb__linkish">
+                                <span class="material-icons" aria-hidden="true">upload</span>
+                                Загрузить новую обложку
+                            </label>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="tracks" hidden>
+                            <p class="rdmb__lede">Треки релиза. Полное редактирование трека — на карточке релиза.</p>
+                            <div class="rdmb__track-list">
+                                {% for track in tracks %}
+                                <a href="{{ url_for('releases.view', id=release.id) }}#tracks">
+                                    <strong>{{ loop.index }}. {{ track.title }}</strong>
+                                    <span>{{ track.artists }}</span>
+                                </a>
+                                {% else %}
+                                <div class="rdmb__placeholder">
+                                    <h3>Треков нет</h3>
+                                    <p>Добавьте треки с карточки релиза.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="extra" hidden>
+                            {% set ds = release.dist_settings or {} %}
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="extra_notes">Описание / заметка</label></div>
+                                <div class="rdmb__control">
+                                    <textarea class="rdmb__textarea" id="extra_notes" name="extra_notes" maxlength="4000"
+                                              placeholder="Необязательно">{{ ds.get('extra_notes', '') }}</textarea>
+                                </div>
+                            </div>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label">Яндекс Пресейв</div>
+                                <div class="rdmb__control">
+                                    <label class="rdmb__check">
+                                        <input type="checkbox" name="yandex_presave" {% if release.yandex_presave %}checked{% endif %}>
+                                        <span>Включить пресейв</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="countries" hidden>
+                            {% set ds_c = release.dist_settings or {} %}
+                            {% set terr = ds_c.get('territories') %}
+                            {% set worldwide_on = terr == 'worldwide' or terr is none %}
+                            {% if terr is string or terr is none %}
+                                {% set selected_terr = [] %}
+                            {% else %}
+                                {% set selected_terr = terr %}
+                            {% endif %}
+                            <div class="rdmb__row">
+                                <div class="rdmb__label">Доступно для стран</div>
+                                <div class="rdmb__control">
+                                    <label class="rdmb__check">
+                                        <input type="checkbox" name="territory_worldwide" id="territoryWorldwide" {% if worldwide_on %}checked{% endif %}>
+                                        <span>По всему миру</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="rdmb__check-grid rdmb__check-grid--dense" id="territoriesGrid">
+                                {% for code, label in territories %}
+                                <label class="rdmb__check rdmb__check--tile">
+                                    <input type="checkbox" name="territories" value="{{ code }}" class="js-territory"
+                                           {% if worldwide_on or code in selected_terr %}checked{% endif %}>
+                                    <span>{{ label }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="distribution" hidden>
+                            <p class="rdmb__lede">Отметьте магазины для доставки. Без площадок отправка на модерацию недоступна.</p>
+                            <div class="rdmb__toolbar">
+                                <button type="button" class="rdmb__chip-btn" id="platformsSelectAll">Выбрать все</button>
+                                <button type="button" class="rdmb__chip-btn" id="platformsClearAll">Снять все</button>
+                            </div>
+                            {% if platforms_by_category %}
+                                {% for cat, rows in platforms_by_category.items() %}
+                                <div class="rdmb__dist-block">
+                                    <h3 class="rdmb__dist-title">{{ rows[0].category_display if rows else cat }}</h3>
+                                    <div class="rdmb__check-grid {% if cat == 'main' %}rdmb__check-grid--main{% else %}rdmb__check-grid--dense{% endif %}">
+                                        {% for p in rows %}
+                                        <label class="rdmb__check rdmb__check--tile">
+                                            <input type="checkbox" name="platform_ids" value="{{ p.id }}" class="js-platform"
+                                                   {% if p.id in selected_ids %}checked{% endif %}>
+                                            <span>{{ p.name }}</span>
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                            <div class="rdmb__placeholder"><h3>Площадки не настроены</h3></div>
+                            {% endif %}
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="dates" hidden>
+                            <div class="rdmb__row">
+                                <div class="rdmb__label"><label for="release_date">Дата релиза <span class="req">*</span></label></div>
+                                <div class="rdmb__control">
+                                    <input class="rdmb__input" type="date" id="release_date" name="release_date" required
+                                           value="{{ release.release_date.strftime('%Y-%m-%d') if release.release_date else '' }}">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="events" hidden>
+                            {% if release_events %}
+                            <div class="rdmb__table-wrap">
+                                <table class="rdmb__table">
+                                    <thead>
+                                        <tr>
+                                            <th>Действие</th>
+                                            <th>Дата и время</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for event in release_events %}
+                                        <tr>
+                                            <td>{{ event.label }}</td>
+                                            <td>{{ event.created_display }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <div class="rdmb__placeholder">
+                                <h3>Нет событий</h3>
+                                <p>История появится после отправки на модерацию.</p>
+                            </div>
+                            {% endif %}
+                        </section>
+
+                        <section class="rdmb__panel" data-rdmb-panel="apply" hidden>
+                            <h3 class="rdmb__apply-title">Сохранить изменения</h3>
+                            <p class="rdmb__lede">Проверьте данные и нажмите «Сохранить».</p>
+                            <button type="submit" class="rdmb__btn rdmb__btn--primary" data-loading-text="Сохраняем…">Сохранить изменения</button>
+                        </section>
+                    </div>
+
+                    <aside class="rdmb__side">
+                        <div class="rdmb__cover-tabs">
+                            <button type="button" class="rdmb__cover-tab is-active">Обложка</button>
+                        </div>
+                        <label for="coverInput" class="rdmb__cover {% if release.cover %}has-image{% endif %}" id="coverPreview">
+                            {% if release.cover %}
+                            <img src="{{ release.cover_url }}" alt="Обложка">
+                            {% else %}
+                            <div class="rdmb__cover-ph">
+                                <span class="material-icons" aria-hidden="true">add</span>
+                                <span>Добавить обложку</span>
+                            </div>
+                            {% endif %}
+                        </label>
+                        <div class="rdmb__stats">
+                            <div class="rdmb__stat"><span>Треков</span><strong>{{ tracks|length }}</strong></div>
+                            <div class="rdmb__stat"><span>UPC</span><strong>{{ release.upc or '—' }}</strong></div>
+                        </div>
+                    </aside>
+                </div>
+
+                <footer class="rdmb__footer">
+                    <button type="button" class="rdmb__btn" id="rdmbPrevBtn">Назад</button>
+                    <button type="button" class="rdmb__btn rdmb__btn--primary" id="rdmbNextBtn">Далее</button>
+                    <a href="{{ url_for('releases.view', id=release.id) }}" class="rdmb__btn rdmb__btn--ghost">Отмена</a>
+                    <button type="submit" class="rdmb__btn rdmb__btn--primary" data-loading-text="Сохраняем…">Сохранить</button>
+                </footer>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    var root = document.getElementById('rdmbEdit');
+    if (!root) return;
+    var SECTIONS = [
+        { id: 'data', title: 'Данные релиза' },
+        { id: 'media', title: 'Медиафайлы' },
+        { id: 'tracks', title: 'Треки' },
+        { id: 'extra', title: 'Дополнительно' },
+        { id: 'countries', title: 'Страны' },
+        { id: 'distribution', title: 'Дистрибуция' },
+        { id: 'dates', title: 'Даты и цены' },
+        { id: 'events', title: 'События по релизу' },
+        { id: 'apply', title: 'Применить' }
+    ];
+    var titleEl = document.getElementById('rdmbSectionTitle');
+    var releaseTitle = {{ release.title|tojson }};
+    function activate(id) {
+        SECTIONS.forEach(function (s) {
+            var btn = root.querySelector('[data-rdmb-section="' + s.id + '"]');
+            var panel = root.querySelector('[data-rdmb-panel="' + s.id + '"]');
+            if (btn) btn.classList.toggle('is-active', s.id === id);
+            if (panel) panel.hidden = s.id !== id;
+        });
+        var cur = SECTIONS.find(function (s) { return s.id === id; });
+        if (titleEl && cur) {
+            titleEl.textContent = 'Изменение релиза «' + releaseTitle + '» — ' + cur.title;
+        }
+    }
+    root.querySelectorAll('[data-rdmb-section]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            activate(btn.getAttribute('data-rdmb-section'));
+        });
+    });
+    var prev = document.getElementById('rdmbPrevBtn');
+    var next = document.getElementById('rdmbNextBtn');
+    function currentId() {
+        var active = root.querySelector('.rdmb__nav-item.is-active');
+        return active ? active.getAttribute('data-rdmb-section') : 'data';
+    }
+    if (prev) prev.addEventListener('click', function () {
+        var idx = SECTIONS.findIndex(function (s) { return s.id === currentId(); });
+        if (idx > 0) activate(SECTIONS[idx - 1].id);
+    });
+    if (next) next.addEventListener('click', function () {
+        var idx = SECTIONS.findIndex(function (s) { return s.id === currentId(); });
+        if (idx < SECTIONS.length - 1) activate(SECTIONS[idx + 1].id);
+    });
+    var coverInput = document.getElementById('coverInput');
+    var coverPreview = document.getElementById('coverPreview');
+    if (coverInput && coverPreview) {
+        coverInput.addEventListener('change', function () {
+            var file = coverInput.files && coverInput.files[0];
+            if (!file) return;
+            var url = URL.createObjectURL(file);
+            coverPreview.classList.add('has-image');
+            coverPreview.innerHTML = '<img src="' + url + '" alt="Обложка">';
+        });
+    }
+    var pAll = document.getElementById('platformsSelectAll');
+    var pClear = document.getElementById('platformsClearAll');
+    function setPlatforms(on) {
+        root.querySelectorAll('.js-platform').forEach(function (el) { el.checked = !!on; });
+    }
+    if (pAll) pAll.addEventListener('click', function () { setPlatforms(true); });
+    if (pClear) pClear.addEventListener('click', function () { setPlatforms(false); });
+    activate('data');
+})();
+</script>
+{% endblock %}

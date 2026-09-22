@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Финансы{% endblock %}
+{% block page_title %}Финансы{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/finance-v2.css', v='20260917-f4') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-finance money-desk">
+    <div class="money-desk__hero">
+        <div class="money-desk__hero-main">
+            <p class="money-desk__eyebrow">Ваш баланс</p>
+            <p class="money-desk__balance">{{ format_money(finance_totals.balance) }}</p>
+            <p class="money-desk__balance-caption">
+                Начисления по отчётам минус одобренные выплаты. Здесь видны квартальные отчёты и статусы согласования.
+            </p>
+        </div>
+        <div class="money-desk__hero-side">
+            <p class="money-desk__eyebrow" style="color:var(--text-tertiary)">Сводка</p>
+            <div class="money-desk__side-row">
+                <span class="money-desk__side-label">Начислено</span>
+                <span class="money-desk__side-value">{{ format_money(finance_totals.accrued) }}</span>
+            </div>
+            <div class="money-desk__side-row">
+                <span class="money-desk__side-label">Выплачено</span>
+                <span class="money-desk__side-value">{{ format_money(finance_totals.paid_out) }}</span>
+            </div>
+            <div class="money-desk__side-row">
+                <span class="money-desk__side-label">Отчётов</span>
+                <span class="money-desk__side-value">{{ finances|length }}</span>
+            </div>
+        </div>
+    </div>
+
+    <aside class="money-desk__schedule" role="status">
+        <span class="material-icons" aria-hidden="true">event</span>
+        <p>
+            Отчётность обновляется <strong>раз в квартал</strong>.
+            Ближайшее обновление — <strong>до 25 сентября</strong>.
+        </p>
+    </aside>
+
+    <div class="money-desk__toolbar">
+        <h2>Отчёты</h2>
+        {% if current_user.is_admin %}
+        <a href="{{ url_for('money.upload') }}" class="btn btn-primary btn-sm">
+            <span class="material-icons">upload</span>
+            Загрузить отчёт
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="money-desk__panel">
+        {% if finances %}
+        <div class="money-desk__table-wrap">
+            <table class="money-desk__table">
+                <thead>
+                    <tr>
+                        <th>Период</th>
+                        {% if current_user.is_admin %}<th>Пользователь</th>{% endif %}
+                        <th>Статус</th>
+                        <th class="num">Сумма</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for finance in finances %}
+                    {% if finance.approval and finance.approval.status == 'approved' %}
+                        {% set st_label = 'Выплачено / одобрено' %}
+                        {% set st_mod = 'is-paid' %}
+                    {% elif finance.approval and finance.approval.status == 'pending' %}
+                        {% set st_label = 'Заявка на выплату' %}
+                        {% set st_mod = 'is-pending' %}
+                    {% elif finance.has_platform_breakdown %}
+                        {% set st_label = 'Есть площадки' %}
+                        {% set st_mod = 'is-ok' %}
+                    {% else %}
+                        {% set st_label = 'Отчёт' %}
+                        {% set st_mod = '' %}
+                    {% endif %}
+                    <tr>
+                        <td>
+                            <div class="money-desk__period">{{ finance.quarter_display }}</div>
+                        </td>
+                        {% if current_user.is_admin %}
+                        <td>
+                            <div class="money-desk__user">{{ finance.user.display_name }}</div>
+                            <div class="money-desk__user">{{ finance.user.login }}</div>
+                        </td>
+                        {% endif %}
+                        <td><span class="money-desk__badge {{ st_mod }}">{{ st_label }}</span></td>
+                        <td class="num">{{ finance.amount_formatted }}</td>
+                        <td>
+                            <div class="money-desk__actions">
+                                <a href="{{ url_for('money.finance_detail', id=finance.id) }}" class="money-desk__btn" title="Открыть">
+                                    <span class="material-icons">visibility</span>
+                                    Открыть
+                                </a>
+                                {% if finance.file_path %}
+                                <a href="{{ url_for('money.download', id=finance.id) }}" class="money-desk__btn" title="Скачать">
+                                    <span class="material-icons">download</span>
+                                </a>
+                                {% endif %}
+                                {% if not current_user.is_admin and finance.user_id == current_user.id and not finance.has_approval_request %}
+                                <a href="{{ url_for('money.request_approval', id=finance.id) }}" class="money-desk__btn money-desk__btn--primary">
+                                    Выплата
+                                </a>
+                                {% endif %}
+                                {% if current_user.is_admin %}
+                                <a href="{{ url_for('money.finance_edit', id=finance.id) }}" class="money-desk__btn" title="Редактировать">
+                                    <span class="material-icons">edit</span>
+                                </a>
+                                <form method="POST" action="{{ url_for('money.delete', id=finance.id) }}" style="display:inline" onsubmit="return confirm('Удалить отчёт «{{ finance.quarter_display }}»{% if finance.user %} для {{ finance.user.display_name }}{% endif %}? Это действие нельзя отменить.');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="money-desk__btn money-desk__btn--danger" title="Удалить отчёт">
+                                        <span class="material-icons">delete</span>
+                                        Удалить
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="money-desk__empty">
+            <span class="material-icons" aria-hidden="true">receipt_long</span>
+            <p>Отчётов пока нет</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

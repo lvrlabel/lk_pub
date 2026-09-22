@@ -1,0 +1,449 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block page_title %}Профиль{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile-v2.css', v='20260721-sml1') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-profile profile-v2">
+    <section class="profile-v2__hero" aria-label="Профиль">
+        <img src="{{ current_user.avatar_url }}" alt="" class="profile-v2__avatar" width="88" height="88">
+        <div>
+            <h1 class="profile-v2__name">{{ current_user.display_name }}</h1>
+            <p class="profile-v2__email">{{ current_user.email }}</p>
+            <div class="profile-v2__meta">
+                <span class="profile-v2__chip profile-v2__chip--role-{{ current_user.role }}">
+                    {% if current_user.is_admin %}Администратор{% elif current_user.is_label %}Лейбл{% else %}Артист{% endif %}
+                </span>
+                {% if not current_user.is_admin %}
+                <span class="profile-v2__chip profile-v2__chip--bonus" title="Бонусный баланс">
+                    <span class="material-icons" aria-hidden="true">loyalty</span>
+                    {{ bonus_balance|intcomma }} бонусов
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="profile-v2__actions">
+            <a href="{{ url_for('profile.edit') }}" class="btn btn-primary btn-sm">
+                <span class="material-icons">edit</span>
+                Редактировать
+            </a>
+            <a href="{{ url_for('profile.change_password') }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons">lock</span>
+                Пароль
+            </a>
+        </div>
+    </section>
+
+    <nav class="profile-v2__nav" aria-label="Разделы профиля">
+        <a href="#profile-account">Аккаунт</a>
+        {% if not current_user.is_admin %}
+        <a href="#profile-subscription">Подписка</a>
+        <a href="#profile-bonus">Бонусы</a>
+        {% endif %}
+        <a href="#profile-connections">Подключения</a>
+        <a href="#profile-devices">Устройства</a>
+        <a href="#profile-tax">Реквизиты</a>
+        <a href="#profile-contract">Договор</a>
+        {% if current_user.is_admin %}
+        <a href="#profile-admin">Админ</a>
+        {% endif %}
+    </nav>
+
+    <div class="profile-v2__stack">
+        <section id="profile-contract" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">description</span> Договор</h2>
+                <a href="{{ url_for('contracts.index') }}" class="btn btn-ghost btn-sm">Все договоры</a>
+            </header>
+            <div class="profile-v2__card-body">
+                {% if latest_contract %}
+                <div class="profile-v2__fields">
+                    <div class="profile-v2__field"><span class="profile-v2__field-label">Статус</span><span class="profile-v2__field-value {{ latest_contract.status_class }}">{{ latest_contract.status_display }}</span></div>
+                    <div class="profile-v2__field"><span class="profile-v2__field-label">Дата</span><span class="profile-v2__field-value">{{ latest_contract.created_at.strftime('%d.%m.%Y') }}</span></div>
+                </div>
+                <a href="{{ url_for('contracts.view', id=latest_contract.id) }}" class="btn btn-primary btn-sm" style="margin-top:1rem;">Открыть договор</a>
+                {% else %}
+                <p class="profile-v2__hint">Договор пока не создан.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section id="profile-account" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">person</span> Данные аккаунта</h2>
+            </header>
+            <div class="profile-v2__card-body">
+                <div class="profile-v2__fields">
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Имя</span>
+                        <span class="profile-v2__field-value">{{ current_user.name or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Email</span>
+                        <span class="profile-v2__field-value">{{ current_user.email }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Логин</span>
+                        <span class="profile-v2__field-value">{{ current_user.login }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Телефон</span>
+                        <span class="profile-v2__field-value">{{ current_user.phone_display or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Telegram</span>
+                        <span class="profile-v2__field-value">{{ current_user.telegram_display or '—' }}</span>
+                    </div>
+                    {% if current_user.copyright %}
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Копирайт</span>
+                        <span class="profile-v2__field-value">{{ current_user.copyright }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        {% if not current_user.is_admin %}
+        <section id="profile-subscription" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">card_membership</span> Подписка</h2>
+                <a href="{{ url_for('documents.hub_invoices') }}" class="btn btn-ghost btn-sm">Счета</a>
+            </header>
+            <div class="profile-v2__card-body">
+                <div class="profile-v2__fields">
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Тариф</span>
+                        <span class="profile-v2__field-value">{{ current_user.subscription_status_label }}</span>
+                    </div>
+                    {% if current_user.subscription_expires_at %}
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Действует до</span>
+                        <span class="profile-v2__field-value">{{ current_user.subscription_expires_at.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if not current_user.subscription_active %}
+                <p class="profile-v2__hint" style="margin-top:0.75rem">
+                    Для выгрузки релизов оформите подписку — оплатите счёт в разделе «Финансы → Счета».
+                </p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section id="profile-bonus" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">loyalty</span> Бонусная программа</h2>
+            </header>
+            <div class="profile-v2__card-body">
+                <div class="profile-v2__bonus">
+                    <div class="profile-v2__bonus-balance">
+                        <span class="profile-v2__bonus-label">Баланс</span>
+                        <span class="profile-v2__bonus-value">{{ bonus_balance|intcomma }}</span>
+                        <span class="profile-v2__bonus-unit">бонусов</span>
+                    </div>
+                    <p class="profile-v2__hint" style="margin:0">
+                        Баллы начисляет администратор. Чтобы потратить бонусы — создайте тикет в поддержку или дождитесь списания после согласования.
+                    </p>
+                </div>
+
+                <h3 class="profile-v2__subtitle">На что можно потратить</h3>
+                <ul class="profile-v2__services">
+                    {% for service in bonus_services %}
+                    <li class="profile-v2__service">
+                        <div>
+                            <span class="profile-v2__service-title">{{ service.title }}</span>
+                            <span class="profile-v2__service-cost">{{ service.cost|intcomma }} бонусов</span>
+                        </div>
+                        {% if service.affordable %}
+                        <span class="profile-v2__badge is-ok">Доступно</span>
+                        {% else %}
+                        <span class="profile-v2__badge">Не хватает {{ (service.cost - bonus_balance)|intcomma }}</span>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                <h3 class="profile-v2__subtitle">История операций</h3>
+                {% if bonus_history %}
+                <div class="profile-v2__table-wrap">
+                    <table class="profile-v2__table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Дата</th>
+                                <th scope="col">Операция</th>
+                                <th scope="col">Комментарий</th>
+                                <th scope="col">Баллы</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in bonus_history %}
+                            <tr>
+                                <td>{{ tx.created_display }}</td>
+                                <td>
+                                    {% if tx.is_credit %}
+                                    <span class="profile-v2__tx profile-v2__tx--credit">Начисление</span>
+                                    {% else %}
+                                    <span class="profile-v2__tx profile-v2__tx--debit">Списание</span>
+                                    {% if tx.service_key %}
+                                    <span class="text-secondary"> · {{ tx.service_title(bonus_catalog) }}</span>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ tx.comment or '—' }}</td>
+                                <td>
+                                    <span class="{% if tx.is_credit %}profile-v2__amount--credit{% else %}profile-v2__amount--debit{% endif %}">
+                                        {{ tx.amount_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="profile-v2__hint">Пока нет начислений и списаний.</p>
+                {% endif %}
+            </div>
+        </section>
+        {% endif %}
+
+        <section id="profile-connections" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">hub</span> Подключения и уведомления</h2>
+            </header>
+            <div class="profile-v2__card-body">
+                <p class="profile-v2__hint">
+                    Откройте бота @{{ telegram_bot_username }} в Telegram и нажмите «Привязать» ниже.
+                    После привязки сюда приходят коды для входа, статусы ваших тикетов и сообщения о ЧП.
+                </p>
+                <div class="profile-v2__connect">
+                    <div class="profile-v2__connect-row">
+                        <div class="profile-v2__connect-main">
+                            <p class="profile-v2__connect-title">Telegram-уведомления</p>
+                            <p class="profile-v2__connect-status {% if current_user.telegram_notifications_connected %}is-on{% endif %}">
+                                {% if current_user.telegram_notifications_connected %}
+                                Подключено{% if current_user.telegram_display %} · {{ current_user.telegram_display }}{% endif %}
+                                {% else %}
+                                Не подключено
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if current_user.telegram_notifications_connected %}
+                        <form method="POST" action="{{ url_for('profile.telegram_disconnect') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-ghost btn-sm">
+                                <span class="material-icons">link_off</span>
+                                Отвязать
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{{ telegram_connect_url }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">
+                            <span class="material-icons">add_link</span>
+                            Привязать
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    {% for sp in social_providers %}
+                    <div class="profile-v2__connect-row">
+                        <div class="profile-v2__connect-main">
+                            <p class="profile-v2__connect-title">{{ sp.title }}</p>
+                            <p class="profile-v2__connect-status {% if sp.account %}is-on{% endif %}">
+                                {% if sp.account %}
+                                Подключено{% if sp.account.email %} · {{ sp.account.email }}{% endif %}
+                                {% else %}
+                                Не подключено
+                                {% endif %}
+                            </p>
+                        </div>
+                        {% if sp.account %}
+                        <form method="POST" action="{{ url_for('profile.social_disconnect', provider=sp.key) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-ghost btn-sm">
+                                <span class="material-icons">link_off</span>
+                                Отвязать
+                            </button>
+                        </form>
+                        {% else %}
+                        <a href="{{ url_for('profile.social_connect', provider=sp.key) }}"
+                           class="btn btn-primary btn-sm {% if not sp.enabled %}btn-disabled{% endif %}">
+                            <span class="material-icons">add_link</span>
+                            Подключить
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <section id="profile-devices" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">devices</span> Устройства и сессии</h2>
+            </header>
+            <div class="profile-v2__card-body">
+                <p class="profile-v2__hint">
+                    После входа устройству выдаётся sessionId. Он действует, пока вы не выйдете, и обновляется каждые 8 часов.
+                    Здесь можно принудительно выйти с другого устройства.
+                </p>
+                {% if active_sessions %}
+                <div class="profile-v2__devices">
+                    {% for s in active_sessions %}
+                    <div class="profile-v2__device {% if current_session_id and s.session_id == current_session_id %}is-current{% endif %}">
+                        <div class="profile-v2__device-main">
+                            <p class="profile-v2__device-title">
+                                <span class="material-icons" aria-hidden="true">
+                                    {% if 'iOS' in (s.device_label or '') or 'Android' in (s.device_label or '') %}smartphone{% else %}computer{% endif %}
+                                </span>
+                                {{ s.device_label or 'Устройство' }}
+                                {% if current_session_id and s.session_id == current_session_id %}
+                                <span class="profile-v2__badge is-ok">Это устройство</span>
+                                {% endif %}
+                                {% if s.is_trusted %}
+                                <span class="profile-v2__badge is-trusted">Доверенное</span>
+                                {% endif %}
+                            </p>
+                            <p class="profile-v2__device-meta">
+                                IP: {{ s.ip_address or '—' }}
+                                · вход {{ s.created_display }}
+                                · активность {{ s.last_seen_display }}
+                            </p>
+                        </div>
+                        <div class="profile-v2__device-actions">
+                            <form method="POST" action="{{ url_for('profile.trust_session', session_pk=s.id) }}">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                {% if s.is_trusted %}
+                                <input type="hidden" name="trusted" value="0">
+                                <button type="submit" class="btn btn-ghost btn-sm" title="Снять метку доверия">
+                                    <span class="material-icons">verified_user</span>
+                                    Снять доверие
+                                </button>
+                                {% else %}
+                                <input type="hidden" name="trusted" value="1">
+                                <button type="submit" class="btn btn-ghost btn-sm" title="Отметить как доверенное">
+                                    <span class="material-icons">shield</span>
+                                    Доверить
+                                </button>
+                                {% endif %}
+                            </form>
+                            <form method="POST" action="{{ url_for('profile.revoke_session', session_pk=s.id) }}"
+                                  onsubmit="return confirm('Завершить сессию на этом устройстве?');">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-ghost btn-sm">
+                                    <span class="material-icons">logout</span>
+                                    {% if current_session_id and s.session_id == current_session_id %}Выйти{% else %}Отключить{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if active_sessions|length > 1 %}
+                <form method="POST" action="{{ url_for('profile.revoke_other_sessions_route') }}" class="profile-v2__devices-bulk"
+                      onsubmit="return confirm('Выйти со всех устройств, кроме текущего?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost btn-sm">
+                        <span class="material-icons">phonelink_erase</span>
+                        Выйти на всех других устройствах
+                    </button>
+                </form>
+                {% endif %}
+                {% else %}
+                <p class="profile-v2__hint">Активных устройств пока нет — сессия появится после следующего обновления страницы.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section id="profile-tax" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">receipt_long</span> Налоговая и платёжная информация</h2>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('profile.tax_info_edit') }}" class="btn btn-ghost btn-sm">
+                    <span class="material-icons">edit</span>
+                    Редактировать
+                </a>
+                {% endif %}
+            </header>
+            <div class="profile-v2__card-body">
+                <p class="profile-v2__hint">Используется для договоров и выплат.</p>
+                {% if current_user.is_admin %}
+                <p class="profile-v2__hint">Свои реквизиты можно править кнопкой «Редактировать». Реквизиты других пользователей — в разделе «Пользователи».</p>
+                {% endif %}
+                <div class="profile-v2__fields">
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Налоговый статус</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_status_display }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Юр. лицо / ИП</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_legal_name or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">ИНН</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_inn or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Расчётный счёт</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_bank_account or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">Банк</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_bank_name or '—' }}</span>
+                    </div>
+                    <div class="profile-v2__field">
+                        <span class="profile-v2__field-label">БИК</span>
+                        <span class="profile-v2__field-value">{{ current_user.tax_bank_bik or '—' }}</span>
+                    </div>
+                </div>
+                {% if not current_user.is_admin %}
+                <div class="profile-v2__cta">
+                    <span class="material-icons" aria-hidden="true">support_agent</span>
+                    <span>Изменить реквизиты можно через <a href="{{ url_for('tickets.index') }}">тикет в поддержку</a>.</span>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        {% if current_user.is_admin %}
+        <section id="profile-admin" class="profile-v2__card">
+            <header class="profile-v2__card-head">
+                <h2 class="profile-v2__card-title"><span class="material-icons">admin_panel_settings</span> Администрирование</h2>
+                <span class="profile-v2__chip profile-v2__chip--role-admin">Админ</span>
+            </header>
+            <div class="profile-v2__card-body">
+                <nav class="profile-v2__admin-links" aria-label="Быстрые действия админа">
+                    <a href="{{ url_for('users.index') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">people</span>
+                        Пользователи
+                    </a>
+                    <a href="{{ url_for('admin.management') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">business</span>
+                        Фирма
+                    </a>
+                    <a href="{{ url_for('moderation.index') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">fact_check</span>
+                        Модерация
+                    </a>
+                    <a href="{{ url_for('money.approvals') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">approval</span>
+                        Согласование
+                    </a>
+                    <a href="{{ url_for('documents.admin_invoices') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">receipt_long</span>
+                        Счета
+                    </a>
+                    <a href="{{ url_for('admin.user_activity') }}" class="profile-v2__admin-link">
+                        <span class="material-icons">history</span>
+                        Журнал действий
+                    </a>
+                </nav>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

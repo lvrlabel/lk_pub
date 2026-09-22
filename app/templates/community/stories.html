@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Сторис артистов{% endblock %}
+{% block page_title %}Сторис артистов{% endblock %}
+
+{% block content %}
+<div class="cm-page cm-stories-page uni-skin">
+    <header class="cm-hero">
+        <div class="cm-hero-content">
+            <h1 class="cm-hero-title">Сторис артистов</h1>
+            <p class="cm-hero-subtitle">Моменты из жизни артистов Toolls: за кулисами, новые релизы, превью треков. Сторис живёт 24 часа.</p>
+        </div>
+        <a href="{{ url_for('community.chat') }}" class="btn btn-ghost cm-hero-stories-btn">
+            <span class="material-icons">forum</span> Чат сообщества
+        </a>
+    </header>
+
+    <!-- Форма создания -->
+    <section class="cm-story-create">
+        <div class="cm-story-create__head">
+            <div class="cm-story-create__title">
+                <span class="material-icons">add_a_photo</span>
+                <div>
+                    <h2>Новая сторис</h2>
+                    <p>Осталось сегодня: {{ stories_per_day_limit - my_today_count }} из {{ stories_per_day_limit }}</p>
+                </div>
+            </div>
+        </div>
+        <form method="post" action="{{ url_for('community.stories_create') }}" enctype="multipart/form-data" class="cm-story-create__form" id="cmStoryCreateForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label class="cm-story-create__upload">
+                <span class="material-icons">add_a_photo</span>
+                <span class="cm-story-create__upload-label">Добавить медиа</span>
+                <span class="cm-story-create__upload-name" id="cmStoryFileName">Фото или видео до 5 МБ</span>
+                <input type="file" name="media" id="cmStoryMediaInput" accept="image/*,video/*" capture="environment" required>
+            </label>
+            <input type="text" name="caption" maxlength="500" placeholder="Подпись к сторис (необязательно)" class="cm-story-create__caption">
+            <button type="submit" class="btn btn-primary" id="cmStoryPublishBtn">
+                <span class="material-icons">publish</span> Опубликовать
+            </button>
+        </form>
+    </section>
+
+    <!-- Лента -->
+    {% if stories %}
+    <div class="cm-stories-grid">
+        {% for s in stories %}
+        {% set reacted = s.reacted_by_user(current_user.id) %}
+        <article class="cm-story-card" data-story-id="{{ s.id }}">
+            <button type="button" class="cm-story-card__preview js-open-story" aria-label="Открыть сторис">
+                {% if s.media_type == 'video' %}
+                <video src="{{ s.media_url }}" muted playsinline preload="metadata"></video>
+                {% else %}
+                <img src="{{ s.media_url }}" alt="Сторис {{ s.author.display_name if s.author else '' }}" loading="lazy">
+                {% endif %}
+                <span class="cm-story-card__gradient"></span>
+                <span class="cm-story-card__author">
+                    <img src="{{ s.author.avatar_url if s.author else '/static/img/default-avatar.png' }}" alt="" class="cm-story-card__avatar">
+                    <span>{{ s.author.display_name if s.author else '—' }}</span>
+                </span>
+                <span class="cm-story-card__time">{{ s.time_formatted }}</span>
+            </button>
+
+            <!-- Скрытые детали для модалки -->
+            <div class="cm-story-details" hidden>
+                <div class="cm-story-details__media">
+                    {% if s.media_type == 'video' %}
+                    <video src="{{ s.media_url }}" controls playsinline preload="metadata"></video>
+                    {% else %}
+                    <img src="{{ s.media_url }}" alt="">
+                    {% endif %}
+                </div>
+                <div class="cm-story-details__author">
+                    <img src="{{ s.author.avatar_url if s.author else '/static/img/default-avatar.png' }}" alt="" class="cm-story-details__avatar">
+                    <div>
+                        <a href="{{ url_for('community.user_profile', user_id=s.user_id) }}" class="cm-story-details__name">{{ s.author.display_name if s.author else '—' }}</a>
+                        <span class="cm-story-details__time">{{ s.time_formatted }}</span>
+                    </div>
+                    {% if s.user_id == current_user.id or current_user.is_admin %}
+                    <form method="post" action="{{ url_for('community.stories_delete', story_id=s.id) }}" class="cm-story-details__del" onsubmit="return confirm('Удалить сторис?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="cm-icon-btn" title="Удалить сторис"><span class="material-icons">delete</span></button>
+                    </form>
+                    {% endif %}
+                    {% if current_user.is_admin %}
+                    <form method="post" action="{{ url_for('community.stories_toggle_hide', story_id=s.id) }}" class="cm-story-details__hide">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="cm-icon-btn" title="{{ 'Вернуть сторис' if s.is_hidden else 'Скрыть сторис (модерация)' }}"><span class="material-icons">{{ 'visibility' if s.is_hidden else 'visibility_off' }}</span></button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% if s.caption %}<div class="cm-story-details__caption">{{ s.caption }}</div>{% endif %}
+
+                <div class="cm-story-details__reactions">
+                    <form method="post" action="{{ url_for('community.stories_react', story_id=s.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="cm-react-btn {% if reacted %}is-active{% endif %}">
+                            <span class="material-icons">{{ 'favorite' if reacted else 'favorite_border' }}</span>
+                            <span>{{ s.reactions_count }}</span>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="cm-story-details__comments">
+                    <h4>Комментарии <span class="cm-story-details__comments-count">{{ s.comments_count }}</span></h4>
+                    {% for c in s.comments.order_by(StoryComment.created_at.asc()).all() %}
+                    <div class="cm-comment">
+                        <div class="cm-comment__meta">
+                            <strong>{{ c.user.display_name if c.user else '—' }}</strong>
+                            {% if c.user and c.user.is_admin %}<span class="cm-badge cm-badge--admin">Менеджер Toolls</span>{% endif %}
+                            <span class="cm-comment__time">{{ c.time_formatted }}</span>
+                        </div>
+                        <div class="cm-comment__text">{{ c.text }}</div>
+                    </div>
+                    {% else %}
+                    <div class="cm-comments-empty">Пока нет комментариев. Будьте первым!</div>
+                    {% endfor %}
+                    <form method="post" action="{{ url_for('community.stories_comment', story_id=s.id) }}" class="cm-comment-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="text" name="text" maxlength="500" placeholder="Ваш комментарий..." required>
+                        <button type="submit" class="btn btn-sm btn-primary"><span class="material-icons">send</span></button>
+                    </form>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="cm-stories-empty">
+        <div class="cm-stories-empty__icon"><span class="material-icons">auto_stories</span></div>
+        <h3>Сторис пока нет</h3>
+        <p>Опубликуйте первую сторис — её увидят все артисты сообщества!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Модалка просмотра сторис -->
+<div class="cm-story-modal" id="cmStoryModal" hidden>
+    <div class="cm-story-modal__backdrop" data-close-story></div>
+    <div class="cm-story-modal__dialog" role="dialog" aria-modal="true">
+        <button type="button" class="cm-story-modal__close" data-close-story aria-label="Закрыть"><span class="material-icons">close</span></button>
+        <div class="cm-story-modal__body" id="cmStoryModalBody"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community.css', v='20260914-community1') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/community-stories.js', v='20260914-community1') }}"></script>
+<script>
+(function () {
+    var input = document.getElementById('cmStoryMediaInput');
+    var name = document.getElementById('cmStoryFileName');
+    var form = document.getElementById('cmStoryCreateForm');
+    var button = document.getElementById('cmStoryPublishBtn');
+    if (!input || !name || !form || !button) return;
+    input.addEventListener('change', function () {
+        var file = input.files && input.files[0];
+        name.textContent = file ? file.name : 'Фото или видео до 5 МБ';
+        form.classList.toggle('has-file', Boolean(file));
+    });
+    form.addEventListener('submit', function () {
+        button.disabled = true;
+        button.classList.add('is-loading');
+        button.querySelector('.material-icons').textContent = 'hourglass_top';
+    });
+}());
+</script>
+{% endblock %}

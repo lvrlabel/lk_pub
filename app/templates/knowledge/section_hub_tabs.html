@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ section.title }}{% endblock %}
+{% block page_title %}{{ section.title }}{% endblock %}
+{% block content %}
+{# query: q, topic, page (>1) #}
+{% macro kb_qs(page_num=None) -%}
+{%- set parts = [] -%}
+{%- if search_q -%}{%- set _ = parts.append('q=' ~ (search_q|urlencode)) -%}{%- endif -%}
+{%- if current_topic_slug -%}{%- set _ = parts.append('topic=' ~ (current_topic_slug|urlencode)) -%}{%- endif -%}
+{%- if page_num is not none and page_num > 1 -%}{%- set _ = parts.append('page=' ~ page_num) -%}{%- endif -%}
+{{- parts|join('&') -}}
+{%- endmacro %}
+{% macro kb_href(page_num=None) -%}
+{{- url_for('knowledge.section', slug=section.slug) -}}{%- set qs = kb_qs(page_num) -%}{%- if qs -%}?{{ qs }}{%- endif -%}
+{%- endmacro %}
+
+<div class="knowledge-portal knowledge-faq-layout uni-skin kb-surface kb-surface--faq">
+    <nav class="kb-breadcrumb breadcrumb knowledge-faq-breadcrumb kb-surface__breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">{{ section.title }}</span>
+    </nav>
+
+    <header class="kb-chapter-hero kb-chapter-hero--faq" aria-labelledby="kb-faq-heading">
+        <div class="kb-chapter-hero__glow" aria-hidden="true"></div>
+        <div class="kb-chapter-hero__inner">
+            <div class="kb-chapter-hero__icon-wrap" aria-hidden="true">
+                <span class="material-icons">{{ section.icon or 'quiz' }}</span>
+            </div>
+            <p class="kb-chapter-hero__eyebrow">Справочный центр</p>
+            <h1 id="kb-faq-heading" class="kb-chapter-hero__title">{{ section.title }}</h1>
+            {% if section.summary %}
+            <p class="kb-chapter-hero__lead">{{ section.summary }}</p>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="kb-faq-panel">
+        <div class="kb-faq-toolbar kb-faq-toolbar--v2">
+            <form class="knowledge-faq-search kb-faq-search kb-faq-search--v2" method="get" action="{{ url_for('knowledge.section', slug=section.slug) }}">
+                {% if current_topic_slug %}
+                <input type="hidden" name="topic" value="{{ current_topic_slug }}">
+                {% endif %}
+                <span class="material-icons knowledge-faq-search__icon" aria-hidden="true">search</span>
+                <input type="search" name="q" value="{{ search_q }}" placeholder="Поиск по вопросам и ключевым словам…" class="knowledge-faq-search__input" autocomplete="off" inputmode="search" enterkeyhint="search" aria-label="Поиск по разделу">
+            </form>
+
+            <div class="kb-faq-tabs-scroll kb-faq-tabs-scroll--v2">
+                <nav class="knowledge-faq-tabs knowledge-faq-tabs--v2" aria-label="Подразделы">
+                    {% for t in topics %}
+                    <a href="{{ url_for('knowledge.section', slug=section.slug) }}?{% if search_q %}q={{ search_q|urlencode }}&amp;{% endif %}topic={{ t.slug|urlencode }}"
+                       class="knowledge-faq-tab knowledge-faq-tab--v2{% if current_topic_slug == t.slug %} is-active{% endif %}">{{ t.title }}</a>
+                    {% endfor %}
+                    {% if topics_other %}
+                    <a href="{{ url_for('knowledge.section', slug=section.slug) }}?{% if search_q %}q={{ search_q|urlencode }}&amp;{% endif %}topic=_other"
+                       class="knowledge-faq-tab knowledge-faq-tab--v2{% if current_topic_slug == '_other' %} is-active{% endif %}">Без подраздела</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+
+        {% if articles %}
+        <ul class="knowledge-faq-list knowledge-faq-list--v2" role="list">
+            {% for a in articles %}
+            <li>
+                <a href="{{ url_for('knowledge.article_page', section_slug=section.slug, article_slug=a.slug) }}" class="knowledge-faq-row knowledge-faq-row--v2">
+                    <span class="knowledge-faq-row__marker" aria-hidden="true"></span>
+                    <span class="knowledge-faq-row__title">{{ a.title }}</span>
+                    <span class="material-icons knowledge-faq-row__arrow" aria-hidden="true">north_east</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="knowledge-faq-empty kb-faq-empty kb-faq-empty--v2">По выбранным условиям материалов нет.</p>
+        {% endif %}
+
+        {% if pagination.pages > 1 %}
+        <nav class="knowledge-faq-pagination knowledge-faq-pagination--v2" aria-label="Страницы">
+            {% if pagination.has_prev %}
+            <a href="{{ kb_href(pagination.prev_num) }}" class="knowledge-faq-page knowledge-faq-page--nav" aria-label="Предыдущая">‹</a>
+            {% else %}
+            <span class="knowledge-faq-page knowledge-faq-page--disabled">‹</span>
+            {% endif %}
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if p %}
+                    {% if p != pagination.page %}
+                    <a href="{{ kb_href(p) }}" class="knowledge-faq-page">{{ p }}</a>
+                    {% else %}
+                    <span class="knowledge-faq-page is-current" aria-current="page">{{ p }}</span>
+                    {% endif %}
+                {% else %}
+                <span class="knowledge-faq-page knowledge-faq-page--gap">…</span>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+            <a href="{{ kb_href(pagination.next_num) }}" class="knowledge-faq-page knowledge-faq-page--nav" aria-label="Следующая">›</a>
+            {% else %}
+            <span class="knowledge-faq-page knowledge-faq-page--disabled">›</span>
+            {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+
+    <footer class="kb-footer-actions knowledge-faq-back kb-surface__footer">
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span> Ко всем разделам
+        </a>
+    </footer>
+</div>
+{% endblock %}

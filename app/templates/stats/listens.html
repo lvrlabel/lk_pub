@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Прослушивания по площадкам{% endblock %}
+{% block page_title %}Прослушиваний{% endblock %}
+{% block extra_css %}
+<style>
+.listens-chart-wrap { background: #fff; border-radius: 12px; padding: 1rem 1rem 0.5rem; margin-top: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.listens-chart-wrap .chart-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; }
+.listens-chart-wrap .chart-toolbar h2 { margin: 0; font-size: 1.25rem; color: #111; }
+.listens-chart-wrap .mode-toggle { display: flex; gap: 0.25rem; }
+.listens-chart-wrap .mode-toggle button {
+  padding: 0.4rem 0.85rem; border: 1px solid #e5e7eb; border-radius: 8px;
+  background: #fff; color: #374151; cursor: pointer; font-size: 0.9rem;
+}
+.listens-chart-wrap .mode-toggle button.active { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+.listens-chart-wrap .chart-canvas-box { position: relative; height: 380px; }
+.listens-chart-wrap .axis-label { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+[data-theme="dark"] .listens-chart-wrap { background: #1a1a1a; box-shadow: none; border: 1px solid var(--border); }
+[data-theme="dark"] .listens-chart-wrap .chart-toolbar h2 { color: #f3f4f6; }
+[data-theme="dark"] .listens-chart-wrap .mode-toggle button { background: #262626; border-color: #404040; color: #d1d5db; }
+[data-theme="dark"] .listens-chart-wrap .mode-toggle button.active { background: #064e3b; border-color: #059669; color: #a7f3d0; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="uni-skin stats-refine">
+{% include 'stats/_data_notice_banner.html' %}
+<div class="form-group"><label>Релиз</label>
+<select id="releaseSelect" class="form-control" data-listens-base="{{ url_for('stats.listens_chart') }}">
+<option value="">Выберите релиз</option>
+{% for r in releases %}<option value="{{ r.id }}" {% if selected_release and selected_release.id == r.id %}selected{% endif %}>{{ r.title }}</option>{% endfor %}
+</select>
+</div>
+{% if current_user.is_admin %}
+<p style="margin-top:0.75rem;"><a href="{{ url_for('stats.listens_daily_add') }}{% if selected_release %}?release_id={{ selected_release.id }}{% endif %}" class="btn btn-primary btn-sm">Ввести данные за день</a></p>
+{% endif %}
+
+{% if selected_release %}
+<div class="form-row" style="margin-top:1rem; gap:1rem; flex-wrap:wrap;">
+  <div class="form-group"><label>С даты</label><input type="date" id="dateFrom" class="form-control" value="{{ date_from }}"></div>
+  <div class="form-group"><label>По дату</label><input type="date" id="dateTo" class="form-control" value="{{ date_to }}"></div>
+  <div class="form-group" style="align-self:flex-end;"><button type="button" class="btn btn-primary" id="applyRange">Показать</button></div>
+</div>
+
+<div class="listens-chart-wrap">
+  <div class="chart-toolbar">
+    <h2>Прослушиваний</h2>
+    <div class="mode-toggle">
+      <button type="button" id="modeCumulative" class="active">Накопительная</button>
+      <button type="button" id="modeComparative">Сравнительная</button>
+    </div>
+  </div>
+  <p id="listensChartEmpty" class="form-hint" style="display:none; color:#6b7280;">Нет данных за выбранный период. Администратор может внести прослушивания по дням в разделе «Прослушивания за день».</p>
+  <div class="chart-canvas-box" id="listensChartBox">
+    <canvas id="listensChart"></canvas>
+  </div>
+  <div class="axis-label">Ось Y — единиц (прослушиваний)</div>
+</div>
+{% else %}
+<p class="form-hint" style="margin-top:1rem;">Выберите релиз. Администратор может вносить прослушивания по площадкам за каждый день — тогда здесь появится график как на дашборде.</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function() {
+  var sel = document.getElementById('releaseSelect');
+  if (sel && sel.dataset.listensBase) {
+    sel.addEventListener('change', function() {
+      var base = sel.dataset.listensBase;
+      if (this.value) window.location.href = base + '?release_id=' + encodeURIComponent(this.value);
+      else window.location.href = base;
+    });
+  }
+})();
+</script>
+{% if selected_release %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+  var releaseId = {{ selected_release.id }};
+  var chartInstance = null;
+  var rawDatasets = [];
+  var labelsIso = [];
+  var labelsShort = [];
+
+  function renderChart(stacked) {
+    var url = "{{ url_for('stats.listens_chart_data') }}?release_id=" + releaseId
+      + "&date_from=" + encodeURIComponent(document.getElementById('dateFrom').value)
+      + "&date_to=" + encodeURIComponent(document.getElementById('dateTo').value);
+    fetch(url, { credentials: 'same-origin' })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        var emptyEl = document.getElementById('listensChartEmpty');
+        var boxEl = document.getElementById('listensChartBox');
+        if (data.error || !data.datasets || !data.datasets.length) {
+          if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+          if (emptyEl) { emptyEl.style.display = 'block'; }
+          if (boxEl) { boxEl.style.display = 'none'; }
+          return;
+        }
+        if (emptyEl) emptyEl.style.display = 'none';
+        if (boxEl) boxEl.style.display = 'block';
+        labelsIso = data.labels_iso || [];
+        labelsShort = data.labels || [];
+        rawDatasets = data.datasets;
+        // Накопительная = stacked area (площади суммируются по дню). Сравнительная = линии без наложения.
+        var datasets = JSON.parse(JSON.stringify(rawDatasets));
+        if (stacked) {
+          datasets.forEach(function(ds) { ds.fill = true; });
+        } else {
+          datasets.forEach(function(ds) { ds.fill = false; });
+        }
+        var ctx = document.getElementById('listensChart');
+        if (!ctx) return;
+        if (chartInstance) chartInstance.destroy();
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+        var tickColor = isDark ? '#9ca3af' : '#6b7280';
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: { labels: labelsShort, datasets: datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { boxWidth: 12, usePointStyle: true, color: tickColor }
+              },
+              tooltip: {
+                callbacks: {
+                  title: function(items) {
+                    var i = items[0].dataIndex;
+                    if (labelsIso[i]) {
+                      var p = labelsIso[i].split('-');
+                      if (p.length === 3) return p[2] + '.' + p[1] + '.' + p[0];
+                    }
+                    return items[0].label || '';
+                  },
+                  label: function(ctx) {
+                    if (!stacked) return null;
+                    var idx = ctx.dataIndex;
+                    var v = rawDatasets[ctx.datasetIndex] ? (rawDatasets[ctx.datasetIndex].data[idx] || 0) : 0;
+                    return ctx.dataset.label + ': ' + v;
+                  },
+                  afterBody: function(items) {
+                    if (!items.length || stacked) return '';
+                    var idx = items[0].dataIndex;
+                    var dayTotal = 0;
+                    rawDatasets.forEach(function(ds) { dayTotal += (ds.data[idx] || 0); });
+                    if (dayTotal <= 0) return '';
+                    var lines = [];
+                    rawDatasets.forEach(function(ds) {
+                      var v = ds.data[idx] || 0;
+                      lines.push(ds.label + ': ' + v + (v > 0 ? ' (' + ((v / dayTotal) * 100).toFixed(2) + '%)' : ''));
+                    });
+                    lines.push('Всего: ' + dayTotal);
+                    return lines;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                stacked: stacked,
+                grid: { color: gridColor },
+                ticks: { color: tickColor, maxTicksLimit: 14 }
+              },
+              y: {
+                stacked: stacked,
+                beginAtZero: true,
+                grid: { color: gridColor },
+                ticks: { color: tickColor }
+              }
+            }
+          }
+        });
+      });
+  }
+
+  document.getElementById('modeCumulative').onclick = function() {
+    this.classList.add('active');
+    document.getElementById('modeComparative').classList.remove('active');
+    renderChart(true);
+  };
+  document.getElementById('modeComparative').onclick = function() {
+    this.classList.add('active');
+    document.getElementById('modeCumulative').classList.remove('active');
+    renderChart(false);
+  };
+  document.getElementById('applyRange').onclick = function() {
+    var cum = document.getElementById('modeCumulative').classList.contains('active');
+    renderChart(cum);
+  };
+
+  var modeCum = document.getElementById('modeCumulative');
+  if (modeCum) modeCum.click();
+})();
+</script>
+{% endif %}
+{% endblock %}

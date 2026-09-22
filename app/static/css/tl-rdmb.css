@@ -1,0 +1,388 @@
+/**
+ * Toolls Graphite — форма создания/редактирования релиза (rdmb).
+ * Подключать ПОСЛЕ release-dmb.css. Обёртка: .tl-page.tl-rdmb.rdmb
+ */
+
+html[data-theme="dark"] .tl-rdmb.rdmb,
+html.dark-theme .tl-rdmb.rdmb,
+.tl-rdmb.rdmb {
+    --rdmb-bg: var(--tl-bg, #100f0d);
+    --rdmb-panel: var(--tl-surface, #171512);
+    --rdmb-panel-2: var(--tl-surface-2, #1e1b17);
+    --rdmb-line: var(--tl-border, rgba(243, 239, 230, 0.08));
+    --rdmb-text: var(--tl-text, #f3efe6);
+    --rdmb-muted: var(--tl-text-muted, rgba(243, 239, 230, 0.62));
+    --rdmb-accent: var(--tl-accent, #c3f000);
+    --rdmb-accent-ink: #14140f;
+    --rdmb-danger: #f87171;
+    --rdmb-ok: #4ade80;
+    --rdmb-input: var(--tl-surface-2, #1e1b17);
+    --rdmb-radius: var(--tl-radius, 12px);
+    --rdmb-radius-sm: var(--tl-radius-sm, 8px);
+    --rdmb-shadow: none;
+    font-family: var(--tl-font, 'Manrope', system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+    color: var(--rdmb-text);
+}
+
+.tl-rdmb.rdmb .rdmb__frame {
+    border-color: var(--rdmb-line);
+    border-radius: var(--tl-radius-lg, 16px);
+    box-shadow: none;
+    background: var(--rdmb-panel);
+}
+
+/* Nav */
+.tl-rdmb.rdmb .rdmb__nav {
+    background: var(--rdmb-panel-2);
+    border-right-color: var(--rdmb-line);
+    padding: 1rem 0.7rem;
+}
+
+.tl-rdmb.rdmb .rdmb__nav-item {
+    border-radius: var(--rdmb-radius-sm);
+    font-size: 0.84rem;
+}
+
+.tl-rdmb.rdmb .rdmb__nav-item:hover {
+    background: var(--tl-accent-muted, rgba(195, 240, 0, 0.08));
+    color: var(--rdmb-text);
+}
+
+.tl-rdmb.rdmb .rdmb__nav-item.is-active {
+    color: var(--rdmb-accent);
+    background: var(--tl-accent-muted, rgba(195, 240, 0, 0.14));
+    box-shadow: inset 0 0 0 1px var(--tl-accent-ring, rgba(195, 240, 0, 0.22));
+}
+
+.tl-rdmb.rdmb .rdmb__nav-item.is-active .material-icons {
+    color: var(--rdmb-accent);
+}
+
+.tl-rdmb.rdmb .rdmb__nav-item--apply {
+    border-top-color: var(--rdmb-line);
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+}
+
+.tl-rdmb.rdmb .rdmb__nav-warn {
+    background: #f87171;
+    color: #14140f;
+}
+
+/* Top bar */
+.tl-rdmb.rdmb .rdmb__workspace {
+    background: var(--rdmb-bg);
+}
+
+.tl-rdmb.rdmb .rdmb__top {
+    position: relative;
+    padding: 1.15rem 1.35rem 1rem;
+    border-bottom-color: var(--rdmb-line);
+    background: var(--rdmb-panel);
+    backdrop-filter: none;
+}
+
+.tl-rdmb.rdmb .rdmb__top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--rdmb-accent), transparent);
+    opacity: 0.9;
+}
+
+.tl-rdmb.rdmb .rdmb__title {
+    font-family: var(--tl-display, 'Unbounded', 'Manrope', sans-serif);
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.tl-rdmb.rdmb .rdmb__subtitle {
+    color: var(--rdmb-muted);
+    font-size: 0.85rem;
+}
+
+.tl-rdmb.rdmb .rdmb__close {
+    border-radius: var(--rdmb-radius-sm);
+    background: var(--rdmb-panel-2);
+    border: 1px solid var(--rdmb-line);
+}
+
+.tl-rdmb.rdmb .rdmb__close:hover {
+    color: var(--rdmb-accent);
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+}
+
+/* Main content */
+.tl-rdmb.rdmb .rdmb__main {
+    padding: 1.15rem 1.35rem 1.75rem;
+}
+
+.tl-rdmb.rdmb .rdmb__row {
+    border-color: var(--rdmb-line);
+    border-radius: var(--rdmb-radius-sm);
+    background: var(--rdmb-panel);
+    box-shadow: none;
+}
+
+.tl-rdmb.rdmb .rdmb__label .req {
+    color: var(--rdmb-accent);
+}
+
+.tl-rdmb.rdmb .rdmb__input,
+.tl-rdmb.rdmb .rdmb__select,
+.tl-rdmb.rdmb .rdmb__textarea {
+    border-radius: var(--rdmb-radius-sm);
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-input);
+    font-size: 0.92rem;
+}
+
+.tl-rdmb.rdmb .rdmb__input:focus,
+.tl-rdmb.rdmb .rdmb__select:focus,
+.tl-rdmb.rdmb .rdmb__textarea:focus {
+    border-color: var(--tl-accent-ring);
+    box-shadow: 0 0 0 3px var(--tl-accent-muted, rgba(195, 240, 0, 0.12));
+}
+
+.tl-rdmb.rdmb .rdmb__status {
+    background: var(--tl-accent-muted);
+    color: var(--rdmb-accent);
+    border: 1px solid var(--tl-accent-ring);
+}
+
+.tl-rdmb.rdmb .rdmb__linkish {
+    color: var(--rdmb-accent);
+}
+
+.tl-rdmb.rdmb .rdmb__linkish:hover {
+    color: var(--tl-accent-hover, #d4f533);
+}
+
+.tl-rdmb.rdmb .rdmb__chip-btn {
+    border-radius: 999px;
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+}
+
+.tl-rdmb.rdmb .rdmb__chip-btn:hover {
+    border-color: var(--tl-accent-ring);
+}
+
+.tl-rdmb.rdmb .rdmb__chip-btn .material-icons {
+    color: var(--rdmb-accent);
+}
+
+/* Cover */
+.tl-rdmb.rdmb .rdmb__cover {
+    border-radius: var(--rdmb-radius);
+    border-color: var(--tl-accent-ring);
+    background: var(--rdmb-panel-2);
+}
+
+.tl-rdmb.rdmb .rdmb__cover:hover {
+    border-color: var(--rdmb-accent);
+    transform: none;
+}
+
+.tl-rdmb.rdmb .rdmb__cover-ph .material-icons {
+    color: var(--rdmb-accent);
+}
+
+.tl-rdmb.rdmb .rdmb__cover-tab.is-active {
+    color: var(--rdmb-accent);
+    border-bottom-color: var(--rdmb-accent);
+}
+
+/* Tracks */
+.tl-rdmb.rdmb .rdmb__track {
+    border-color: var(--rdmb-line);
+    border-radius: var(--rdmb-radius);
+    background: var(--rdmb-panel);
+    box-shadow: none;
+}
+
+.tl-rdmb.rdmb .rdmb__track.is-expanded {
+    border-color: var(--tl-accent-ring);
+}
+
+.tl-rdmb.rdmb .rdmb__wav {
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+    border-radius: var(--rdmb-radius-sm);
+}
+
+.tl-rdmb.rdmb .rdmb__wav:hover,
+.tl-rdmb.rdmb .rdmb__wav.is-dragover {
+    border-color: var(--rdmb-accent);
+    background: var(--tl-accent-muted);
+}
+
+.tl-rdmb.rdmb .rdmb__wav .material-icons {
+    color: var(--rdmb-accent);
+}
+
+/* Tables */
+.tl-rdmb.rdmb .rdmb__table-wrap {
+    border: 1px solid var(--rdmb-line);
+    border-radius: var(--rdmb-radius-sm);
+    overflow: hidden;
+}
+
+.tl-rdmb.rdmb .rdmb__table th {
+    background: var(--rdmb-panel-2);
+    color: var(--rdmb-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tl-rdmb.rdmb .rdmb__table td {
+    border-color: var(--rdmb-line);
+}
+
+/* Check tiles */
+.tl-rdmb.rdmb .rdmb__check--tile {
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+    border-radius: var(--rdmb-radius-sm);
+}
+
+.tl-rdmb.rdmb .rdmb__check--tile:has(input:checked) {
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+}
+
+.tl-rdmb.rdmb .rdmb__check input[type="checkbox"] {
+    accent-color: var(--rdmb-accent);
+}
+
+.tl-rdmb.rdmb .rdmb__dist-block {
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-panel);
+    border-radius: var(--rdmb-radius);
+}
+
+.tl-rdmb.rdmb .rdmb__dist-block--main {
+    border-color: var(--tl-accent-ring);
+}
+
+.tl-rdmb.rdmb .rdmb__placeholder {
+    border-color: var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+    border-radius: var(--rdmb-radius);
+}
+
+/* Footer */
+.tl-rdmb.rdmb .rdmb__footer {
+    border-top-color: var(--rdmb-line);
+    background: var(--rdmb-panel);
+    backdrop-filter: none;
+    padding: 0.9rem 1.15rem;
+}
+
+.tl-rdmb.rdmb .rdmb__btn {
+    border-radius: var(--rdmb-radius-sm);
+    font-weight: 600;
+    min-height: 42px;
+}
+
+.tl-rdmb.rdmb .rdmb__btn--primary {
+    background: var(--rdmb-accent);
+    border-color: var(--rdmb-accent);
+    color: var(--rdmb-accent-ink);
+}
+
+.tl-rdmb.rdmb .rdmb__btn--primary:hover {
+    background: var(--tl-accent-hover, #d4f533);
+    border-color: var(--tl-accent-hover, #d4f533);
+    filter: none;
+}
+
+.tl-rdmb.rdmb .rdmb__btn--ghost {
+    border-color: transparent;
+}
+
+.tl-rdmb.rdmb .rdmb__btn:hover:not(.rdmb__btn--primary) {
+    border-color: var(--tl-accent-ring);
+    background: var(--rdmb-panel-2);
+}
+
+/* Modal */
+.tl-rdmb.rdmb .rdmb__modal-card {
+    border: 1px solid var(--rdmb-line);
+    border-radius: var(--tl-radius-lg, 16px);
+    background: var(--rdmb-panel);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
+}
+
+.tl-rdmb.rdmb .rdmb__modal-head {
+    border-bottom-color: var(--rdmb-line);
+}
+
+.tl-rdmb.rdmb .rdmb__modal-foot {
+    border-top-color: var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+}
+
+.tl-rdmb.rdmb .rdmb__icon-btn {
+    border-radius: var(--rdmb-radius-sm);
+    border: 1px solid var(--rdmb-line);
+    background: var(--rdmb-panel-2);
+}
+
+.tl-rdmb.rdmb .rdmb__icon-btn:hover {
+    color: var(--rdmb-accent);
+    border-color: var(--tl-accent-ring);
+}
+
+/* Side panel (edit) */
+.tl-rdmb.rdmb .rdmb__side {
+    background: var(--rdmb-panel);
+    border-left-color: var(--rdmb-line);
+}
+
+.tl-rdmb.rdmb .rdmb__stat {
+    background: var(--rdmb-panel-2);
+    border: 1px solid var(--rdmb-line);
+    border-radius: var(--rdmb-radius-sm);
+}
+
+/* Track editor nav inside track card */
+.tl-rdmb.rdmb .rdmb__track-nav-item.is-active {
+    color: var(--rdmb-accent);
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+}
+
+.tl-rdmb.rdmb .rdmb__apply-title {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+}
+
+/* Content area padding when full-bleed */
+.content--release-create .tl-rdmb.rdmb,
+.content--release-edit .tl-rdmb.rdmb {
+    min-height: calc(100vh - var(--header-height, 64px) - 1.25rem);
+}
+
+@media (max-width: 1024px) {
+    .tl-rdmb.rdmb .rdmb__frame {
+        border-radius: var(--rdmb-radius);
+    }
+}
+
+@media (max-width: 768px) {
+    .tl-rdmb.rdmb .rdmb__top::before {
+        height: 1px;
+    }
+
+    .tl-rdmb.rdmb .rdmb__nav-item.is-active {
+        box-shadow: none;
+        border-left: 3px solid var(--rdmb-accent);
+    }
+}

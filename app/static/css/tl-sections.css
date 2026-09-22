@@ -1,0 +1,339 @@
+/**
+ * Toolls Graphite — профиль, финансы, счета, uni-skin, тикеты, аналитика, смарт-ссылки.
+ * Подключать после tl-design-system.css в base.html.
+ */
+
+/* ========== Профиль ========== */
+.tl-profile.profile-v2 {
+    max-width: var(--tl-max, 920px);
+}
+
+.tl-profile.profile-v2 .profile-v2__hero {
+    border-radius: var(--tl-radius-lg, 16px);
+    border-color: var(--tl-border);
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(195, 240, 0, 0.1) 0%, transparent 55%),
+        var(--tl-surface, #171512);
+    box-shadow: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.tl-profile.profile-v2 .profile-v2__hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--tl-accent), transparent);
+}
+
+.tl-profile.profile-v2 .profile-v2__avatar {
+    border-radius: var(--tl-radius, 12px);
+    border-color: var(--tl-accent-ring);
+    box-shadow: none;
+}
+
+.tl-profile.profile-v2 .profile-v2__name {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+}
+
+.tl-profile.profile-v2 .profile-v2__chip--bonus {
+    color: var(--tl-accent);
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+}
+
+.tl-profile.profile-v2 .profile-v2__nav a {
+    border-radius: var(--tl-radius-sm, 8px);
+}
+
+.tl-profile.profile-v2 .profile-v2__nav a:hover,
+.tl-profile.profile-v2 .profile-v2__nav a:focus-visible {
+    color: var(--tl-accent);
+    background: var(--tl-accent-muted);
+}
+
+.tl-profile.profile-v2 .profile-v2__card {
+    border-radius: var(--tl-radius, 12px);
+    border-color: var(--tl-border);
+    background: var(--tl-surface, #171512);
+    box-shadow: none;
+}
+
+.tl-profile.profile-v2 .profile-v2__card-title .material-icons {
+    color: var(--tl-accent);
+}
+
+.tl-profile.profile-v2 .profile-v2__bonus-value {
+    color: var(--tl-accent);
+}
+
+.tl-profile.profile-v2 .profile-v2__connect-status.is-on {
+    color: var(--tl-accent);
+}
+
+.tl-profile.profile-v2 .profile-v2__admin-link:hover {
+    border-color: var(--tl-accent-ring);
+    color: var(--tl-accent);
+}
+
+.tl-profile.profile-v2-edit .profile-v2__card {
+    border-color: var(--tl-border);
+    background: var(--tl-surface);
+}
+
+/* ========== Финансы ========== */
+.tl-finance.money-desk {
+    --md-accent: var(--tl-accent, #c3f000);
+    --md-accent-soft: var(--tl-accent-muted, rgba(195, 240, 0, 0.12));
+    max-width: var(--tl-max, 1080px);
+}
+
+.tl-finance.money-desk .money-desk__hero {
+    border-radius: var(--tl-radius-lg, 16px);
+    box-shadow: none;
+    border-color: var(--tl-border);
+}
+
+.tl-finance.money-desk .money-desk__hero-main {
+    background:
+        linear-gradient(145deg, rgba(195, 240, 0, 0.12) 0%, transparent 45%),
+        var(--tl-surface-2, #1e1b17);
+    color: var(--tl-text);
+    position: relative;
+}
+
+.tl-finance.money-desk .money-desk__hero-main::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--tl-accent), transparent);
+}
+
+.tl-finance.money-desk .money-desk__hero-main .money-desk__eyebrow {
+    color: var(--tl-accent);
+}
+
+.tl-finance.money-desk .money-desk__balance {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+    color: var(--tl-text);
+}
+
+.tl-finance.money-desk .money-desk__hero-side {
+    background: var(--tl-surface, #171512);
+}
+
+.tl-finance.money-desk .money-desk__schedule {
+    border-color: var(--tl-border);
+    background: var(--tl-surface);
+    border-radius: var(--tl-radius, 12px);
+}
+
+.tl-finance.money-desk .money-desk__schedule .material-icons {
+    color: var(--tl-accent);
+}
+
+.tl-finance.money-desk .money-desk__row,
+.tl-finance.money-desk .money-desk__card {
+    border-color: var(--tl-border);
+    background: var(--tl-surface);
+    border-radius: var(--tl-radius, 12px);
+}
+
+.tl-finance.money-desk .money-desk__status--ok {
+    color: #4ade80;
+}
+
+/* ========== Счета / документооборот ========== */
+.tl-documents.documents-hub {
+    max-width: var(--tl-max, 1100px);
+}
+
+.tl-documents.documents-hub .documents-hub__head {
+    border: 1px solid var(--tl-border);
+    border-radius: var(--tl-radius-lg, 16px);
+    background: var(--tl-surface, #171512);
+    padding: 1.25rem 1.35rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.tl-documents.documents-hub .documents-hub__head::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--tl-accent), transparent);
+}
+
+.tl-documents.documents-hub .documents-hub__eyebrow {
+    color: var(--tl-accent);
+}
+
+.tl-documents.documents-hub .documents-hub__title {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+}
+
+.tl-documents.documents-hub .documents-hub__sheet {
+    border: 1px solid var(--tl-border);
+    border-radius: var(--tl-radius, 12px);
+    background: var(--tl-surface, #171512);
+    margin-top: 1rem;
+}
+
+.tl-documents.documents-hub .documents-hub-tab.is-active {
+    color: var(--tl-accent);
+    border-color: var(--tl-accent);
+}
+
+.tl-documents.documents-hub .documents-hub-tab .material-icons {
+    color: inherit;
+}
+
+.tl-documents.documents-hub .filter-tab.active {
+    color: var(--tl-accent);
+    border-color: var(--tl-accent);
+}
+
+.tl-documents.documents-hub .documents-hub__table th {
+    background: var(--tl-surface-2, #1e1b17);
+    color: var(--tl-text-muted);
+}
+
+.tl-documents.documents-hub .documents-hub__msg--unread,
+.tl-documents .doc-msg-item--unread {
+    background: var(--tl-accent-muted) !important;
+}
+
+.tl-documents .rtv-payment-page {
+    border: 1px solid var(--tl-border);
+    border-radius: var(--tl-radius-lg, 16px);
+    background: var(--tl-surface);
+    padding: 1.5rem;
+}
+
+/* ========== Uni-skin (общие разделы) ========== */
+html[data-theme="dark"] .uni-skin > .filters-bar,
+html[data-theme="dark"] .uni-skin .filters-bar:first-child {
+    border-radius: var(--tl-radius, 12px);
+    border-color: var(--tl-border);
+    background: var(--tl-surface, #171512);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .uni-skin .filter-tab.active {
+    color: var(--tl-accent, #c3f000);
+    border-color: var(--tl-accent-ring);
+    background: var(--tl-accent-muted);
+}
+
+html[data-theme="dark"] .uni-skin > .card,
+html[data-theme="dark"] .uni-skin .card {
+    border-radius: var(--tl-radius, 12px);
+    border-color: var(--tl-border);
+    background: var(--tl-surface, #171512);
+    box-shadow: none;
+}
+
+html[data-theme="dark"] .uni-skin .card-header,
+html[data-theme="dark"] .uni-skin .dashboard-card > .card-header {
+    background: var(--tl-surface-2, #1e1b17);
+    border-color: var(--tl-border);
+}
+
+html[data-theme="dark"] .uni-skin .btn-primary {
+    background: var(--tl-accent, #c3f000);
+    border-color: var(--tl-accent);
+    color: #14140f;
+}
+
+html[data-theme="dark"] .uni-skin .btn-primary:hover {
+    background: var(--tl-accent-hover, #d4f533);
+}
+
+html[data-theme="dark"] .uni-skin .data-table th {
+    background: var(--tl-surface-2);
+}
+
+/* ========== Тикеты ========== */
+.tl-tickets.tickets-page .filters-bar {
+    border: 1px solid var(--tl-border);
+    border-radius: var(--tl-radius, 12px);
+    background: var(--tl-surface);
+}
+
+.tl-tickets.tickets-page .filter-tab.active {
+    color: var(--tl-accent);
+    border-color: var(--tl-accent-ring);
+}
+
+.tl-tickets.tickets-page .ticket-card,
+.tl-tickets.tickets-page .tickets-inbox__item {
+    border-color: var(--tl-border);
+    border-radius: var(--tl-radius, 12px);
+    background: var(--tl-surface);
+}
+
+/* ========== Аналитика ========== */
+.tl-stats.stats-dash {
+    max-width: var(--tl-max, 1180px);
+}
+
+.tl-stats.stats-dash .stats-dash__title {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+}
+
+.tl-stats.stats-dash .stats-dash__card,
+.tl-stats.stats-dash .stats-dash__panel {
+    border-color: var(--tl-border);
+    border-radius: var(--tl-radius, 12px);
+    background: var(--tl-surface);
+    box-shadow: none;
+}
+
+.tl-stats.stats-dash .stats-dash__kpi-value {
+    color: var(--tl-text);
+}
+
+.tl-stats.stats-dash .stats-dash__kpi--accent .stats-dash__kpi-value,
+.tl-stats.stats-dash .stats-dash__tab.is-active {
+    color: var(--tl-accent);
+}
+
+.tl-stats.stats-dash .stats-dash__chart-bar {
+    background: linear-gradient(90deg, var(--tl-accent), rgba(195, 240, 0, 0.45));
+}
+
+/* ========== Смарт-ссылки ========== */
+.tl-smart.sl2 {
+    --sl2-accent: var(--tl-accent, #c3f000);
+    --sl2-accent-soft: var(--tl-accent-muted);
+    --sl2-accent-mid: var(--tl-accent-ring);
+    max-width: var(--tl-max, 1100px);
+}
+
+.tl-smart.sl2 .sl2__title {
+    font-family: var(--tl-display, 'Unbounded', sans-serif);
+}
+
+.tl-smart.sl2 .sl2__card {
+    border-color: var(--tl-border);
+    border-radius: var(--tl-radius, 12px);
+    background: var(--tl-surface);
+    box-shadow: none;
+}
+
+.tl-smart.sl2 .sl2-btn--primary {
+    color: #14140f;
+}
+
+.tl-smart.sl2 .sl2__card-icon {
+    color: var(--tl-accent);
+}

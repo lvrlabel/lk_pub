@@ -1,0 +1,14 @@
+<nav class="documents-hub-tabs" aria-label="Разделы документооборота">
+    <a href="{{ url_for('documents.hub_invoices') }}" class="documents-hub-tab {% if request.endpoint == 'documents.hub_invoices' %}is-active{% endif %}">
+        <span class="material-icons" aria-hidden="true">receipt_long</span>
+        <span>Счета на оплату</span>
+    </a>
+    <a href="{{ url_for('documents.hub_confirmations') }}" class="documents-hub-tab {% if request.endpoint == 'documents.hub_confirmations' %}is-active{% endif %}">
+        <span class="material-icons" aria-hidden="true">verified</span>
+        <span>Подтверждения оплаты</span>
+    </a>
+    <a href="{{ url_for('documents.hub_messages') }}" class="documents-hub-tab {% if request.endpoint == 'documents.hub_messages' %}is-active{% endif %}">
+        <span class="material-icons" aria-hidden="true">mark_email_unread</span>
+        <span>Уведомления</span>
+    </a>
+</nav>

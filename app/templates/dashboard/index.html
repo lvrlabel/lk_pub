@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Обзор{% endblock %}
+{% block page_title %}Обзор{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-dashboard.css', v='20260902-graphite') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-dashboard dashboard db-redesign db-refine">
+    {% if legal_notices %}
+    <div class="dashboard-legal-notices-stack">
+        {% for legal_notice in legal_notices %}
+        {% set tone = 'orange' if legal_notice.get('tone') == 'orange' else 'red' %}
+        <section class="db-alert dashboard-legal-notice dashboard-legal-notice--v2 dashboard-legal-notice--tone-{{ tone }} dashboard-legal-notice--strip" role="region" aria-labelledby="legal-notice-title-{{ loop.index }}">
+            <div class="dashboard-legal-notice__shell dashboard-legal-notice__shell--strip">
+                <span class="dashboard-legal-notice__accent" aria-hidden="true"></span>
+                <div class="dashboard-legal-notice__strip-icon" aria-hidden="true">
+                    <span class="dashboard-legal-notice__strip-bang">!</span>
+                </div>
+                <div class="dashboard-legal-notice__body">
+                    <h3 id="legal-notice-title-{{ loop.index }}" class="dashboard-legal-notice__strip-headline">
+                        <strong class="dashboard-legal-notice__strip-prefix">{{ legal_notice.badge }}</strong>
+                        <span class="dashboard-legal-notice__strip-title">{{ legal_notice.title }}</span>
+                    </h3>
+                    {% if legal_notice.lead %}
+                    <p class="dashboard-legal-notice__lead">{{ legal_notice.lead }}</p>
+                    {% endif %}
+                    {% if legal_notice.points %}
+                    <ul class="dashboard-legal-notice__points">
+                        {% for line in legal_notice.points %}
+                        <li>{{ line }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if legal_notice.callout %}
+                    <div class="dashboard-legal-notice__callout">
+                        <span class="material-icons" aria-hidden="true">block</span>
+                        <p>{{ legal_notice.callout }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if current_user.is_admin %}
+    <p class="db-admin-legal-notice-link text-secondary db-refine__admin-link">
+        <a href="{{ url_for('dashboard.legal_notice_edit') }}">Баннеры на главной</a>
+        ·
+        <a href="{{ url_for('dashboard.popup_notice_edit') }}">Всплывающие уведомления</a>
+    </p>
+    {% endif %}
+
+    <header class="db-refine__head">
+        <div class="db-refine__head-text">
+            <p class="db-refine__greeting">Привет, {{ current_user.display_name }}</p>
+            <p class="db-refine__subtitle">
+                {% if current_user.is_admin %}
+                Модерация, релизы и активность пользователей
+                {% else %}
+                Релизы, финансы и ваше рабочее пространство
+                {% endif %}
+            </p>
+        </div>
+        <a href="{{ url_for('releases.create') }}" class="db-refine__cta">
+            <span class="material-icons">add</span>
+            Новый релиз
+        </a>
+    </header>
+
+    {% if not current_user.is_admin %}
+    <section class="tl-dash-sub tl-dash-sub--{{ current_user.subscription_status_kind }}" aria-label="Подписка">
+        <div>
+            <p class="tl-dash-sub__label"><span class="material-icons" aria-hidden="true">verified</span> Подписка</p>
+            <p class="tl-dash-sub__plan">{{ current_user.subscription_status_label }}</p>
+        </div>
+        <div class="tl-dash-sub__meta">
+            {% if current_user.subscription_expires_at and current_user.subscription_active %}
+            Активна до {{ current_user.subscription_expires_at.strftime('%d.%m.%Y') }}
+            {% elif current_user.subscription_plan %}
+            Срок закончился {{ current_user.subscription_expires_at.strftime('%d.%m.%Y') if current_user.subscription_expires_at else '' }}
+            {% else %}
+            Оплата не поступила
+            {% endif %}
+            {% if not current_user.subscription_active %}
+            <a href="{{ url_for('documents.hub_invoices') }}" class="tl-btn tl-btn--ghost" style="padding:0.35rem 0.65rem;font-size:0.78rem;">Счета</a>
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if workspace_home %}
+    <section class="db-ws-strip" aria-label="Моё пространство">
+        <div class="db-ws-strip__head">
+            <h2 class="db-ws-strip__title">Моё пространство</h2>
+            <a href="{{ url_for('workspace.index') }}">Открыть</a>
+        </div>
+        <div class="db-ws-strip__chips">
+            <a href="{{ url_for('workspace.tasks') }}">Задачи · {{ workspace_home.counts.tasks }}</a>
+            <a href="{{ url_for('workspace.ideas') }}">Идеи · {{ workspace_home.counts.ideas }}</a>
+            <a href="{{ url_for('workspace.plans') }}">Планы · {{ workspace_home.counts.plans }}</a>
+            <a href="{{ url_for('workspace.notes') }}">Заметки · {{ workspace_home.counts.notes }}</a>
+            <a href="{{ url_for('workspace.calendar') }}">Календарь</a>
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="db-refine__statusbar" aria-label="Сводка по активности">
+        <div class="db-refine__statuscard is-primary">
+            <span class="db-refine__status-eyebrow">Сегодня</span>
+            <strong>{{ recent_releases|length if recent_releases else 0 }}</strong>
+            <small>релизов в работе</small>
+        </div>
+        <div class="db-refine__statuscard">
+            <span class="db-refine__status-eyebrow">Новые</span>
+            <strong>{{ stats.pending_releases if not current_user.is_admin else admin_stats.pending_releases }}</strong>
+            <small>ожидают проверки</small>
+        </div>
+        <div class="db-refine__statuscard">
+            <span class="db-refine__status-eyebrow">Профиль</span>
+            <strong>{{ current_user.display_name }}</strong>
+            <small>{{ current_user.subscription_status_label }}</small>
+        </div>
+        <div class="db-refine__statuscard is-accent">
+            <span class="db-refine__status-eyebrow">Следующее</span>
+            <strong>{{ 'Релиз' if latest_news else 'Профиль' }}</strong>
+            <small>{{ latest_news.title if latest_news else 'Проверить статус' }}</small>
+        </div>
+    </section>
+
+    {% if not current_user.is_admin %}
+    <div class="db-refine__quarters">
+        {% for card in quarter_cards %}
+        <a href="{{ url_for('money.index') }}" class="db-refine__quarter {% if card.is_current %}is-active{% endif %}">
+            <span class="db-refine__quarter-label">{{ card.label }}</span>
+            {% if card.is_current %}
+            <span class="db-refine__quarter-badge">
+                <span class="material-icons" aria-hidden="true">schedule</span>
+                Текущий квартал
+            </span>
+            {% elif card.has_data %}
+            <span class="db-refine__quarter-sum">{{ "%.2f"|format(card.amount) }} ₽</span>
+            {% else %}
+            <span class="db-refine__quarter-muted">Нет данных</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <section class="db-overview db-refine__stats" aria-label="Статистика релизов">
+        {% if current_user.is_admin %}
+        <article class="db-overview-card">
+            <span class="material-icons">library_music</span>
+            <div>
+                <div class="db-overview-card__value">{{ admin_stats.total_releases }}</div>
+                <div class="db-overview-card__label">Всего релизов</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--ok">
+            <span class="material-icons">task_alt</span>
+            <div>
+                <div class="db-overview-card__value">{{ admin_stats.approved_releases }}</div>
+                <div class="db-overview-card__label">Одобрено</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--pending">
+            <span class="material-icons">hourglass_top</span>
+            <div>
+                <div class="db-overview-card__value">{{ admin_stats.pending_releases }}</div>
+                <div class="db-overview-card__label">На модерации</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--warn">
+            <span class="material-icons">report_problem</span>
+            <div>
+                <div class="db-overview-card__value">{{ admin_stats.rejected_releases }}</div>
+                <div class="db-overview-card__label">Отклонено</div>
+            </div>
+        </article>
+        {% else %}
+        <article class="db-overview-card">
+            <span class="material-icons">library_music</span>
+            <div>
+                <div class="db-overview-card__value">{{ stats.total_releases }}</div>
+                <div class="db-overview-card__label">Всего релизов</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--ok">
+            <span class="material-icons">task_alt</span>
+            <div>
+                <div class="db-overview-card__value">{{ stats.approved_releases }}</div>
+                <div class="db-overview-card__label">Одобрено</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--pending">
+            <span class="material-icons">hourglass_top</span>
+            <div>
+                <div class="db-overview-card__value">{{ stats.pending_releases }}</div>
+                <div class="db-overview-card__label">На модерации</div>
+            </div>
+        </article>
+        <article class="db-overview-card db-overview-card--warn">
+            <span class="material-icons">report_problem</span>
+            <div>
+                <div class="db-overview-card__value">{{ stats.rejected_releases }}</div>
+                <div class="db-overview-card__label">Отклонено</div>
+            </div>
+        </article>
+        {% endif %}
+    </section>
+
+    <div class="db-refine__grid">
+        <article class="db-panel db-panel--news">
+            <header class="db-panel__head">
+                <h3 class="db-panel__title"><span class="material-icons">newspaper</span> Новости</h3>
+                <a href="{{ url_for('stories.index') }}" class="db-panel__link">Все новости</a>
+            </header>
+            <div class="db-panel__body">
+                {% if latest_news %}
+                <div class="db-news db-refine__news{% if latest_news.cover_image %} db-news--featured{% endif %}">
+                    {% if latest_news.cover_image %}
+                    <a href="{{ url_for('stories.view', id=latest_news.id) }}" class="db-news__media">
+                        <img src="{{ latest_news.cover_url }}" alt="" class="db-news__img">
+                    </a>
+                    {% endif %}
+                    <div class="db-news__content">
+                        <time class="db-news__date">{{ latest_news.date_formatted }}</time>
+                        <h4 class="db-news__title"><a href="{{ url_for('stories.view', id=latest_news.id) }}">{{ latest_news.title }}</a></h4>
+                        <p class="db-news__excerpt">{{ latest_news.short_content }}</p>
+                        <a href="{{ url_for('stories.view', id=latest_news.id) }}" class="db-refine__news-link">Подробнее</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="db-empty db-refine__empty">
+                    <span class="material-icons">article</span>
+                    <p>Новостей пока нет</p>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+
+        <article class="db-panel db-panel--finance">
+            <header class="db-panel__head">
+                <h3 class="db-panel__title"><span class="material-icons">payments</span> Финансы</h3>
+                <a href="{{ url_for('money.index') }}" class="db-panel__link">К финансам</a>
+            </header>
+            <div class="db-panel__body">
+                {% set current_q = quarters_data[current_quarter - 1] if quarters_data else none %}
+                <div class="db-refine__finance-hero">
+                    <span class="db-refine__finance-label">{{ current_quarter }}-й квартал {{ current_year }}</span>
+                    {% if current_q and current_q.has_data %}
+                    <span class="db-refine__finance-value">{{ "%.2f"|format(current_q.amount) }} ₽</span>
+                    {% else %}
+                    <span class="db-refine__finance-value db-refine__finance-value--empty">—</span>
+                    {% endif %}
+                    <span class="db-refine__finance-hint">Выплаты и отчёты за текущий квартал</span>
+                </div>
+                {% if current_user.is_admin %}
+                <p class="db-refine__finance-note">Финансовые данные пользователей — в разделе «Финансы».</p>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+
+    <section class="db-panel db-panel--activity" aria-label="Последние релизы">
+        <header class="db-panel__head">
+            <h3 class="db-panel__title"><span class="material-icons">history</span> Последние релизы</h3>
+            <a href="{{ url_for('releases.index') }}" class="db-panel__link">Все релизы</a>
+        </header>
+        <div class="db-panel__body">
+            {% if recent_releases %}
+            <div class="db-activity-list">
+                {% for release in recent_releases %}
+                <a href="{{ url_for('releases.view', id=release.id) }}" class="db-activity-item">
+                    <img src="{{ release.cover_url }}" alt="" class="db-activity-item__cover">
+                    <div class="db-activity-item__main">
+                        <strong class="db-activity-item__title">{{ release.title }}</strong>
+                        <span class="db-activity-item__meta">{{ release.artists }}</span>
+                    </div>
+                    <span class="db-activity-item__status {{ release.status_class }}">{{ release.status_display }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="db-empty db-refine__empty">
+                <span class="material-icons">queue_music</span>
+                <p>Релизов пока нет</p>
+                <a href="{{ url_for('releases.create') }}" class="btn btn-primary db-refine__empty-cta">
+                    <span class="material-icons">add</span>
+                    Создать релиз
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <nav class="db-refine__shortcuts" aria-label="Быстрые действия">
+        <a href="{{ url_for('stats.index') }}" class="db-refine__shortcut">
+            <span class="material-icons">analytics</span>
+            Аналитика
+        </a>
+        <a href="{{ url_for('smart_link.index') }}" class="db-refine__shortcut">
+            <span class="material-icons">link</span>
+            Смарт-ссылки
+        </a>
+        <a href="{{ url_for('tickets.index') }}" class="db-refine__shortcut">
+            <span class="material-icons">support_agent</span>
+            Поддержка
+        </a>
+        <a href="{{ url_for('profile.index') }}" class="db-refine__shortcut">
+            <span class="material-icons">person</span>
+            Профиль
+        </a>
+    </nav>
+</div>
+{% endblock %}

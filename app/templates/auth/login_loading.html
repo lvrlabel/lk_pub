@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Вход выполнен | Toolls Music Distribution</title>
+    <meta http-equiv="refresh" content="{{ ((delay_ms + 999) // 1000)|int }};url={{ redirect_url }}">
+    {% include 'auth/partials/head.html' %}
+</head>
+<body class="auth-flow auth-flow--success" data-delay-ms="{{ delay_ms|int }}" data-redirect-url="{{ redirect_url }}">
+    <div class="auth-flow__ambient" aria-hidden="true">
+        <div class="auth-flow__grid-bg"></div>
+        <div class="auth-flow__orb auth-flow__orb--1"></div>
+        <div class="auth-flow__orb auth-flow__orb--2"></div>
+        <div class="auth-flow__orb auth-flow__orb--3"></div>
+    </div>
+
+    <div class="auth-flow__page auth-flow__page--center">
+        <header class="auth-flow__top auth-flow__top--compact">
+            {% with extra_class='auth-brand--header' %}{% include 'auth/partials/brand.html' %}{% endwith %}
+            {% with active=3 %}{% include 'auth/partials/steps.html' %}{% endwith %}
+        </header>
+
+        <main class="auth-flow__card auth-flow__card--success" role="status" aria-live="polite">
+            <div class="auth-success">
+                <div class="auth-success__ring" aria-hidden="true">
+                    <div class="auth-success__ring-pulse"></div>
+                    <div class="auth-success__check">
+                        <span class="material-icons">check</span>
+                    </div>
+                </div>
+                <h1 class="auth-success__title">Вход успешно выполнен</h1>
+                <p class="auth-success__text">
+                    {% if user and user.display_name %}<strong>{{ user.display_name }}</strong>, {% endif %}
+                    открываем личный кабинет…
+                </p>
+                <div class="auth-success__progress" aria-hidden="true">
+                    <span class="auth-success__progress-bar"></span>
+                </div>
+                <p class="auth-success__hint">Если перенаправление не сработало, <a href="{{ redirect_url }}" class="auth-link">нажмите здесь</a>.</p>
+            </div>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/auth-flow.js') }}"></script>
+    <script>
+    (function() {
+        var delayMs = Number(document.body.getAttribute('data-delay-ms') || '1400');
+        var target = document.body.getAttribute('data-redirect-url') || '/';
+        setTimeout(function() {
+            window.location.href = target;
+        }, Math.max(300, delayMs));
+    })();
+    </script>
+</body>
+</html>

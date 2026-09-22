@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.display_name }}{% endblock %}
+{% block page_title %}Профиль участника{% endblock %}
+
+{% block content %}
+<div class="cm-page cm-profile-page uni-skin">
+    <a href="{{ url_for('community.chat') }}" class="cm-profile-back">
+        <span class="material-icons">arrow_back</span> Вернуться в сообщество
+    </a>
+
+    <div class="cm-profile-card">
+        <img src="{{ profile_user.avatar_url }}" alt="Аватар" class="cm-profile-card__avatar">
+        <div class="cm-profile-card__info">
+            <h1 class="cm-profile-card__name">{{ profile_user.display_name }}</h1>
+            <div class="cm-profile-card__meta">
+                {% if profile_user.is_admin %}
+                <span class="cm-badge cm-badge--admin">Менеджер Toolls</span>
+                {% elif profile_user.is_label %}
+                <span class="cm-badge">Лейбл</span>
+                {% else %}
+                <span class="cm-badge">Артист</span>
+                {% endif %}
+                {% if profile_user.copyright %}
+                <span class="cm-profile-card__copy">{{ profile_user.copyright }}</span>
+                {% endif %}
+            </div>
+            <p class="cm-profile-card__since">На платформе с {{ profile_user.created_at.strftime('%d.%m.%Y') if profile_user.created_at else '—' }}</p>
+            {% if profile_user.telegram_username %}
+            <p class="cm-profile-card__tg"><span class="material-icons">send</span> {{ profile_user.telegram_display }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <section class="cm-profile-stories">
+        <h2 class="cm-section-title">Активные сторис</h2>
+        {% if user_stories %}
+        <div class="cm-stories-grid">
+            {% for s in user_stories %}
+            <article class="cm-story-card" data-story-id="{{ s.id }}">
+                <button type="button" class="cm-story-card__preview js-open-story" aria-label="Открыть сторис">
+                    <img src="{{ s.media_url }}" alt="Сторис" loading="lazy">
+                    <span class="cm-story-card__gradient"></span>
+                    <span class="cm-story-card__time">{{ s.time_formatted }}</span>
+                </button>
+                <div class="cm-story-details" hidden>
+                    <div class="cm-story-details__media"><img src="{{ s.media_url }}" alt=""></div>
+                    <div class="cm-story-details__author">
+                        <img src="{{ profile_user.avatar_url }}" alt="" class="cm-story-details__avatar">
+                        <div>
+                            <span class="cm-story-details__name">{{ profile_user.display_name }}</span>
+                            <span class="cm-story-details__time">{{ s.time_formatted }}</span>
+                        </div>
+                    </div>
+                    {% if s.caption %}<div class="cm-story-details__caption">{{ s.caption }}</div>{% endif %}
+                    <div class="cm-story-details__reactions">
+                        <form method="post" action="{{ url_for('community.stories_react', story_id=s.id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="cm-react-btn {% if s.reacted_by_user(current_user.id) %}is-active{% endif %}">
+                                <span class="material-icons">{{ 'favorite' if s.reacted_by_user(current_user.id) else 'favorite_border' }}</span>
+                                <span>{{ s.reactions_count }}</span>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="cm-story-details__comments">
+                        <h4>Комментарии <span class="cm-story-details__comments-count">{{ s.comments_count }}</span></h4>
+                        {% for c in s.comments.order_by(StoryComment.created_at.asc()).all() %}
+                        <div class="cm-comment">
+                            <div class="cm-comment__meta">
+                                <strong>{{ c.user.display_name if c.user else '—' }}</strong>
+                                {% if c.user and c.user.is_admin %}<span class="cm-badge cm-badge--admin">Менеджер Toolls</span>{% endif %}
+                                <span class="cm-comment__time">{{ c.time_formatted }}</span>
+                            </div>
+                            <div class="cm-comment__text">{{ c.text }}</div>
+                        </div>
+                        {% else %}
+                        <div class="cm-comments-empty">Пока нет комментариев.</div>
+                        {% endfor %}
+                        <form method="post" action="{{ url_for('community.stories_comment', story_id=s.id) }}" class="cm-comment-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="text" name="text" maxlength="500" placeholder="Ваш комментарий..." required>
+                            <button type="submit" class="btn btn-sm btn-primary"><span class="material-icons">send</span></button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="cm-stories-empty">
+            <div class="cm-stories-empty__icon"><span class="material-icons">auto_stories</span></div>
+            <h3>Активных сторис нет</h3>
+            <p>У этого участника сейчас нет активных сторис.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<!-- Модалка просмотра сторис -->
+<div class="cm-story-modal" id="cmStoryModal" hidden>
+    <div class="cm-story-modal__backdrop" data-close-story></div>
+    <div class="cm-story-modal__dialog" role="dialog" aria-modal="true">
+        <button type="button" class="cm-story-modal__close" data-close-story aria-label="Закрыть"><span class="material-icons">close</span></button>
+        <div class="cm-story-modal__body" id="cmStoryModalBody"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/community.css', v='20260914-community1') }}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/community-stories.js', v='20260914-community1') }}"></script>
+{% endblock %}

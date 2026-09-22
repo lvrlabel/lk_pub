@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}{{ release.title }}{% endblock %}
+{% block page_title %}{{ release.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/release-forms-v2.css', v='20260721-rf1') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/release-status-v2.css', v='20260721-st3') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/release-view-card.css', v='20260721-rdc3') }}">
+{% endblock %}
+
+{% block content %}
+<div class="release-view-page release-view-v2 release-view-v3 rv-refine rv-page">
+    <nav class="rv-breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('releases.index') }}">Релизы</a>
+        <span class="material-icons" aria-hidden="true">chevron_right</span>
+        <span>{{ release.title }}</span>
+    </nav>
+
+    <header class="rv-hero">
+        <div class="rv-hero__cover-wrap">
+            <div class="rv-hero__cover">
+                <img src="{{ release.cover_url }}" alt="Обложка {{ release.title }}" width="280" height="280" decoding="async">
+            </div>
+            {% if release.cover %}
+            <div class="rv-hero__cover-actions">
+                <a href="{{ url_for('releases.serve_cover', filename=release.cover) }}" class="btn btn-ghost btn-sm rv-hero__cover-btn" download>
+                    <span class="material-icons">download</span>
+                    Скачать обложку
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="rv-hero__body">
+            <div class="rv-status rv-status--{{ release.status }}{% if release.moderator_comment and release.status in ('rejected', 'revoked') %} rv-status--with-reason{% endif %}">
+                <span class="rv-status__icon-wrap" aria-hidden="true">
+                    <span class="material-icons rv-status__icon">
+                        {% if release.status == 'approved' %}check_circle
+                        {% elif release.status == 'rejected' %}cancel
+                        {% elif release.status == 'moderation' %}hourglass_top
+                        {% elif release.status == 'draft' %}edit_note
+                        {% elif release.status == 'revoked' %}undo
+                        {% elif release.status == 'deletion' %}delete_forever
+                        {% else %}folder_special{% endif %}
+                    </span>
+                </span>
+                <div class="rv-status__text">
+                    <span class="rv-status__label">{{ release.status_display }}</span>
+                    {% if release.moderator_comment and release.status in ('rejected', 'revoked') %}
+                    <p class="rv-status__reason">{{ release.moderator_comment }}</p>
+                    <p class="rv-status__hint">Исправьте и отправьте снова.</p>
+                    {% else %}
+                    <p class="rv-status__hint">
+                        {% if release.status == 'moderation' %}
+                        Проверяем материалы. Обычно несколько рабочих дней — о решении придёт уведомление.
+                        {% elif release.status == 'approved' %}
+                        Релиз принят и передан партнёрам. UPC/ISRC появятся по мере обработки площадками.
+                        {% elif release.status == 'rejected' %}
+                        Нужны правки. Исправьте и отправьте снова.
+                        {% elif release.status == 'revoked' %}
+                        Отозван администратором. Внесите правки и отправьте снова.
+                        {% elif release.status == 'deletion' %}
+                        Запрос на снятие с витрин обрабатывается модерацией.
+                        {% elif release.status == 'deleted' %}
+                        Релиз удалён. Доступен только для просмотра в разделе «Удалены».
+                        {% else %}
+                        Черновик. Заполните данные и отправьте на модерацию, когда будете готовы.
+                        {% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h1 class="rv-hero__title">{{ release.title }}{% if release.version %} <span class="rv-hero__version">({{ release.version }})</span>{% endif %}</h1>
+            <p class="rv-hero__artists">{{ release.artists }}</p>
+
+            {% set _ds = release.dist_settings if release.dist_settings is mapping else {} %}
+            {% set _notes = _ds.get('extra_notes') if _ds else none %}
+            <ul class="rv-facts" aria-label="Краткие сведения">
+                <li>
+                    <span class="rv-facts__k">Тип</span>
+                    <span class="rv-facts__v">{{ release.type_display }}</span>
+                </li>
+                <li>
+                    <span class="rv-facts__k">Жанр</span>
+                    <span class="rv-facts__v">{{ release.genre }}</span>
+                </li>
+                <li>
+                    <span class="rv-facts__k">Дата</span>
+                    <span class="rv-facts__v">{{ release.release_date.strftime('%d.%m.%Y') }}</span>
+                </li>
+                <li>
+                    <span class="rv-facts__k">Треки</span>
+                    <span class="rv-facts__v">{{ tracks|length }}</span>
+                </li>
+                <li>
+                    <span class="rv-facts__k">UPC</span>
+                    <span class="rv-facts__v">{% if release.upc %}<code class="rv-code">{{ release.upc }}</code>{% else %}—{% endif %}</span>
+                </li>
+                <li>
+                    <span class="rv-facts__k">Яндекс Пресейв</span>
+                    <span class="rv-facts__v">{% if release.yandex_presave %}Да{% else %}Нет{% endif %}</span>
+                </li>
+            </ul>
+            {% if _notes %}
+            <div class="rv-mod-note rv-mod-note--neutral" style="margin-top:0.85rem">
+                <span class="material-icons rv-mod-note__icon" aria-hidden="true">notes</span>
+                <div class="rv-mod-note__body">
+                    <strong class="rv-mod-note__title">Описание / заметка</strong>
+                    <p class="rv-mod-note__text" style="white-space:pre-wrap">{{ _notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if release.moderator_comment and release.status not in ('rejected', 'revoked') %}
+            <div class="rv-mod-note rv-mod-note--neutral">
+                <span class="material-icons rv-mod-note__icon" aria-hidden="true">chat</span>
+                <div class="rv-mod-note__body">
+                    <strong class="rv-mod-note__title">Комментарий модератора</strong>
+                    <p class="rv-mod-note__text">{{ release.moderator_comment }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="rv-actions">
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('moderation.view', id=release.id) }}" class="btn btn-ghost">
+                    <span class="material-icons">fact_check</span>
+                    Модерация
+                </a>
+                {% endif %}
+                {% if release.can_edit() %}
+                <a href="{{ url_for('releases.edit', id=release.id) }}" class="btn btn-primary">
+                    <span class="material-icons">edit</span>
+                    Редактировать
+                </a>
+                {% endif %}
+                {% if release.can_delete() %}
+                <form method="POST" action="{{ url_for('releases.delete', id=release.id) }}" class="inline-form"
+                      onsubmit="return confirm('Вы уверены?')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger btn-ghost">
+                        <span class="material-icons">delete</span>
+                        {% if release.status == 'draft' %}Удалить{% else %}Запросить удаление{% endif %}
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if release.status == 'moderation' %}
+    <section class="rf-submit rf-submit--done" aria-labelledby="rf-moderation-title">
+        <h2 id="rf-moderation-title" class="rf-submit__title">Релиз на модерации</h2>
+        <p class="rf-submit__lead" style="margin:0">Повторно отправлять ничего не нужно — мы уже проверяем материалы. Решение придёт уведомлением.</p>
+    </section>
+    {% elif release.can_submit() and not releases_restricted|default(false) %}
+    <section class="rf-submit" aria-labelledby="rf-submit-title">
+        <h2 id="rf-submit-title" class="rf-submit__title">Отправка на модерацию</h2>
+        <p class="rf-submit__lead">Черновик ещё не отправлен. Отметьте подтверждение и нажмите один раз — больше ничего повторять не нужно.</p>
+        <form method="POST" action="{{ url_for('releases.submit', id=release.id) }}" class="rf-submit__form js-submit-loading" enctype="multipart/form-data" id="releaseSubmitForm" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="rf-submit__field">
+                <label for="releaseDocuments" class="rf-submit__label">Подтверждающие документы (необязательно, PDF)</label>
+                <input id="releaseDocuments" type="file" name="release_documents" class="rf-submit__file" accept=".pdf,application/pdf" multiple>
+            </div>
+            <label class="rf-submit__confirm">
+                <input type="checkbox" name="confirm_no_drugs" id="confirmNoDrugs">
+                <span>
+                    Подтверждаю отсутствие пропаганды наркотических средств (ст. 225-ФЗ,
+                    <a href="{{ url_for('knowledge.index') }}">База знаний</a>).
+                </span>
+            </label>
+            <button type="submit" class="rf-submit__btn" id="submitModerationBtn" disabled data-loading-text="Отправляем…">
+                <span class="material-icons" aria-hidden="true">send</span>
+                Отправить на модерацию
+            </button>
+        </form>
+    </section>
+    <script>
+    (function () {
+        var cb = document.getElementById('confirmNoDrugs');
+        var btn = document.getElementById('submitModerationBtn');
+        if (!cb || !btn) return;
+        function sync() { btn.disabled = !cb.checked; }
+        cb.addEventListener('change', sync);
+        sync();
+    })();
+    </script>
+    {% elif release.can_submit() and releases_restricted|default(false) %}
+    <section class="rf-submit rf-submit--restricted" aria-labelledby="rf-submit-restricted-title">
+        <h2 id="rf-submit-restricted-title" class="rf-submit__title">Отправка временно недоступна</h2>
+        <p class="rf-submit__lead">Администратор ограничил отправку. Черновик можно редактировать.</p>
+    </section>
+    {% endif %}
+
+    <section class="rv-panel" id="release-data">
+        <div class="rv-panel__head">
+            <h2 class="rv-panel__title">
+                <span class="material-icons rv-panel__title-icon" aria-hidden="true">album</span>
+                Данные релиза
+            </h2>
+            <p class="rv-panel__subtitle">Как вы указали при создании релиза</p>
+        </div>
+        <div class="rv-panel__body">
+            <div class="rv-meta-grid">
+                <div class="rv-meta-col">
+                    <h3 class="rv-meta-col__label">Основное</h3>
+                    <dl class="rv-dl">
+                        <dt>Название</dt><dd>{{ release.title }}</dd>
+                        <dt>Артисты</dt><dd>{{ release.artists }}</dd>
+                        <dt>Тип</dt><dd>{{ release.type_display }}</dd>
+                        <dt>Жанр</dt><dd>{{ release.genre }}</dd>
+                    </dl>
+                </div>
+                <div class="rv-meta-col">
+                    <h3 class="rv-meta-col__label">Дополнительно</h3>
+                    <dl class="rv-dl">
+                        <dt>Версия</dt><dd>{{ release.version or '—' }}</dd>
+                        <dt>Дата релиза</dt><dd>{{ release.release_date.strftime('%d.%m.%Y') }}</dd>
+                        <dt>Яндекс Пресейв</dt><dd>{% if release.yandex_presave %}Да{% else %}Нет{% endif %}</dd>
+                        <dt>Описание / заметка</dt><dd style="white-space:pre-wrap">{{ _notes or '—' }}</dd>
+                        <dt>Копирайт</dt><dd>{{ release.copyright or '—' }}</dd>
+                        <dt>Партнёрский код</dt><dd>{{ release.partner_code or '—' }}</dd>
+                        <dt>UPC</dt><dd>{% if release.upc %}<code class="rv-code">{{ release.upc }}</code>{% else %}—{% endif %}</dd>
+                        {% set _platforms = release.platform_names_ordered() %}
+                        <dt>Площадки</dt>
+                        <dd>{% if _platforms %}{{ _platforms | join(', ') }}{% else %}— не выбраны{% endif %}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% include 'releases/_events_panel.html' %}
+
+    <section class="rv-panel rv-panel--tracks">
+        <div class="rv-panel__head">
+            <h2 class="rv-panel__title">
+                <span class="material-icons rv-panel__title-icon" aria-hidden="true">library_music</span>
+                Треки
+                <span class="rv-panel__count">{{ tracks|length }}</span>
+            </h2>
+            <p class="rv-panel__subtitle">
+                {% if release.status == 'approved' %}
+                Раскройте трек: прослушать WAV, скачать файл, проверить метаданные и текст.
+                {% elif release.status == 'moderation' %}
+                На проверке: откройте трек — прослушайте и сверьте реквизиты.
+                {% else %}
+                Откройте трек, чтобы прослушать и увидеть данные загрузки.
+                {% endif %}
+            </p>
+        </div>
+        <div class="rv-panel__body rv-panel__body--flush rv-panel__body--tracks">
+            {% if tracks %}
+            {% for track in tracks %}
+            <details class="rv-track rv-track--expandable">
+                <summary class="rv-track__summary">
+                    <span class="rv-track__summary-main">
+                        <span class="rv-track__order">#{{ track.track_order }}</span>
+                        <span class="rv-track__summary-titles">
+                            <span class="rv-track__name">{{ track.display_title }}{% if track.explicit %} <span class="rv-track__e">E</span>{% endif %}</span>
+                            <span class="rv-track__artists rv-track__artists--summary">{{ track.artists }}</span>
+                        </span>
+                    </span>
+                    <span class="rv-track__summary-meta">
+                        <span class="rv-track__chevron material-icons" aria-hidden="true">expand_more</span>
+                    </span>
+                </summary>
+                <div class="rv-track__body">
+                    <div class="rv-track__media-bar">
+                        <div class="rv-track__player">
+                            <span class="rv-track__player-label">
+                                <span class="material-icons" aria-hidden="true">headphones</span>
+                                Прослушать
+                            </span>
+                            <audio class="rv-track__audio" controls preload="metadata" src="{{ url_for('releases.serve_track', filename=track.wav_file) }}?play=1" title="{{ track.display_title|e }}">
+                                Ваш браузер не поддерживает воспроизведение WAV.
+                            </audio>
+                        </div>
+                        <a href="{{ track.file_url }}" class="btn btn-ghost btn-sm rv-track__dl">
+                            <span class="material-icons">download</span>
+                            Скачать WAV
+                        </a>
+                    </div>
+                    <dl class="rv-dl rv-dl--track">
+                        <dt>Название</dt><dd>{{ track.title }}{% if track.version %} <span class="rv-muted">({{ track.version }})</span>{% endif %}</dd>
+                        <dt>Артисты</dt><dd>{{ track.artists }}</dd>
+                        <dt>Жанр</dt><dd>{{ release.genre }} <span class="rv-muted">(релиз)</span></dd>
+                        <dt>Композиторы</dt><dd>{{ track.composers or '—' }}</dd>
+                        <dt>Авторы текста</dt><dd>{{ track.authors or '—' }}</dd>
+                        <dt>Explicit</dt><dd>{% if track.explicit %}Да{% else %}Нет{% endif %}</dd>
+                        <dt>Язык</dt><dd>{{ track.language or '—' }}</dd>
+                        <dt>ISRC</dt><dd>{% if track.isrc %}<code class="rv-code">{{ track.isrc }}</code>{% else %}<span class="rv-muted">Не назначен</span>{% endif %}</dd>
+                    </dl>
+                    <div class="rv-track__lyrics">
+                        <span class="rv-track__lyrics-label">Текст песни</span>
+                        {% if track.lyrics %}
+                        <pre class="rv-track__lyrics-pre" lang="ru">{{ track.lyrics }}</pre>
+                        {% else %}
+                        <p class="rv-track__lyrics-empty">Текст не был приложен</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </details>
+            {% endfor %}
+            {% else %}
+            <div class="rv-tracks-empty">
+                <span class="material-icons">music_off</span>
+                <p>Треки не добавлены</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if release_documents %}
+    <section class="rv-panel">
+        <div class="rv-panel__head">
+            <h2 class="rv-panel__title">Подтверждающие документы</h2>
+            <p class="rv-panel__subtitle">Файлы, прикреплённые к релизу</p>
+        </div>
+        <div class="rv-panel__body">
+            <ul class="rv-docs-list">
+                {% for doc in release_documents %}
+                <li>
+                    <a href="{{ url_for('releases.download_release_document', id=release.id, filename=doc.filename) }}" class="rv-doc-link">
+                        <span class="material-icons">description</span>
+                        <span>{{ doc.filename }}</span>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

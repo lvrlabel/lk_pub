@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Заявки на доп. услуги{% endblock %}
+{% block page_title %}Заявки на видео и доставку текста{% endblock %}
+{% block content %}
+<div class="tools-admin-page uni-skin">
+    <div class="tools-admin-tabs">
+        <a href="{{ url_for('tools.video_requests_admin', tab='all') }}" class="tools-admin-tab {% if tab == 'all' %}active{% endif %}">
+            Все ({{ counts.all }})
+        </a>
+        <a href="{{ url_for('tools.video_requests_admin', tab='pending_payment') }}" class="tools-admin-tab {% if tab == 'pending_payment' %}active{% endif %}">
+            Ожидают оплаты ({{ counts.pending_payment }})
+        </a>
+        <a href="{{ url_for('tools.video_requests_admin', tab='paid') }}" class="tools-admin-tab {% if tab == 'paid' %}active{% endif %}">
+            Оплачено ({{ counts.paid }})
+        </a>
+        <a href="{{ url_for('tools.video_requests_admin', tab='processed') }}" class="tools-admin-tab {% if tab == 'processed' %}active{% endif %}">
+            Обработано ({{ counts.processed }})
+        </a>
+        <a href="{{ url_for('tools.video_requests_admin', tab='closed') }}" class="tools-admin-tab {% if tab == 'closed' %}active{% endif %}">
+            Закрыто ({{ counts.closed }})
+        </a>
+    </div>
+
+    {% if requests.items %}
+    <div class="tools-admin-list">
+        {% for req in requests.items %}
+        <div class="tools-admin-card">
+            <div class="tools-admin-card-header">
+                <span class="tools-admin-status {{ req.status_class }}">{{ req.status_display }}</span>
+                <span class="tools-admin-user">{{ req.user.display_name if req.user else '—' }}</span>
+                <span class="tools-admin-date">{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+            </div>
+            <h3 class="tools-admin-title">Заявка #{{ req.id }} · {{ req.service_type_display }}</h3>
+            {% if req.user %}
+            <p class="tools-admin-artists">Email: {{ req.user.email }}</p>
+            {% endif %}
+            <p><strong>Трек:</strong> {{ req.track.display_title }} (релиз: {{ req.track.release.title }})</p>
+            {% if req.service_type == 'video' and req.video_url %}
+            <p><strong>Ссылка на видео:</strong> <a href="{{ req.video_url }}" target="_blank" rel="noopener">{{ req.video_url[:80] }}{% if req.video_url|length > 80 %}…{% endif %}</a></p>
+            {% elif req.service_type == 'lyrics' and req.lyrics_text %}
+            <p><strong>Текст:</strong></p>
+            <pre style="white-space:pre-wrap;margin:0.5rem 0;font-size:0.875rem;max-height:200px;overflow:auto;background:var(--bg-tertiary);padding:0.75rem;border-radius:8px;">{{ req.lyrics_text }}</pre>
+            {% endif %}
+            <p><strong>Сумма:</strong> {{ req.amount }} ₽</p>
+            {% if req.paid_at %}
+            <p><strong>Оплачено:</strong> {{ req.paid_at.strftime('%d.%m.%Y %H:%M') }}</p>
+            {% endif %}
+            {% if req.admin_comment %}
+            <p class="tools-admin-comment"><strong>Комментарий:</strong> {{ req.admin_comment }}</p>
+            {% endif %}
+            {% if req.status == 'paid' or req.status == 'pending_payment' %}
+            <div style="margin-top: 0.75rem;">
+                <form method="POST" action="{{ url_for('tools.video_request_status', id=req.id) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="tab" value="{{ tab }}">
+                    <input type="hidden" name="status" value="processed">
+                    <button type="submit" class="btn btn-ghost btn-sm">Отметить обработанным</button>
+                </form>
+                <form method="POST" action="{{ url_for('tools.video_request_status', id=req.id) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="tab" value="{{ tab }}">
+                    <input type="hidden" name="status" value="closed">
+                    <button type="submit" class="btn btn-ghost btn-sm">Закрыть</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if requests.pages > 1 %}
+    <div class="pagination">
+        {% if requests.has_prev %}
+        <a href="{{ url_for('tools.video_requests_admin', tab=tab, page=requests.prev_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_left</span>
+        </a>
+        {% endif %}
+        <span class="pagination-info">Страница {{ requests.page }} из {{ requests.pages }}</span>
+        {% if requests.has_next %}
+        <a href="{{ url_for('tools.video_requests_admin', tab=tab, page=requests.next_num) }}" class="btn btn-ghost">
+            <span class="material-icons">chevron_right</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="tools-admin-empty">
+        <span class="material-icons">videocam</span>
+        <p>Заявок на доп. услуги нет</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

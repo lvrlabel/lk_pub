@@ -1,0 +1,340 @@
+/**
+ * Toolls Cabinet — адаптивность (мобильные, планшеты, ПК)
+ * Подключать последним после cabinet-theme-parity.css
+ */
+
+/* ===== База: без горизонтального скролла ===== */
+html:has(.app-container) {
+    overflow-x: clip;
+}
+
+html:has(.app-container) body {
+    overflow-x: clip;
+}
+
+html:has(.app-container) .app-container {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+}
+
+html:has(.app-container) .main-content {
+    min-width: 0;
+    max-width: 100%;
+}
+
+html:has(.app-container) .content {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+html:has(.app-container) img,
+html:has(.app-container) video,
+html:has(.app-container) svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===== ПК: широкие экраны ===== */
+@media (min-width: 1400px) {
+    html:has(.app-container) .content:not(.content--release-create):not(.content--release-edit):not(.tickets-content) {
+        max-width: 1600px;
+    }
+}
+
+@media (min-width: 769px) {
+    html:has(.app-container) .sidebar-nav .nav-item,
+    html:has(.app-container) .sidebar-nav .nav-group-toggle {
+        min-height: 40px;
+    }
+}
+
+/* ===== Планшет ===== */
+@media (max-width: 1024px) {
+    html:has(.app-container) .content {
+        padding: clamp(0.85rem, 2vw, 1.35rem) clamp(0.85rem, 2.5vw, 1.5rem);
+    }
+
+    html:has(.app-container) .form-grid,
+    html:has(.app-container) .filters-bar {
+        gap: 0.75rem;
+    }
+
+    html:has(.app-container) .uni-list__row {
+        flex-wrap: wrap;
+        gap: 0.65rem;
+    }
+}
+
+/* ===== Мобильные (≤768px) ===== */
+@media (max-width: 768px) {
+    html:has(.app-container) .header {
+        height: auto;
+        min-height: var(--header-height);
+        padding-top: max(0.35rem, env(safe-area-inset-top));
+        padding-bottom: 0.35rem;
+        gap: 0.35rem;
+    }
+
+    html:has(.app-container) .header-left {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    html:has(.app-container) .header-right {
+        flex-shrink: 0;
+        gap: 0.35rem;
+    }
+
+    html:has(.app-container) .page-title {
+        max-width: min(42vw, 12rem);
+    }
+
+    html:has(.app-container) .user-name {
+        display: none;
+    }
+
+    html:has(.app-container) .user-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    html:has(.app-container) .content {
+        padding: 0.85rem max(0.85rem, env(safe-area-inset-left)) calc(1rem + env(safe-area-inset-bottom)) max(0.85rem, env(safe-area-inset-right));
+    }
+
+    /* Формы: iOS не зумит при фокусе */
+    html:has(.app-container) .form-control,
+    html:has(.app-container) input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]):not([type="range"]),
+    html:has(.app-container) select,
+    html:has(.app-container) textarea {
+        font-size: 16px;
+    }
+
+    html:has(.app-container) .btn,
+    html:has(.app-container) .nav-item,
+    html:has(.app-container) .header-theme-toggle,
+    html:has(.app-container) button.header-notifications {
+        min-height: 44px;
+    }
+
+    /* Таблицы — горизонтальный скролл внутри блока */
+    html:has(.app-container) .table-responsive,
+    html:has(.app-container) .support-table-wrap,
+    html:has(.app-container) .uni-table-wrap,
+    html:has(.app-container) .stats-table-wrap,
+    html:has(.app-container) .sl-stats-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+
+    html:has(.app-container) table {
+        min-width: 0;
+    }
+
+    html:has(.app-container) .support-table-wrap table,
+    html:has(.app-container) .uni-table-wrap table {
+        min-width: 640px;
+    }
+
+    /* Карточки и сетки */
+    html:has(.app-container) .dashboard-grid,
+    html:has(.app-container) .stats-grid,
+    html:has(.app-container) .form-row,
+    html:has(.app-container) .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    html:has(.app-container) .card-header,
+    html:has(.app-container) .card-content,
+    html:has(.app-container) .dashboard-card {
+        padding: 1rem;
+    }
+
+    html:has(.app-container) .filters-bar,
+    html:has(.app-container) .filters-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    html:has(.app-container) .filters-actions {
+        width: 100%;
+    }
+
+    html:has(.app-container) .filters-actions .btn {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+
+    html:has(.app-container) .search-box {
+        width: 100%;
+        max-width: none;
+    }
+
+    html:has(.app-container) .uni-list__row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    html:has(.app-container) .uni-list__actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    html:has(.app-container) .modal-content {
+        width: calc(100vw - 1rem);
+        max-width: none;
+        margin: 0.5rem auto;
+        max-height: calc(100dvh - 1rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        overflow-y: auto;
+    }
+
+    html:has(.app-container) .modal-footer {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    html:has(.app-container) .modal-footer .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    html:has(.app-container) .breadcrumb {
+        font-size: 0.8rem;
+    }
+
+    html:has(.app-container) .flash-messages {
+        padding-left: max(0.85rem, env(safe-area-inset-left));
+        padding-right: max(0.85rem, env(safe-area-inset-right));
+    }
+
+    /* Обзор */
+    html:has(.app-container) .db-refine__head {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    html:has(.app-container) .db-refine__cta {
+        width: 100%;
+        justify-content: center;
+    }
+
+    html:has(.app-container) .db-refine__grid {
+        grid-template-columns: 1fr;
+    }
+
+    html:has(.app-container) .db-refine__quarters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    html:has(.app-container) .db-refine__shortcuts {
+        grid-template-columns: 1fr;
+    }
+
+    /* Workspace */
+    html:has(.app-container) .ws-layout {
+        grid-template-columns: 1fr !important;
+    }
+
+    html:has(.app-container) .ws-nav {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem;
+        gap: 0.35rem;
+    }
+
+    html:has(.app-container) .ws-nav__link {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    /* Профиль */
+    html:has(.app-container) .profile-v2__grid,
+    html:has(.app-container) .profile-refine .profile-hero__inner {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Смарт-ссылки */
+    html:has(.app-container) .sl2-grid,
+    html:has(.app-container) .smart-link-hub__grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Релизы: дублирующий заголовок в шапке скрываем — свой есть в форме */
+    html:has(.content--release-create) .header .page-title,
+    html:has(.content--release-edit) .header .page-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    html:has(.app-container) .content--release-create,
+    html:has(.app-container) .content--release-edit {
+        padding: 0.35rem max(0.35rem, env(safe-area-inset-left)) calc(0.5rem + env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-right));
+    }
+}
+
+/* ===== Маленькие телефоны (≤480px) ===== */
+@media (max-width: 480px) {
+    html:has(.app-container) .page-title {
+        font-size: 1rem;
+        max-width: 38vw;
+    }
+
+    html:has(.app-container) .quarters-grid,
+    html:has(.app-container) .db-refine__quarters {
+        grid-template-columns: 1fr;
+    }
+
+    html:has(.app-container) .releases-grid {
+        grid-template-columns: 1fr;
+    }
+
+    html:has(.app-container) .btn-group,
+    html:has(.app-container) .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    html:has(.app-container) .btn-group .btn,
+    html:has(.app-container) .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    html:has(.app-container) .pagination {
+        gap: 0.35rem;
+    }
+
+    html:has(.app-container) .pagination .btn,
+    html:has(.app-container) .pagination a {
+        min-width: 40px;
+        min-height: 40px;
+    }
+}
+
+/* ===== Ландшафт на телефоне ===== */
+@media (max-width: 896px) and (orientation: landscape) {
+    html:has(.app-container) .sidebar.open {
+        width: min(280px, 70vw);
+    }
+
+    html:has(.app-container) .rdmb__nav {
+        max-height: 52px;
+    }
+}

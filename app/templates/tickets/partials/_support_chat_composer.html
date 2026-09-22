@@ -1,0 +1,41 @@
+{# Expects: ticket
+   Optional: composer_mode ('page'|'ajax'), form_action, status, textarea_id, file_input_id, enter_hint_id
+#}
+{% set mode = composer_mode|default('page') %}
+{% set ta_id = textarea_id|default('inlineReply') %}
+{% set file_id = file_input_id|default('inlineAttachments') %}
+{% set hint_id = enter_hint_id|default('ticketInlineEnterHint') %}
+
+{% if ticket.is_open %}
+<div class="manager-chat-composer support-chat-composer">
+    {% if mode == 'ajax' %}
+    <form class="manager-chat-composer-form reply-form ticket-modal-reply-form support-chat-composer-form" data-ticket-id="{{ ticket.id }}" data-support-chat-form enctype="multipart/form-data">
+    {% else %}
+    <form method="POST" action="{{ form_action|default(url_for('tickets.reply', id=ticket.id)) }}" class="manager-chat-composer-form reply-form js-submit-loading support-chat-composer-form" data-support-chat-form enctype="multipart/form-data">
+    {% endif %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <p class="manager-chat-enter-hint" id="{{ hint_id }}" hidden>На ПК: Enter — отправить, Shift+Enter — новая строка.</p>
+        <div class="support-chat-file-chips" data-support-file-chips hidden></div>
+        <div class="manager-chat-composer-row">
+            <label class="visually-hidden" for="{{ ta_id }}">Сообщение</label>
+            <textarea id="{{ ta_id }}" name="message" required class="manager-chat-compose-field" rows="1" placeholder="Напишите сообщение…" autocomplete="off" data-support-chat-input></textarea>
+            <div class="manager-chat-compose-actions">
+                <input id="{{ file_id }}" class="manager-chat-file-input" type="file" name="attachments" multiple accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" aria-label="Прикрепить файл" data-support-file-input>
+                <label for="{{ file_id }}" class="manager-chat-compose-attach" title="Прикрепить файл">
+                    <span class="material-icons" aria-hidden="true">attach_file</span>
+                </label>
+                <button type="submit" class="manager-chat-compose-send" data-loading-text="Отправка…" aria-label="Отправить">
+                    <span class="material-icons" aria-hidden="true">send</span>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% else %}
+<div class="manager-chat-composer support-chat-composer support-chat-composer--closed">
+    <div class="support-chat-closed-note">
+        <span class="material-icons" aria-hidden="true">lock</span>
+        <p>Обращение закрыто. Чтобы задать новый вопрос — создайте обращение заново.</p>
+    </div>
+</div>
+{% endif %}

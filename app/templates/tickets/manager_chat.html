@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block title %}Чат с менеджером{% endblock %}
+{% block page_title %}Чат с персональным менеджером{% endblock %}
+{% block body_class %}manager-chat-page{% if selected_chat %} has-manager-chat{% endif %}{% endblock %}
+{% block content_class %}manager-chat-content{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/manager-chat-page.css', v='20260721-m4') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-manager-chat.css', v='20260903-nav-gap') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-manager-chat manager-chat-page-v2">
+{% with active='manager_chat' %}{% include 'tickets/partials/support_nav.html' %}{% endwith %}
+
+<div class="manager-chat-layout {% if not current_user.is_admin %}manager-chat-layout--user{% endif %}">
+    {% if current_user.is_admin %}
+    <aside class="manager-chat-sidebar card mc-panel support-hub__manager-tools">
+        <div class="card-content">
+            <h3 class="manager-chat-sidebar-title">Назначение менеджера</h3>
+            <form method="POST" action="{{ url_for('tickets.manager_chat_assign') }}" class="reply-form js-submit-loading">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="managerChatUser">Пользователь</label>
+                    <select id="managerChatUser" name="user_id" class="form-control" required>
+                        <option value="">Выберите пользователя</option>
+                        {% for u in users_list %}
+                        <option value="{{ u.id }}">{{ u.display_name }}{% if u.email %} · {{ u.email }}{% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="managerChatAdmin">Менеджер (админ)</label>
+                    <select id="managerChatAdmin" name="manager_id" class="form-control" required>
+                        <option value="">Выберите администратора</option>
+                        {% for a in managers_list %}
+                        <option value="{{ a.id }}">{{ a.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="managerSchedule">График работы</label>
+                    <input id="managerSchedule" name="schedule" class="form-control" value="Пн–Пт 9:00–18:00 (МСК)" placeholder="Например: Пн–Пт 9:00–18:00 (МСК)">
+                </div>
+                <div class="reply-actions">
+                    <button type="submit" class="btn btn-primary manager-chat-wide-btn" data-loading-text="Назначаем...">
+                        <span class="material-icons">person_add</span>
+                        Назначить
+                    </button>
+                </div>
+                <p class="manager-chat-admin-hint text-secondary">
+                    Фото и номер для карточки «Контакты» в чате у клиента берутся из
+                    <a href="{{ url_for('profile.edit') }}">профиля</a> выбранного менеджера (аватар и телефон).
+                </p>
+            </form>
+
+            {% if chats %}
+            <div class="manager-chat-list-wrap">
+                <h4 class="manager-chat-list-title">Активные чаты</h4>
+                <div class="manager-chat-list">
+                    {% for c in chats %}
+                    {% set uc = ((manager_chat_list_unread|default({})).get(c.id, 0))|int %}
+                    <a href="{{ url_for('tickets.manager_chat_index', ticket_id=c.id) }}" class="manager-chat-list-item {% if selected_chat and selected_chat.id == c.id %}is-active{% endif %}" {% if uc > 0 %}title="Новых от клиента: {{ uc }}"{% endif %}>
+                        <div class="manager-chat-list-item-top">
+                            <span class="manager-chat-list-user">{{ c.user.display_name }}</span>
+                            {% if uc > 0 %}
+                            <span class="manager-chat-list-badge" aria-label="Новых сообщений от клиента: {{ uc }}">{{ '99+' if uc > 99 else uc }}</span>
+                            {% endif %}
+                        </div>
+                        <span class="manager-chat-list-meta">{{ c.creator_admin.display_name if c.creator_admin else 'Не назначен' }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </aside>
+    {% endif %}
+
+    <section class="manager-chat-main mc-panel">
+        <div class="manager-chat-topbar">
+            {% if current_user.is_admin %}
+            <button type="button" class="btn btn-ghost btn-sm manager-chat-tools-toggle" id="managerChatToolsToggle">
+                <span class="material-icons">tune</span>
+                Управление
+            </button>
+            {% endif %}
+            {% if selected_chat %}
+            <div class="manager-chat-topline">
+                <span class="ticket-status-badge status-waiting-admin">Чат</span>
+                <span class="ticket-id-badge">{{ selected_chat.display_id }}</span>
+            </div>
+            {% if not current_user.is_admin and selected_chat.creator_admin %}
+            {% set mgr = selected_chat.creator_admin %}
+            {% set mgr_phone = (mgr.phone or '')|trim %}
+            <div class="manager-chat-user-head">
+                <button
+                    type="button"
+                    class="manager-chat-avatar-btn manager-chat-photo-opener"
+                    id="managerChatPhotoOpen"
+                    aria-haspopup="dialog"
+                    aria-controls="managerChatPhotoDialog"
+                    aria-label="Показать фото менеджера крупно: {{ manager_name }}">
+                    <img
+                        class="manager-chat-user-head__avatar"
+                        src="{{ mgr.avatar_url }}"
+                        alt=""
+                        width="56"
+                        height="56"
+                        loading="lazy"
+                        decoding="async">
+                    <span class="manager-chat-avatar-btn__hint" aria-hidden="true">
+                        <span class="material-icons">zoom_in</span>
+                    </span>
+                </button>
+                <dialog class="manager-chat-photo-dialog" id="managerChatPhotoDialog" aria-labelledby="managerChatPhotoDialogTitle">
+                    <div class="manager-chat-photo-dialog__inner">
+                        <button type="button" class="manager-chat-photo-dialog__close" id="managerChatPhotoClose" aria-label="Закрыть">
+                            <span class="material-icons" aria-hidden="true">close</span>
+                        </button>
+                        <img class="manager-chat-photo-dialog__img" src="{{ mgr.avatar_url }}" alt="{{ manager_name }}" width="720" height="720">
+                        <p class="manager-chat-photo-dialog__title" id="managerChatPhotoDialogTitle">{{ manager_name }}</p>
+                    </div>
+                </dialog>
+                <div class="manager-chat-user-head__main">
+                    <h2 class="manager-chat-title manager-chat-user-head__title">
+                        <button
+                            type="button"
+                            class="manager-chat-head-name-btn manager-chat-photo-opener"
+                            aria-haspopup="dialog"
+                            aria-controls="managerChatPhotoDialog"
+                            aria-label="Показать фото менеджера крупно: {{ manager_name }}">
+                            {{ manager_name }}
+                        </button>
+                    </h2>
+                    <p class="manager-chat-subtitle manager-chat-user-head__subtitle">
+                        <span class="material-icons" aria-hidden="true">schedule</span>
+                        <span>График: {{ manager_schedule }}</span>
+                    </p>
+                </div>
+                <details class="manager-chat-contact-drawer">
+                    <summary class="manager-chat-contact-drawer__summary">
+                        <span class="material-icons" aria-hidden="true">badge</span>
+                        <span>Контакты</span>
+                    </summary>
+                    <div class="manager-chat-contact-drawer__body">
+                        <div class="manager-chat-contact-drawer__row">
+                            <span class="manager-chat-contact-drawer__label">Менеджер</span>
+                            <span class="manager-chat-contact-drawer__value">{{ manager_name }}</span>
+                        </div>
+                        <div class="manager-chat-contact-drawer__row">
+                            <span class="manager-chat-contact-drawer__label">График</span>
+                            <span class="manager-chat-contact-drawer__value">{{ manager_schedule }}</span>
+                        </div>
+                        {% if mgr_phone %}
+                        {% set tel_href = mgr_phone|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') %}
+                        <div class="manager-chat-contact-drawer__row">
+                            <span class="manager-chat-contact-drawer__label">Телефон</span>
+                            <a class="manager-chat-contact-drawer__phone" href="tel:{{ tel_href }}">{{ mgr_phone }}</a>
+                        </div>
+                        {% else %}
+                        <p class="manager-chat-contact-drawer__empty">Телефон не указан: менеджер может добавить его в разделе «Профиль».</p>
+                        {% endif %}
+                    </div>
+                </details>
+            </div>
+            {% else %}
+            <h2 class="manager-chat-title">{{ manager_name }}</h2>
+            <p class="manager-chat-subtitle">
+                <span class="material-icons">schedule</span>
+                График работы: {{ manager_schedule }}
+            </p>
+            {% endif %}
+            {% else %}
+            <div class="mc-empty">
+                <div class="mc-empty__icon" aria-hidden="true">
+                    <span class="material-icons">support_agent</span>
+                </div>
+                <h2 class="mc-empty__title">Персональный менеджер не назначен</h2>
+                <p class="mc-empty__text">После назначения здесь появится чат с вашим менеджером — можно писать напрямую, прикреплять файлы и получать ответы.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if selected_chat %}
+        {% set _last_msg = (chat_messages|last) if chat_messages else none %}
+        <div
+            class="manager-chat-messages manager-chat-bubbles"
+            data-manager-chat-messages
+            data-manager-chat-sync-url="{{ url_for('tickets.manager_chat_sync', id=selected_chat.id) }}"
+            data-last-message-id="{{ _last_msg.id if _last_msg else 0 }}"
+            data-messages-count="{{ chat_messages|length }}">
+            {% include 'tickets/partials/_manager_chat_messages.html' %}
+        </div>
+
+        {% if selected_chat.is_open %}
+        <div class="manager-chat-composer">
+            <form method="POST" action="{{ url_for('tickets.manager_chat_reply', id=selected_chat.id) }}" class="manager-chat-composer-form reply-form js-submit-loading" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="voice_message" id="managerChatVoiceFlag" value="0">
+                <p class="manager-chat-enter-hint" id="managerChatEnterHint" hidden>На ПК: Enter — отправить, Shift+Enter — новая строка.</p>
+                <div class="mc-voice-panel" id="managerChatVoicePanel" hidden>
+                    <div class="mc-voice-panel__head">
+                        <span class="mc-voice-panel__title" id="managerChatVoicePanelTitle">Голосовое сообщение</span>
+                        <button type="button" class="mc-voice-panel__close" id="managerChatVoicePanelClose" aria-label="Закрыть">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    <div class="mc-voice-panel__body">
+                        <div class="mc-voice-panel__step" id="managerChatVoiceStepRecord" hidden>
+                            <div class="mc-voice-timer-wrap">
+                                <span class="mc-voice-timer__dot" aria-hidden="true"></span>
+                                <span class="mc-voice-timer" id="managerChatVoiceRecordingTimer">0:00</span>
+                            </div>
+                            <p class="mc-voice-hint">Говорите. Когда закончите — нажмите «Готово».</p>
+                            <button type="button" class="btn btn-primary mc-voice-done-btn" id="managerChatVoiceStopBtn">
+                                <span class="material-icons">stop_circle</span>
+                                Готово
+                            </button>
+                        </div>
+                        <div class="mc-voice-panel__step" id="managerChatVoiceStepReview" hidden>
+                            <p class="mc-voice-hint">Прослушайте запись. Если всё верно — отправьте менеджеру.</p>
+                            <audio id="managerChatVoicePreviewAudio" controls preload="auto" class="mc-voice-player"></audio>
+                            <div class="mc-voice-actions">
+                                <button type="button" class="btn btn-primary mc-voice-send-btn" id="managerChatVoiceSendBtn">
+                                    <span class="material-icons">send</span>
+                                    Отправить
+                                </button>
+                                <button type="button" class="btn btn-ghost" id="managerChatVoiceRetryBtn">
+                                    <span class="material-icons">mic</span>
+                                    Перезаписать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="manager-chat-composer-row">
+                    <label class="visually-hidden" for="managerReplyMessage">Сообщение</label>
+                    <textarea id="managerReplyMessage" name="message" class="manager-chat-compose-field" rows="2" placeholder="{% if current_user.is_admin %}Напишите сообщение…{% else %}Сообщение или голосовое…{% endif %}" autocomplete="off"></textarea>
+                    <div class="manager-chat-compose-actions">
+                        {% if not current_user.is_admin %}
+                        <button type="button" class="manager-chat-compose-voice" id="managerChatVoiceBtn" title="Записать голосовое сообщение" aria-label="Записать голосовое сообщение">
+                            <span class="material-icons" aria-hidden="true">mic</span>
+                        </button>
+                        {% endif %}
+                        <input id="managerReplyAttachments" class="manager-chat-file-input" type="file" name="attachments" multiple accept="image/*,video/*,audio/*,.mp3,.wav,.ogg,.m4a,.webm,.flac,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar" aria-label="Прикрепить файл">
+                        <label for="managerReplyAttachments" class="manager-chat-compose-attach" title="Прикрепить файл">
+                            <span class="material-icons" aria-hidden="true">attach_file</span>
+                        </label>
+                        <button type="submit" class="manager-chat-compose-send" data-loading-text="Отправка…" aria-label="Отправить">
+                            <span class="material-icons" aria-hidden="true">send</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% endif %}
+        {% endif %}
+    </section>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/manager-chat-shell.js', v='20260721-m1') }}"></script>
+{% if selected_chat %}
+<script src="{{ url_for('static', filename='js/manager-chat-read-receipts.js', v='20260721-live2') }}"></script>
+{% endif %}
+<script>
+(function () {
+    var toggle = document.getElementById('managerChatToolsToggle');
+    if (toggle) {
+        var layout = document.querySelector('.manager-chat-layout');
+        if (layout) {
+            toggle.addEventListener('click', function () {
+                layout.classList.toggle('is-tools-open');
+            });
+            layout.querySelectorAll('.manager-chat-list-item').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    layout.classList.remove('is-tools-open');
+                });
+            });
+        }
+    }
+
+    var replyForm = document.querySelector('.manager-chat-composer form.reply-form');
+    var replyTextarea = document.getElementById('managerReplyMessage');
+    var enterHint = document.getElementById('managerChatEnterHint');
+
+    function isMobileLayout() {
+        return window.matchMedia('(max-width: 900px)').matches;
+    }
+
+    if (replyForm && replyTextarea) {
+        replyTextarea.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            if (isMobileLayout()) return;
+            if (e.shiftKey) return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            e.preventDefault();
+            var fileInput = document.getElementById('managerReplyAttachments');
+            var hasFiles = fileInput && fileInput.files && fileInput.files.length > 0;
+            var hasText = replyTextarea.value.trim().length > 0;
+            if (!hasText && !hasFiles) return;
+            if (typeof replyForm.requestSubmit === 'function') {
+                replyForm.requestSubmit();
+            } else {
+                replyForm.submit();
+            }
+        });
+
+        function syncEnterHint() {
+            if (!enterHint) return;
+            enterHint.hidden = isMobileLayout();
+        }
+        syncEnterHint();
+        window.addEventListener('resize', syncEnterHint);
+    }
+
+    var photoDialog = document.getElementById('managerChatPhotoDialog');
+    var photoClose = document.getElementById('managerChatPhotoClose');
+    var photoOpeners = document.querySelectorAll('.manager-chat-photo-opener');
+    var photoImg = photoDialog ? photoDialog.querySelector('.manager-chat-photo-dialog__img') : null;
+
+    function openManagerPhoto() {
+        if (!photoDialog) return;
+        if (typeof photoDialog.showModal === 'function') {
+            photoDialog.showModal();
+        } else if (photoImg && photoImg.src) {
+            window.open(photoImg.src, '_blank', 'noopener,noreferrer');
+        }
+    }
+
+    function closeManagerPhoto() {
+        if (photoDialog && typeof photoDialog.close === 'function') {
+            photoDialog.close();
+        }
+    }
+
+    photoOpeners.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            openManagerPhoto();
+        });
+    });
+
+    if (photoClose) {
+        photoClose.addEventListener('click', closeManagerPhoto);
+    }
+
+    if (photoDialog) {
+        photoDialog.addEventListener('click', function (e) {
+            if (e.target === photoDialog) {
+                closeManagerPhoto();
+            }
+        });
+        photoDialog.addEventListener('close', function () {
+            var first = photoOpeners[0];
+            if (first && typeof first.focus === 'function') {
+                first.focus();
+            }
+        });
+    }
+
+})();
+</script>
+{% if not current_user.is_admin %}
+<script src="{{ url_for('static', filename='js/manager-chat-voice.js', v='20260713-voice2') }}"></script>
+{% endif %}
+{% endblock %}

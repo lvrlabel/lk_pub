@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Управление счетами{% endblock %}
+{% block page_title %}Управление счетами{% endblock %}
+{% block body_class %}documents-admin-page{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:1rem;"><div class="card-content">
+    <a href="{{ url_for('documents.admin_invoice_create') }}" class="btn btn-primary"><span class="material-icons">add</span> Новый счёт</a>
+    <a href="{{ url_for('documents.admin_confirmations') }}" class="btn btn-ghost">Подтверждения оплаты</a>
+</div></div>
+<div class="card"><div class="card-content">
+<form method="get" class="form-row" style="display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end; margin-bottom:1rem;">
+    <div class="form-group" style="margin:0;">
+        <label for="f_status">Статус</label>
+        <select id="f_status" name="status" class="form-control">
+            <option value="">Все</option>
+            <option value="pending" {% if filter_status == 'pending' %}selected{% endif %}>Ожидает оплаты</option>
+            <option value="overdue" {% if filter_status == 'overdue' %}selected{% endif %}>Просрочен</option>
+            <option value="paid" {% if filter_status == 'paid' %}selected{% endif %}>Оплачен</option>
+            <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Отменён</option>
+        </select>
+    </div>
+    <div class="form-group" style="margin:0;">
+        <label for="f_user">Пользователь</label>
+        <select id="f_user" name="user_id" class="form-control">
+            <option value="">Все</option>
+            {% for u in users %}
+            <option value="{{ u.id }}" {% if filter_user_id == u.id %}selected{% endif %}>{{ u.display_name }} ({{ u.login }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-ghost">Фильтр</button>
+</form>
+{% if invoices %}
+<div class="table-wrap" style="overflow-x:auto;">
+<table class="data-table" style="width:100%; border-collapse:collapse;">
+    <thead>
+        <tr>
+            <th style="text-align:left;padding:0.5rem;">Номер</th>
+            <th style="text-align:left;padding:0.5rem;">Пользователь</th>
+            <th style="text-align:left;padding:0.5rem;">Тема</th>
+            <th style="text-align:right;padding:0.5rem;">Сумма</th>
+            <th style="text-align:left;padding:0.5rem;">Статус</th>
+            <th style="text-align:left;padding:0.5rem;">Срок</th>
+            <th style="text-align:left;padding:0.5rem;">Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inv in invoices %}
+        <tr>
+            <td style="padding:0.5rem;"><strong>{{ inv.invoice_number }}</strong></td>
+            <td style="padding:0.5rem;">{% if inv.user %}{{ inv.user.display_name }}{% else %}—{% endif %}</td>
+            <td style="padding:0.5rem;">{{ inv.subject }}</td>
+            <td style="padding:0.5rem;text-align:right;">{{ inv.amount }} {{ inv.currency }}</td>
+            <td style="padding:0.5rem;">{{ inv.status_label }}</td>
+            <td style="padding:0.5rem;">{% if inv.due_date %}{{ inv.due_date.strftime('%d.%m.%Y') }}{% else %}—{% endif %}</td>
+            <td style="padding:0.5rem;">
+                {% if inv.status in ['pending', 'overdue'] %}
+                <form method="post" action="{{ url_for('documents.admin_invoice_pay', id=inv.id) }}" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-primary btn-sm">Оплачен</button>
+                </form>
+                <form method="post" action="{{ url_for('documents.admin_invoice_cancel', id=inv.id) }}" style="display:inline;" onsubmit="return confirm('Отменить счёт?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-ghost btn-sm">Отменить</button>
+                </form>
+                {% elif inv.status == 'paid' %}
+                <span class="text-secondary">—</span>
+                {% else %}
+                <span class="text-secondary">—</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="empty-state small"><p>Счетов нет.</p></div>
+{% endif %}
+</div></div>
+{% endblock %}

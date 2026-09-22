@@ -1,0 +1,28 @@
+{% if user_popups %}
+<div class="modal user-popup-modal" id="userPopupModal" data-popups='{{ user_popups | tojson }}' aria-hidden="true">
+    <div class="modal-overlay user-popup-modal__overlay" tabindex="-1"></div>
+    <div class="modal-content user-popup-modal__content" role="dialog" aria-modal="true" aria-labelledby="userPopupTitle">
+        <div class="user-popup-modal__accent" aria-hidden="true"></div>
+        <div class="modal-header user-popup-modal__header">
+            <div class="user-popup-modal__headline">
+                <span class="user-popup-modal__badge" id="userPopupBadge"></span>
+                <h3 id="userPopupTitle"></h3>
+            </div>
+            <button type="button" class="modal-close user-popup-modal__close" aria-label="Закрыть">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-body user-popup-modal__body">
+            <p class="user-popup-modal__lead" id="userPopupLead" hidden></p>
+            <ul class="user-popup-modal__points" id="userPopupPoints" hidden></ul>
+            <div class="user-popup-modal__callout" id="userPopupCallout" hidden>
+                <span class="material-icons" aria-hidden="true">info</span>
+                <p></p>
+            </div>
+        </div>
+        <div class="modal-footer user-popup-modal__footer">
+            <button type="button" class="btn btn-primary user-popup-modal__ok">Понятно</button>
+        </div>
+    </div>
+</div>
+{% endif %}

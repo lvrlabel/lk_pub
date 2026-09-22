@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}База знаний{% endblock %}
+{% block page_title %}База знаний{% endblock %}
+{% block content %}
+<div class="knowledge-portal uni-skin">
+
+    {# === Hero-секция (оригинальные классы из style.css) === #}
+    <section class="kb-home-hero" aria-labelledby="kb-hero-title">
+        <div class="kb-home-hero__glow"></div>
+        <div class="kb-home-hero__inner">
+            <div class="kb-home-hero__icon-wrap">
+                <span class="material-icons" aria-hidden="true">menu_book</span>
+            </div>
+            <h1 id="kb-hero-title" class="kb-home-hero__title">База знаний</h1>
+            <p class="kb-home-hero__lead">Инструкции, гайды и ответы на частые вопросы по работе с личным кабинетом, релизами, дистрибуцией и сервисами Toolls Music Distribution.</p>
+            <div class="kb-hero-search">
+                <form class="kb-search-form" action="{{ url_for('knowledge.index') }}" method="get" role="search">
+                    <span class="material-icons kb-search-form__icon" aria-hidden="true">search</span>
+                    <input type="search" name="q" value="{{ search_q or '' }}" placeholder="Поиск по базе знаний…" class="kb-search-form__input" autocomplete="off" inputmode="search" enterkeyhint="search" aria-label="Поиск по базе знаний">
+                    {% if search_q %}
+                    <button type="button" class="kb-search-form__clear" onclick="this.closest('form').querySelector('[name=q]').value='';this.closest('form').submit();" aria-label="Очистить поиск">
+                        <span class="material-icons">close</span>
+                    </button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </section>
+
+    {% if search_results is defined and search_results is not none %}
+    {# === Режим результатов поиска === #}
+    <section class="kb-search-results" aria-labelledby="kb-search-results-label">
+        <div class="kb-search-results__head">
+            <h2 id="kb-search-results-label" class="kb-search-results__title">
+                Результаты поиска
+                <span class="kb-search-results__count">— {{ search_results|length }}</span>
+            </h2>
+            <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost btn-sm">
+                <span class="material-icons" aria-hidden="true">arrow_back</span>
+                Все разделы
+            </a>
+        </div>
+        {% if search_results %}
+        <ul class="kb-search-results__list" role="list">
+            {% for r in search_results %}
+            <li>
+                <a href="{{ r.href }}" class="kb-search-result-item">
+                    <span class="kb-search-result-item__icon material-icons" aria-hidden="true">{{ r.icon }}</span>
+                    <div class="kb-search-result-item__body">
+                        <span class="kb-search-result-item__section">{{ r.section }}</span>
+                        <span class="kb-search-result-item__title">{{ r.title }}</span>
+                        {% if r.summary %}
+                        <span class="kb-search-result-item__summary">{{ r.summary }}</span>
+                        {% endif %}
+                    </div>
+                    <span class="material-icons kb-search-result-item__chev" aria-hidden="true">north_east</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="kb-empty">
+            <span class="material-icons kb-empty__icon" aria-hidden="true">search_off</span>
+            <p class="kb-empty__text">Ничего не найдено. Попробуйте изменить запрос.</p>
+        </div>
+        {% endif %}
+    </section>
+    {% else %}
+    {# === Основные разделы (оригинальные классы из style.css) === #}
+    <section class="kb-home-sections" aria-labelledby="kb-sections-label">
+        <header class="kb-sections-head">
+            <h2 id="kb-sections-label" class="kb-sections-head__title">Разделы</h2>
+            <p class="kb-sections-head__sub">Выберите раздел, чтобы изучить доступные материалы</p>
+        </header>
+        {% if sections %}
+        <div class="kb-section-grid">
+            {% for s in sections %}
+            <a href="{{ s.href }}" class="kb-section-tile">
+                <span class="kb-section-tile__icon material-icons" aria-hidden="true">{{ s.icon }}</span>
+                <div class="kb-section-tile__body">
+                    <h3 class="kb-section-tile__title">{{ s.title }}</h3>
+                    <p class="kb-section-tile__desc">{{ s.desc }}</p>
+                </div>
+                <span class="kb-section-tile__chev material-icons" aria-hidden="true">chevron_right</span>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        {# Пустое состояние #}
+        <div class="kb-empty">
+            <span class="material-icons kb-empty__icon" aria-hidden="true">menu_book</span>
+            <p class="kb-empty__text">Разделы базы знаний пока не добавлены.</p>
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

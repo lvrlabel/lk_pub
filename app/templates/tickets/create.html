@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Новый тикет{% endblock %}
+{% block page_title %}Создание обращения{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tl-ticket-create.css', v='20260902-graphite') }}">
+{% endblock %}
+
+{% block content %}
+<div class="tl-page tl-ticket-create">
+    <header class="tl-ticket-create__head">
+        <div>
+            <p class="tl-ticket-create__eyebrow">Поддержка</p>
+            <h1 class="tl-ticket-create__title">Новое обращение</h1>
+            <p class="tl-ticket-create__subtitle">Опишите задачу подробнее — так мы сможем помочь быстрее.</p>
+        </div>
+        <a href="{{ url_for('tickets.index') }}" class="tl-ticket-create__back">
+            <span class="material-icons" aria-hidden="true">history</span>
+            История
+        </a>
+    </header>
+
+    <div class="tl-ticket-create__sheet">
+        <div class="tl-ticket-create__notice" role="note">
+            <span class="material-icons" aria-hidden="true">support_agent</span>
+            <p>Отвечаем 24/7. Пожалуйста, не дублируйте обращения — это может замедлить ответ.</p>
+        </div>
+
+        <form method="POST" class="tl-ticket-create__form ticket-form js-submit-loading" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="tl-ticket-create__field form-group">
+                <label for="subject">
+                    <span class="material-icons" aria-hidden="true">subject</span>
+                    Тема обращения *
+                </label>
+                <input type="text" id="subject" name="subject" required class="form-control" placeholder="Кратко опишите тему" autocomplete="off">
+            </div>
+
+            <div class="tl-ticket-create__field form-group">
+                <label for="category">
+                    <span class="material-icons" aria-hidden="true">category</span>
+                    Категория *
+                </label>
+                <select id="category" name="category" required class="form-control">
+                    {% for value, label in ticket_categories.items() %}
+                    <option value="{{ value }}" {% if category == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="tl-ticket-create__field form-group">
+                <label for="message">
+                    <span class="material-icons" aria-hidden="true">message</span>
+                    Сообщение *
+                </label>
+                <textarea id="message" name="message" required class="form-control" rows="6" placeholder="Подробно опишите ваш вопрос…"></textarea>
+            </div>
+
+            <div class="tl-ticket-create__field form-group">
+                <label for="attachments">
+                    <span class="material-icons" aria-hidden="true">attach_file</span>
+                    Вложения (необязательно)
+                </label>
+                <input type="file" id="attachments" name="attachments" multiple class="form-control tl-ticket-create__file"
+                       accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar">
+                <p class="tl-ticket-create__hint">Несколько файлов: изображения, видео, документы. Максимум 10 МБ на файл.</p>
+            </div>
+
+            <div class="tl-ticket-create__actions form-actions">
+                <a href="{{ url_for('tickets.index') }}" class="tl-btn tl-btn--ghost">Отмена</a>
+                <button type="submit" class="tl-btn tl-btn--primary" data-loading-text="Отправляем…">
+                    <span class="material-icons" aria-hidden="true">send</span>
+                    Отправить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

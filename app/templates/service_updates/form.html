@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{% if item %}Редактировать{% else %}Добавить{% endif %} обновление{% endblock %}
+{% block page_title %}{% if item %}Редактировать обновление{% else %}Новое обновление{% endif %}{% endblock %}
+{% block content %}
+<div class="svc-updates-refine uni-skin">
+    <header class="svc-updates-refine__head">
+        <div class="svc-updates-refine__head-main">
+            <h1 class="svc-updates-refine__title">
+                {% if item %}Редактировать обновление{% else %}Новое обновление{% endif %}
+            </h1>
+            <p class="svc-updates-refine__subtitle">
+                {% if item %}
+                Изменения будут видны всем пользователям; при правке запись снова отметится как непрочитанная.
+                {% else %}
+                Опишите, что изменилось в кабинете — запись появится у всех пользователей.
+                {% endif %}
+            </p>
+        </div>
+    </header>
+
+    <div class="svc-updates-refine__form-card">
+        <form method="POST" class="svc-updates-refine__form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="title">Заголовок</label>
+                <input type="text" id="title" name="title" class="form-control" required
+                       value="{{ item.title if item else '' }}" placeholder="Кратко: что изменилось">
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Важность</label>
+                <select id="priority" name="priority" class="form-control">
+                    <option value="normal" {% if not item or item.priority == 'normal' %}selected{% endif %}>Обычное</option>
+                    <option value="urgent" {% if item and item.priority == 'urgent' %}selected{% endif %}>Срочное</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Текст</label>
+                <textarea id="content" name="content" class="form-control" rows="8" required
+                          placeholder="Опишите, что изменилось и что нужно знать пользователям">{{ item.content if item else '' }}</textarea>
+            </div>
+
+            <div class="svc-updates-refine__form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-icons" aria-hidden="true">save</span>
+                    {% if item %}Сохранить{% else %}Опубликовать{% endif %}
+                </button>
+                <a href="{{ url_for('service_updates.index') }}" class="btn btn-ghost">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

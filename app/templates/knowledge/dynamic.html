@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ article.title }}{% endblock %}
+{% block page_title %}{{ article.title }}{% endblock %}
+{% block content %}
+<div class="knowledge-portal knowledge-article uni-skin">
+    <nav class="kb-breadcrumb breadcrumb" aria-label="Навигация">
+        <a href="{{ url_for('knowledge.index') }}">База знаний</a>
+        <span class="material-icons">chevron_right</span>
+        <a href="{{ url_for('knowledge.section', slug=section.slug) }}">{{ section.title }}</a>
+        <span class="material-icons">chevron_right</span>
+        <span class="kb-breadcrumb__current">{{ article.title }}</span>
+    </nav>
+
+    <article class="kb-doc">
+        <header class="kb-doc__head">
+            <h1 class="kb-doc__title">{{ article.title }}</h1>
+        </header>
+        <div class="kb-doc__body article-content knowledge-dynamic-body">
+            {{ article.body_html|safe }}
+        </div>
+    </article>
+
+    {% if sibling_articles %}
+    <section class="kb-related" aria-labelledby="kb-related-label">
+        <h2 id="kb-related-label" class="kb-related__title">Ещё в этом разделе</h2>
+        <ul class="kb-related__list" role="list">
+            {% for sib in sibling_articles %}
+            <li>
+                <a href="{{ url_for('knowledge.article_page', section_slug=section.slug, article_slug=sib.slug) }}" class="kb-related__link">
+                    <span class="kb-related__link-text">{{ sib.title }}</span>
+                    <span class="material-icons kb-related__link-icon" aria-hidden="true">chevron_right</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+    {% endif %}
+
+    <footer class="kb-footer-actions kb-footer-actions--split">
+        <a href="{{ url_for('knowledge.section', slug=section.slug) }}" class="btn btn-ghost kb-btn-back">
+            <span class="material-icons">arrow_back</span> {{ section.title }}
+        </a>
+        <a href="{{ url_for('knowledge.index') }}" class="btn btn-ghost">
+            <span class="material-icons">menu_book</span> Все разделы
+        </a>
+    </footer>
+</div>
+{% endblock %}

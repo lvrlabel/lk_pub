@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Аналитика временно недоступна{% endblock %}
+{% block page_title %}Аналитика временно недоступна{% endblock %}
+{% block content %}
+<div class="stats-page--pro uni-skin">
+    <div class="stats-outage-banner stats-outage-banner--fullpage">
+        <div class="stats-outage-icon">
+            <span class="material-icons gear">settings</span>
+        </div>
+        <div class="stats-outage-content">
+            <h2 class="stats-outage-title">
+                <span class="material-icons">warning</span>
+                Временные неполадки в разделе аналитики
+            </h2>
+            <p class="stats-outage-text">
+                В настоящее время раздел аналитики работает в ограниченном режиме из-за технических работ.
+                Мы обновляем систему для повышения точности и скорости отображения данных.
+            </p>
+            <div class="stats-outage-date">
+                <span class="material-icons">calendar_today</span>
+                <span>Ожидаемое восстановление: 28 апреля</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

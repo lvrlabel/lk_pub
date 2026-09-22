@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Новый счёт{% endblock %}
+{% block page_title %}Новый счёт{% endblock %}
+{% block content %}
+<div class="card" style="max-width:40rem;margin:0 auto;"><div class="card-content">
+    <p><a href="{{ url_for('documents.admin_invoices') }}" class="btn btn-ghost btn-sm">← К списку</a></p>
+    <form method="POST" class="js-submit-loading" id="invoice-create-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="user_id">Пользователь *</label>
+            <select id="user_id" name="user_id" class="form-control" required>
+                <option value="">— Выберите —</option>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.display_name }} ({{ u.login }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="plan_code">Тариф подписки</label>
+            <select id="plan_code" name="plan_code" class="form-control">
+                <option value="">— Без тарифа —</option>
+                {% for code, label in plan_choices %}
+                <option value="{{ code }}" data-amount="{{ plans[code].amount }}" data-subject="{{ plans[code].subject }}">{{ label }} — {{ plans[code].amount }} ₽</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="invoice_number">Номер счёта *</label>
+            <input type="text" id="invoice_number" name="invoice_number" class="form-control" required value="{{ suggested_number }}">
+        </div>
+        <div class="form-group">
+            <label for="amount">Сумма *</label>
+            <input type="text" id="amount" name="amount" class="form-control" required>
+        </div>
+        <input type="hidden" id="currency" name="currency" value="RUB">
+        <div class="form-group">
+            <label for="subject">Тема *</label>
+            <input type="text" id="subject" name="subject" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea id="description" name="description" class="form-control" rows="3" placeholder="Ежемесячная подписка на выгрузку релизов"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="due_date">Срок оплаты *</label>
+            <input type="date" id="due_date" name="due_date" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary" data-loading-text="Создаём...">Создать счёт</button>
+    </form>
+</div></div>
+<script>
+(function () {
+    var plan = document.getElementById('plan_code');
+    var amount = document.getElementById('amount');
+    var subject = document.getElementById('subject');
+    function syncPlan() {
+        var opt = plan.options[plan.selectedIndex];
+        if (!opt || !opt.value) {
+            amount.value = '';
+            subject.value = '';
+            amount.readOnly = false;
+            subject.readOnly = false;
+            return;
+        }
+        amount.value = opt.getAttribute('data-amount') || '';
+        subject.value = opt.getAttribute('data-subject') || '';
+        amount.readOnly = false;
+        subject.readOnly = false;
+    }
+    plan.addEventListener('change', syncPlan);
+    syncPlan();
+})();
+</script>
+{% endblock %}
